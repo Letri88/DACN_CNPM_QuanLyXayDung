@@ -1,469 +1,310 @@
-@{
-    ViewData["Title"] = "Trang chủ";
-    Layout = null;
-}
-
-<!DOCTYPE html>
-
-<html class="dark" lang="vi"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>StitchConstruct - Quản lý dự án xây dựng</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#b2ffff",
-                        "background-light": "#f5f8f8",
-                        "background-dark": "#0f2323",
-                    },
-                    fontFamily: {
-                        "display": ["Inter", "sans-serif"]
-                    },
-                    borderRadius: {
-                        "DEFAULT": "0.25rem",
-                        "lg": "0.5rem",
-                        "xl": "0.75rem",
-                        "full": "9999px"
-                    },
-                },
-            },
-        }
-    </script>
-<style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0f2323; /* Matching background-dark */
-        }
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .glass-card {
-            background: rgba(178, 255, 255, 0.05);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(178, 255, 255, 0.1);
-        }
-        .glass-sidebar {
-            background: rgba(15, 35, 35, 0.8);
-            backdrop-filter: blur(20px);
-            border-right: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.02);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(178, 255, 255, 0.2);
-            border-radius: 10px;
-        }
-    </style>
-</head>
-<body class="bg-background-light dark:bg-background-dark text-slate-200 font-display min-h-screen flex">
-<!-- Fixed Left Sidebar -->
-<aside class="fixed left-0 top-0 h-full w-64 glass-sidebar z-50 flex flex-col">
-<div class="p-6">
-<div class="flex items-center gap-3">
-<div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(178,255,255,0.3)]">
-<span class="material-icons text-background-dark font-bold">architecture</span>
-</div>
-<h1 class="text-xl font-bold tracking-tight text-white">Stitch<span class="text-primary">Construct</span></h1>
-</div>
-</div>
-<nav class="flex-1 px-4 space-y-2 mt-4">
-<a class="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/10 text-primary border border-primary/20" href="#">
-<span class="material-icons text-xl">dashboard</span>
-<span class="font-medium">Tổng quan</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="#">
-<span class="material-icons text-xl">construction</span>
-<span class="font-medium">Dự án</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="#">
-<span class="material-icons text-xl">loop</span>
-<span class="font-medium">Vòng đời</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="#">
-<span class="material-icons text-xl">assignment</span>
-<span class="font-medium">Công việc</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="#">
-<span class="material-icons text-xl">inventory_2</span>
-<span class="font-medium">Tài nguyên</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="#">
-<span class="material-icons text-xl">groups</span>
-<span class="font-medium">Nhân sự</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="#">
-<span class="material-icons text-xl">bar_chart</span>
-<span class="font-medium">Báo cáo</span>
-</a>
-</nav>
-<div class="p-6 border-t border-white/5">
-<div class="flex items-center gap-3 glass-panel p-3 rounded-xl">
-<img class="w-10 h-10 rounded-lg object-cover" data-alt="Chân dung quản lý nam chuyên nghiệp" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAmk8Y27i5yHvKfEcnFdbL2w-kHPSClp2hf2erRuw33bsl2FeKQMtqt1hAXVCrNH_9_V7yp2NBaNf80MF3ZBxYyew5vKzNtDF9y16ywSIBhLMUp9O330gUv0_Rw9S99GN_P3BZiwHnlr2O8VWj1M9wy-7LUiY8Bj4vE7lLae6czyYZ3uyAFiSENVIh-xmeNTJhycKsM4NV-nU_tiO9R2FkONfGefbmjy_yRU4kh4752vdQ57WCdmN30I9cdNKvSkS4bjffvCTEwvKw"/>
-<div class="overflow-hidden">
-<p class="text-sm font-semibold text-white truncate">Phan Anh Tuấn</p>
-<p class="text-xs text-slate-400 truncate">Quản lý cấp cao</p>
-</div>
-</div>
-</div>
-</aside>
-<!-- Main Content -->
-<main class="ml-64 flex-1 min-h-screen flex flex-col">
-<!-- Header -->
-<header class="h-20 glass-panel border-b-0 sticky top-0 z-40 px-8 flex items-center justify-between">
-<div class="flex-1 max-w-xl">
-<div class="relative group">
-<span class="material-icons absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors">search</span>
-<input class="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-12 pr-4 text-sm focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-white outline-none" placeholder="Tìm kiếm dự án, vật tư hoặc báo cáo..." type="text"/>
-</div>
-</div>
-<div class="flex items-center gap-4">
-<button class="bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 px-5 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2">
-<span class="material-icons text-lg">add_box</span>
-                    Nhập vật tư
-                </button>
-<button class="bg-primary hover:bg-primary/90 text-background-dark px-5 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2 shadow-[0_4px_15px_rgba(178,255,255,0.2)]">
-<span class="material-icons text-lg">add</span>
-                    Tạo dự án
-                </button>
-<div class="h-8 w-px bg-white/10 mx-2"></div>
-<button class="w-10 h-10 rounded-xl glass-panel flex items-center justify-center text-slate-400 hover:text-white transition-colors relative">
-<span class="material-icons">notifications</span>
-<span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border border-background-dark"></span>
-</button>
-</div>
-</header>
-<!-- Dashboard Body -->
 <div class="p-8 space-y-8">
-<!-- Hero & KPI Section -->
-<section class="space-y-6">
-<div>
-<h2 class="text-2xl font-bold text-white">Quản lý dự án &amp; tài nguyên</h2>
-<p class="text-slate-400 mt-1">Hôm nay là Thứ Tư, ngày 24 tháng 5 năm 2024. Chúc bạn một ngày làm việc hiệu quả.</p>
+    <!-- Hero & KPI Section -->
+    <section class="space-y-6">
+        <div>
+            <h2 class="text-2xl font-bold text-white">Quản lý dự án &amp; tài nguyên</h2>
+            <p class="text-slate-400 mt-1">Hôm nay là Thứ Tư, ngày 24 tháng 5 năm 2024. Chúc bạn một ngày làm việc hiệu quả.</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- KPI 1 -->
+            <div class="glass-card p-6 rounded-2xl relative overflow-hidden group">
+                <div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/5 rounded-full blur-3xl"></div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-slate-400 text-sm font-medium">Dự án đang chạy</p>
+                        <h3 class="text-3xl font-bold text-white mt-1">12</h3>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                        <span class="material-icons">apartment</span>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center gap-2 text-emerald-400 text-xs font-semibold">
+                    <span class="material-icons text-sm">trending_up</span>
+                    <span>+2 dự án mới tháng này</span>
+                </div>
+            </div>
+            <!-- KPI 2 -->
+            <div class="glass-card p-6 rounded-2xl relative overflow-hidden group">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-slate-400 text-sm font-medium">Trễ tiến độ</p>
+                        <h3 class="text-3xl font-bold text-white mt-1">03</h3>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-red-500/10 flex items-center justify-center text-red-400">
+                        <span class="material-icons">schedule</span>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center gap-2 text-red-400 text-xs font-semibold">
+                    <span class="material-icons text-sm">warning</span>
+                    <span>Cần chú ý gấp</span>
+                </div>
+            </div>
+            <!-- KPI 3 -->
+            <div class="glass-card p-6 rounded-2xl relative overflow-hidden group">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-slate-400 text-sm font-medium">Tổng chi phí</p>
+                        <h3 class="text-3xl font-bold text-white mt-1">14.2B</h3>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-400">
+                        <span class="material-icons">payments</span>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center gap-2 text-slate-400 text-xs">
+                    <span class="material-icons text-sm">info</span>
+                    <span>82% ngân sách dự kiến</span>
+                </div>
+            </div>
+            <!-- KPI 4 -->
+            <div class="glass-card p-6 rounded-2xl relative overflow-hidden group">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-slate-400 text-sm font-medium">Nhân lực</p>
+                        <h3 class="text-3xl font-bold text-white mt-1">458</h3>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400">
+                        <span class="material-icons">engineering</span>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center gap-2 text-emerald-400 text-xs font-semibold">
+                    <span class="material-icons text-sm">check_circle</span>
+                    <span>Đã phân bổ 94%</span>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Main Dashboard Grid -->
+    <div class="grid grid-cols-12 gap-8">
+        <!-- Left Column: Project Overview & Gantt -->
+        <div class="col-span-8 space-y-8">
+            <!-- Project Table -->
+            <div class="glass-panel rounded-2xl overflow-hidden">
+                <div class="p-6 border-b border-white/10 flex justify-between items-center">
+                    <h3 class="text-lg font-bold text-white">Tổng quan dự án</h3>
+                    <button class="text-primary text-sm font-semibold hover:underline">Xem tất cả</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="text-slate-500 text-xs uppercase tracking-wider">
+                                <th class="px-6 py-4 font-semibold">ID</th>
+                                <th class="px-6 py-4 font-semibold">Tên dự án</th>
+                                <th class="px-6 py-4 font-semibold">Tiến độ</th>
+                                <th class="px-6 py-4 font-semibold">Trạng thái</th>
+                                <th class="px-6 py-4 font-semibold">Quản lý</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5">
+                            <tr class="hover:bg-white/5 transition-colors">
+                                <td class="px-6 py-4 text-sm font-mono text-slate-400">PRJ-001</td>
+                                <td class="px-6 py-4 text-sm font-semibold text-white">Căn hộ Skyline Tower</td>
+                                <td class="px-6 py-4 min-w-[140px]">
+                                    <div class="flex items-center gap-3">
+                                        <div class="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                                            <div class="h-full bg-primary" style="width: 75%"></div>
+                                        </div>
+                                        <span class="text-xs font-medium text-slate-300">75%</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Hoạt động</span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="flex -space-x-2">
+                                        <img class="w-8 h-8 rounded-full border-2 border-background-dark object-cover" data-alt="Ảnh đại diện quản lý dự án 1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZ1kgcqrsbPTf4k37YHNhi7rJSBvtNxXS3bdPXiznpwTGysxuCxCbb6-yysBFH-jwinB3k5UoGVGRhRc_yC9_2gyI1Sjp_TEqL_C1ntXUL34iEk8ePVrZVqN0z4Jy52arrFWjIaVjWsCVMrDoc5EB5_ln7gYLY8V6SRAOrCjKc61s8HEDV7Kw68otd_5idyMzMYlQerVqOLJHbfqrQ1JeIGbAMB7I3q0qmikU7V8fYT512n3hBMSf5HW79jwEff0WQx1lyPFsW6kI" />
+                                        <div class="w-8 h-8 rounded-full border-2 border-background-dark bg-slate-700 flex items-center justify-center text-[10px] text-white font-bold">+2</div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-white/5 transition-colors">
+                                <td class="px-6 py-4 text-sm font-mono text-slate-400">PRJ-014</td>
+                                <td class="px-6 py-4 text-sm font-semibold text-white">TTTM Vincom Phase 2</td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                                            <div class="h-full bg-red-400" style="width: 32%"></div>
+                                        </div>
+                                        <span class="text-xs font-medium text-slate-300">32%</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-red-500/10 text-red-400 border border-red-500/20">Trễ hạn</span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <img class="w-8 h-8 rounded-full border-2 border-background-dark object-cover" data-alt="Ảnh đại diện quản lý dự án 2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBx5dz2rT0DWQB5nUGTa8OqUAe7AbarCFa2xgfTLEw5NfGRHKxmge8RN_k2Exz5w1cCVQNpsasORnFyT0fvCH7LlL32HRsUKC8xSCSAjD44mllqm32JrbrdPUD0t9pyLB2ZPwLdRJnWwkxAG1EmbSJmRViD0VDZTyb4Tg_LI4I_NWklrQdHe17INkxsFHWWrpffrnHskp688vVP7iIKLdYvN1SzWwNa0Bh6GImkK9fqnwKkrKURX1Uqqz7E-p92f2_dBnQUcybUBJ8" />
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-white/5 transition-colors">
+                                <td class="px-6 py-4 text-sm font-mono text-slate-400">PRJ-022</td>
+                                <td class="px-6 py-4 text-sm font-semibold text-white">Cầu vượt Nhơn Trạch</td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                                            <div class="h-full bg-primary" style="width: 58%"></div>
+                                        </div>
+                                        <span class="text-xs font-medium text-slate-300">58%</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-primary/10 text-primary border border-primary/20">Theo dõi</span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <img class="w-8 h-8 rounded-full border-2 border-background-dark object-cover" data-alt="Ảnh đại diện quản lý dự án 3" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrF5410h4nMlo5NXRFFG5Gkes9MWi2kBJdbq27qC0cB8-ytSeFfO_2keTR2VOgfIsYHIP-K5hcK1Yy4P7zECHI_0OvdtIDeNNPipIHIWlK6QjR06XULoOezbFOCw3ZQW-MF7bD5ay2_EvrJbJIeduTwKBH4EsS5rlAu21QvTol7OoiIgorMgXV5kK5kC1aJtpwNDVgHjmrlprwgwuSWLmTVhY7yE-X458JBYtEfuJKOhqY2yC62Spkju4H3UNqBjKYZmI_iWMboAQ" />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- Gantt Chart Preview -->
+            <div class="glass-panel rounded-2xl p-6 space-y-6">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-bold text-white">Timeline Dự án (Gantt)</h3>
+                    <div class="flex gap-2">
+                        <button class="px-3 py-1 bg-white/5 rounded-lg text-xs text-slate-300 hover:bg-white/10">Tháng</button>
+                        <button class="px-3 py-1 bg-primary/20 rounded-lg text-xs text-primary font-bold">Quý</button>
+                        <button class="px-3 py-1 bg-white/5 rounded-lg text-xs text-slate-300 hover:bg-white/10">Năm</button>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <!-- Months Header -->
+                    <div class="grid grid-cols-12 gap-0 border-b border-white/5 pb-2">
+                        <div class="col-span-3"></div>
+                        <div class="col-span-3 text-center text-[10px] font-bold text-slate-500 uppercase">Tháng 05</div>
+                        <div class="col-span-3 text-center text-[10px] font-bold text-slate-500 uppercase border-l border-white/5">Tháng 06</div>
+                        <div class="col-span-3 text-center text-[10px] font-bold text-slate-500 uppercase border-l border-white/5">Tháng 07</div>
+                    </div>
+                    <!-- Projects Timelines -->
+                    <div class="space-y-6 relative pt-2">
+                        <!-- Vertical Grid Lines -->
+                        <div class="absolute inset-y-0 left-1/4 w-px bg-white/5"></div>
+                        <div class="absolute inset-y-0 left-1/2 w-px bg-white/5"></div>
+                        <div class="absolute inset-y-0 left-3/4 w-px bg-white/5"></div>
+                        <div class="grid grid-cols-12 items-center">
+                            <div class="col-span-3 text-sm font-medium text-slate-300 pr-4">Nền móng Skyline</div>
+                            <div class="col-span-9 relative h-6">
+                                <div class="absolute left-0 top-1 h-4 bg-primary/40 border border-primary/40 rounded-full w-[45%]" title="Hoàn thành 100%"></div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-12 items-center">
+                            <div class="col-span-3 text-sm font-medium text-slate-300 pr-4">Cất nóc Vincom</div>
+                            <div class="col-span-9 relative h-6">
+                                <div class="absolute left-[30%] top-1 h-4 bg-amber-400/30 border border-amber-400/40 rounded-full w-[60%]" title="Đang thực hiện"></div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-12 items-center">
+                            <div class="col-span-3 text-sm font-medium text-slate-300 pr-4">Trạm hạ thế Nhơn Trạch</div>
+                            <div class="col-span-9 relative h-6">
+                                <div class="absolute left-[65%] top-1 h-4 bg-blue-400/30 border border-blue-400/40 rounded-full w-[25%]" title="Kế hoạch"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Right Column: Resources & Risks -->
+        <div class="col-span-4 space-y-8">
+            <!-- Resource Snapshot -->
+            <div class="glass-panel rounded-2xl p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-bold text-white">Vật tư sắp hết</h3>
+                    <span class="material-icons text-slate-500">inventory</span>
+                </div>
+                <div class="space-y-5">
+                    <div class="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center text-orange-400">
+                                <span class="material-icons">architecture</span>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-white">Thép phi 18</p>
+                                <p class="text-[10px] text-slate-400 uppercase">Kho A - Skyline</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-bold text-orange-400">1.2 Tấn</p>
+                            <p class="text-[10px] text-slate-500">Hết sau 3 ngày</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400">
+                                <span class="material-icons">science</span>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-white">Xi măng PCB40</p>
+                                <p class="text-[10px] text-slate-400 uppercase">Tổng kho</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-bold text-white">450 Bao</p>
+                            <p class="text-[10px] text-slate-500">Đã đặt thêm</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                                <span class="material-icons">precision_manufacturing</span>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-white">Máy trộn bê tông</p>
+                                <p class="text-[10px] text-slate-400 uppercase">Thiết bị</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-bold text-emerald-400">Sẵn sàng</p>
+                            <p class="text-[10px] text-slate-500">ID: EQ-402</p>
+                        </div>
+                    </div>
+                </div>
+                <button class="w-full mt-6 py-2.5 rounded-xl border border-white/10 text-xs font-bold text-slate-300 hover:bg-white/5 transition-colors">Xem báo cáo vật tư</button>
+            </div>
+            <!-- Risks & Alerts -->
+            <div class="glass-panel rounded-2xl p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-bold text-white">Rủi ro &amp; Cảnh báo</h3>
+                    <span class="material-icons text-red-400">gpp_maybe</span>
+                </div>
+                <div class="space-y-4">
+                    <!-- Warning Card 1 -->
+                    <div class="p-4 rounded-xl border-l-4 border-red-500 bg-red-500/5 space-y-2">
+                        <div class="flex justify-between items-start">
+                            <span class="text-xs font-bold text-red-400 uppercase">Vượt ngân sách</span>
+                            <span class="text-[10px] text-slate-500">2 giờ trước</span>
+                        </div>
+                        <p class="text-sm text-slate-200">Dự án <span class="text-white font-semibold">Skyline Tower</span> đã vượt 5.2% chi phí nhân công so với kế hoạch tháng 5.</p>
+                        <div class="flex gap-2 pt-1">
+                            <button class="text-[10px] px-2 py-1 bg-red-500/20 text-red-400 rounded-md font-bold uppercase">Phê duyệt</button>
+                            <button class="text-[10px] px-2 py-1 bg-white/5 text-slate-400 rounded-md font-bold uppercase">Bỏ qua</button>
+                        </div>
+                    </div>
+                    <!-- Warning Card 2 -->
+                    <div class="p-4 rounded-xl border-l-4 border-amber-500 bg-amber-500/5 space-y-2">
+                        <div class="flex justify-between items-start">
+                            <span class="text-xs font-bold text-amber-400 uppercase">Chậm bàn giao</span>
+                            <span class="text-[10px] text-slate-500">1 ngày trước</span>
+                        </div>
+                        <p class="text-sm text-slate-200">Nhà thầu phụ điện chưa hoàn thành lắp đặt tại <span class="text-white font-semibold">Vincom Phase 2</span>.</p>
+                        <div class="flex gap-2 pt-1">
+                            <button class="text-[10px] px-2 py-1 bg-amber-500/20 text-amber-400 rounded-md font-bold uppercase">Gửi nhắc nhở</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Weather Info (Nice to have for construction) -->
+            <div class="glass-card rounded-2xl p-6 relative overflow-hidden">
+                <div class="flex items-center justify-between relative z-10">
+                    <div>
+                        <h4 class="text-sm font-bold text-white">TP. Hồ Chí Minh</h4>
+                        <p class="text-2xl font-bold text-primary mt-1">32°C</p>
+                        <p class="text-[10px] text-slate-400 uppercase tracking-tight">Trời nắng - Tốt cho đổ bê tông</p>
+                    </div>
+                    <span class="material-icons text-4xl text-amber-400">wb_sunny</span>
+                </div>
+                <div class="absolute -bottom-6 -right-6 opacity-5">
+                    <span class="material-icons text-9xl">wb_sunny</span>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-<!-- KPI 1 -->
-<div class="glass-card p-6 rounded-2xl relative overflow-hidden group">
-<div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/5 rounded-full blur-3xl"></div>
-<div class="flex justify-between items-start">
-<div>
-<p class="text-slate-400 text-sm font-medium">Dự án đang chạy</p>
-<h3 class="text-3xl font-bold text-white mt-1">12</h3>
-</div>
-<div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-<span class="material-icons">apartment</span>
-</div>
-</div>
-<div class="mt-4 flex items-center gap-2 text-emerald-400 text-xs font-semibold">
-<span class="material-icons text-sm">trending_up</span>
-<span>+2 dự án mới tháng này</span>
-</div>
-</div>
-<!-- KPI 2 -->
-<div class="glass-card p-6 rounded-2xl relative overflow-hidden group">
-<div class="flex justify-between items-start">
-<div>
-<p class="text-slate-400 text-sm font-medium">Trễ tiến độ</p>
-<h3 class="text-3xl font-bold text-white mt-1">03</h3>
-</div>
-<div class="w-12 h-12 rounded-xl bg-red-500/10 flex items-center justify-center text-red-400">
-<span class="material-icons">schedule</span>
-</div>
-</div>
-<div class="mt-4 flex items-center gap-2 text-red-400 text-xs font-semibold">
-<span class="material-icons text-sm">warning</span>
-<span>Cần chú ý gấp</span>
-</div>
-</div>
-<!-- KPI 3 -->
-<div class="glass-card p-6 rounded-2xl relative overflow-hidden group">
-<div class="flex justify-between items-start">
-<div>
-<p class="text-slate-400 text-sm font-medium">Tổng chi phí</p>
-<h3 class="text-3xl font-bold text-white mt-1">14.2B</h3>
-</div>
-<div class="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-400">
-<span class="material-icons">payments</span>
-</div>
-</div>
-<div class="mt-4 flex items-center gap-2 text-slate-400 text-xs">
-<span class="material-icons text-sm">info</span>
-<span>82% ngân sách dự kiến</span>
-</div>
-</div>
-<!-- KPI 4 -->
-<div class="glass-card p-6 rounded-2xl relative overflow-hidden group">
-<div class="flex justify-between items-start">
-<div>
-<p class="text-slate-400 text-sm font-medium">Nhân lực</p>
-<h3 class="text-3xl font-bold text-white mt-1">458</h3>
-</div>
-<div class="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400">
-<span class="material-icons">engineering</span>
-</div>
-</div>
-<div class="mt-4 flex items-center gap-2 text-emerald-400 text-xs font-semibold">
-<span class="material-icons text-sm">check_circle</span>
-<span>Đã phân bổ 94%</span>
-</div>
-</div>
-</div>
-</section>
-<!-- Main Dashboard Grid -->
-<div class="grid grid-cols-12 gap-8">
-<!-- Left Column: Project Overview & Gantt -->
-<div class="col-span-8 space-y-8">
-<!-- Project Table -->
-<div class="glass-panel rounded-2xl overflow-hidden">
-<div class="p-6 border-b border-white/10 flex justify-between items-center">
-<h3 class="text-lg font-bold text-white">Tổng quan dự án</h3>
-<button class="text-primary text-sm font-semibold hover:underline">Xem tất cả</button>
-</div>
-<div class="overflow-x-auto">
-<table class="w-full text-left">
-<thead>
-<tr class="text-slate-500 text-xs uppercase tracking-wider">
-<th class="px-6 py-4 font-semibold">ID</th>
-<th class="px-6 py-4 font-semibold">Tên dự án</th>
-<th class="px-6 py-4 font-semibold">Tiến độ</th>
-<th class="px-6 py-4 font-semibold">Trạng thái</th>
-<th class="px-6 py-4 font-semibold">Quản lý</th>
-</tr>
-</thead>
-<tbody class="divide-y divide-white/5">
-<tr class="hover:bg-white/5 transition-colors">
-<td class="px-6 py-4 text-sm font-mono text-slate-400">PRJ-001</td>
-<td class="px-6 py-4 text-sm font-semibold text-white">Căn hộ Skyline Tower</td>
-<td class="px-6 py-4 min-w-[140px]">
-<div class="flex items-center gap-3">
-<div class="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
-<div class="h-full bg-primary" style="width: 75%"></div>
-</div>
-<span class="text-xs font-medium text-slate-300">75%</span>
-</div>
-</td>
-<td class="px-6 py-4">
-<span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Hoạt động</span>
-</td>
-<td class="px-6 py-4">
-<div class="flex -space-x-2">
-<img class="w-8 h-8 rounded-full border-2 border-background-dark object-cover" data-alt="Ảnh đại diện quản lý dự án 1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZ1kgcqrsbPTf4k37YHNhi7rJSBvtNxXS3bdPXiznpwTGysxuCxCbb6-yysBFH-jwinB3k5UoGVGRhRc_yC9_2gyI1Sjp_TEqL_C1ntXUL34iEk8ePVrZVqN0z4Jy52arrFWjIaVjWsCVMrDoc5EB5_ln7gYLY8V6SRAOrCjKc61s8HEDV7Kw68otd_5idyMzMYlQerVqOLJHbfqrQ1JeIGbAMB7I3q0qmikU7V8fYT512n3hBMSf5HW79jwEff0WQx1lyPFsW6kI"/>
-<div class="w-8 h-8 rounded-full border-2 border-background-dark bg-slate-700 flex items-center justify-center text-[10px] text-white font-bold">+2</div>
-</div>
-</td>
-</tr>
-<tr class="hover:bg-white/5 transition-colors">
-<td class="px-6 py-4 text-sm font-mono text-slate-400">PRJ-014</td>
-<td class="px-6 py-4 text-sm font-semibold text-white">TTTM Vincom Phase 2</td>
-<td class="px-6 py-4">
-<div class="flex items-center gap-3">
-<div class="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
-<div class="h-full bg-red-400" style="width: 32%"></div>
-</div>
-<span class="text-xs font-medium text-slate-300">32%</span>
-</div>
-</td>
-<td class="px-6 py-4">
-<span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-red-500/10 text-red-400 border border-red-500/20">Trễ hạn</span>
-</td>
-<td class="px-6 py-4">
-<img class="w-8 h-8 rounded-full border-2 border-background-dark object-cover" data-alt="Ảnh đại diện quản lý dự án 2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBx5dz2rT0DWQB5nUGTa8OqUAe7AbarCFa2xgfTLEw5NfGRHKxmge8RN_k2Exz5w1cCVQNpsasORnFyT0fvCH7LlL32HRsUKC8xSCSAjD44mllqm32JrbrdPUD0t9pyLB2ZPwLdRJnWwkxAG1EmbSJmRViD0VDZTyb4Tg_LI4I_NWklrQdHe17INkxsFHWWrpffrnHskp688vVP7iIKLdYvN1SzWwNa0Bh6GImkK9fqnwKkrKURX1Uqqz7E-p92f2_dBnQUcybUBJ8"/>
-</td>
-</tr>
-<tr class="hover:bg-white/5 transition-colors">
-<td class="px-6 py-4 text-sm font-mono text-slate-400">PRJ-022</td>
-<td class="px-6 py-4 text-sm font-semibold text-white">Cầu vượt Nhơn Trạch</td>
-<td class="px-6 py-4">
-<div class="flex items-center gap-3">
-<div class="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
-<div class="h-full bg-primary" style="width: 58%"></div>
-</div>
-<span class="text-xs font-medium text-slate-300">58%</span>
-</div>
-</td>
-<td class="px-6 py-4">
-<span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-primary/10 text-primary border border-primary/20">Theo dõi</span>
-</td>
-<td class="px-6 py-4">
-<img class="w-8 h-8 rounded-full border-2 border-background-dark object-cover" data-alt="Ảnh đại diện quản lý dự án 3" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrF5410h4nMlo5NXRFFG5Gkes9MWi2kBJdbq27qC0cB8-ytSeFfO_2keTR2VOgfIsYHIP-K5hcK1Yy4P7zECHI_0OvdtIDeNNPipIHIWlK6QjR06XULoOezbFOCw3ZQW-MF7bD5ay2_EvrJbJIeduTwKBH4EsS5rlAu21QvTol7OoiIgorMgXV5kK5kC1aJtpwNDVgHjmrlprwgwuSWLmTVhY7yE-X458JBYtEfuJKOhqY2yC62Spkju4H3UNqBjKYZmI_iWMboAQ"/>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<!-- Gantt Chart Preview -->
-<div class="glass-panel rounded-2xl p-6 space-y-6">
-<div class="flex justify-between items-center">
-<h3 class="text-lg font-bold text-white">Timeline Dự án (Gantt)</h3>
-<div class="flex gap-2">
-<button class="px-3 py-1 bg-white/5 rounded-lg text-xs text-slate-300 hover:bg-white/10">Tháng</button>
-<button class="px-3 py-1 bg-primary/20 rounded-lg text-xs text-primary font-bold">Quý</button>
-<button class="px-3 py-1 bg-white/5 rounded-lg text-xs text-slate-300 hover:bg-white/10">Năm</button>
-</div>
-</div>
-<div class="space-y-4">
-<!-- Months Header -->
-<div class="grid grid-cols-12 gap-0 border-b border-white/5 pb-2">
-<div class="col-span-3"></div>
-<div class="col-span-3 text-center text-[10px] font-bold text-slate-500 uppercase">Tháng 05</div>
-<div class="col-span-3 text-center text-[10px] font-bold text-slate-500 uppercase border-l border-white/5">Tháng 06</div>
-<div class="col-span-3 text-center text-[10px] font-bold text-slate-500 uppercase border-l border-white/5">Tháng 07</div>
-</div>
-<!-- Projects Timelines -->
-<div class="space-y-6 relative pt-2">
-<!-- Vertical Grid Lines -->
-<div class="absolute inset-y-0 left-1/4 w-px bg-white/5"></div>
-<div class="absolute inset-y-0 left-1/2 w-px bg-white/5"></div>
-<div class="absolute inset-y-0 left-3/4 w-px bg-white/5"></div>
-<div class="grid grid-cols-12 items-center">
-<div class="col-span-3 text-sm font-medium text-slate-300 pr-4">Nền móng Skyline</div>
-<div class="col-span-9 relative h-6">
-<div class="absolute left-0 top-1 h-4 bg-primary/40 border border-primary/40 rounded-full w-[45%]" title="Hoàn thành 100%"></div>
-</div>
-</div>
-<div class="grid grid-cols-12 items-center">
-<div class="col-span-3 text-sm font-medium text-slate-300 pr-4">Cất nóc Vincom</div>
-<div class="col-span-9 relative h-6">
-<div class="absolute left-[30%] top-1 h-4 bg-amber-400/30 border border-amber-400/40 rounded-full w-[60%]" title="Đang thực hiện"></div>
-</div>
-</div>
-<div class="grid grid-cols-12 items-center">
-<div class="col-span-3 text-sm font-medium text-slate-300 pr-4">Trạm hạ thế Nhơn Trạch</div>
-<div class="col-span-9 relative h-6">
-<div class="absolute left-[65%] top-1 h-4 bg-blue-400/30 border border-blue-400/40 rounded-full w-[25%]" title="Kế hoạch"></div>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-<!-- Right Column: Resources & Risks -->
-<div class="col-span-4 space-y-8">
-<!-- Resource Snapshot -->
-<div class="glass-panel rounded-2xl p-6">
-<div class="flex justify-between items-center mb-6">
-<h3 class="text-lg font-bold text-white">Vật tư sắp hết</h3>
-<span class="material-icons text-slate-500">inventory</span>
-</div>
-<div class="space-y-5">
-<div class="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
-<div class="flex items-center gap-3">
-<div class="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center text-orange-400">
-<span class="material-icons">architecture</span>
-</div>
-<div>
-<p class="text-sm font-bold text-white">Thép phi 18</p>
-<p class="text-[10px] text-slate-400 uppercase">Kho A - Skyline</p>
-</div>
-</div>
-<div class="text-right">
-<p class="text-sm font-bold text-orange-400">1.2 Tấn</p>
-<p class="text-[10px] text-slate-500">Hết sau 3 ngày</p>
-</div>
-</div>
-<div class="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
-<div class="flex items-center gap-3">
-<div class="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400">
-<span class="material-icons">science</span>
-</div>
-<div>
-<p class="text-sm font-bold text-white">Xi măng PCB40</p>
-<p class="text-[10px] text-slate-400 uppercase">Tổng kho</p>
-</div>
-</div>
-<div class="text-right">
-<p class="text-sm font-bold text-white">450 Bao</p>
-<p class="text-[10px] text-slate-500">Đã đặt thêm</p>
-</div>
-</div>
-<div class="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
-<div class="flex items-center gap-3">
-<div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-<span class="material-icons">precision_manufacturing</span>
-</div>
-<div>
-<p class="text-sm font-bold text-white">Máy trộn bê tông</p>
-<p class="text-[10px] text-slate-400 uppercase">Thiết bị</p>
-</div>
-</div>
-<div class="text-right">
-<p class="text-sm font-bold text-emerald-400">Sẵn sàng</p>
-<p class="text-[10px] text-slate-500">ID: EQ-402</p>
-</div>
-</div>
-</div>
-<button class="w-full mt-6 py-2.5 rounded-xl border border-white/10 text-xs font-bold text-slate-300 hover:bg-white/5 transition-colors">Xem báo cáo vật tư</button>
-</div>
-<!-- Risks & Alerts -->
-<div class="glass-panel rounded-2xl p-6">
-<div class="flex justify-between items-center mb-6">
-<h3 class="text-lg font-bold text-white">Rủi ro &amp; Cảnh báo</h3>
-<span class="material-icons text-red-400">gpp_maybe</span>
-</div>
-<div class="space-y-4">
-<!-- Warning Card 1 -->
-<div class="p-4 rounded-xl border-l-4 border-red-500 bg-red-500/5 space-y-2">
-<div class="flex justify-between items-start">
-<span class="text-xs font-bold text-red-400 uppercase">Vượt ngân sách</span>
-<span class="text-[10px] text-slate-500">2 giờ trước</span>
-</div>
-<p class="text-sm text-slate-200">Dự án <span class="text-white font-semibold">Skyline Tower</span> đã vượt 5.2% chi phí nhân công so với kế hoạch tháng 5.</p>
-<div class="flex gap-2 pt-1">
-<button class="text-[10px] px-2 py-1 bg-red-500/20 text-red-400 rounded-md font-bold uppercase">Phê duyệt</button>
-<button class="text-[10px] px-2 py-1 bg-white/5 text-slate-400 rounded-md font-bold uppercase">Bỏ qua</button>
-</div>
-</div>
-<!-- Warning Card 2 -->
-<div class="p-4 rounded-xl border-l-4 border-amber-500 bg-amber-500/5 space-y-2">
-<div class="flex justify-between items-start">
-<span class="text-xs font-bold text-amber-400 uppercase">Chậm bàn giao</span>
-<span class="text-[10px] text-slate-500">1 ngày trước</span>
-</div>
-<p class="text-sm text-slate-200">Nhà thầu phụ điện chưa hoàn thành lắp đặt tại <span class="text-white font-semibold">Vincom Phase 2</span>.</p>
-<div class="flex gap-2 pt-1">
-<button class="text-[10px] px-2 py-1 bg-amber-500/20 text-amber-400 rounded-md font-bold uppercase">Gửi nhắc nhở</button>
-</div>
-</div>
-</div>
-</div>
-<!-- Weather Info (Nice to have for construction) -->
-<div class="glass-card rounded-2xl p-6 relative overflow-hidden">
-<div class="flex items-center justify-between relative z-10">
-<div>
-<h4 class="text-sm font-bold text-white">TP. Hồ Chí Minh</h4>
-<p class="text-2xl font-bold text-primary mt-1">32°C</p>
-<p class="text-[10px] text-slate-400 uppercase tracking-tight">Trời nắng - Tốt cho đổ bê tông</p>
-</div>
-<span class="material-icons text-4xl text-amber-400">wb_sunny</span>
-</div>
-<div class="absolute -bottom-6 -right-6 opacity-5">
-<span class="material-icons text-9xl">wb_sunny</span>
-</div>
-</div>
-</div>
-</div>
-</div>
-<!-- Footer Footer -->
-<footer class="mt-auto p-8 border-t border-white/5 flex justify-between items-center text-slate-500 text-xs">
-<p>© 2024 StitchConstruct. Bản quyền thuộc về Stitch Technology.</p>
-<div class="flex gap-6">
-<a class="hover:text-primary transition-colors" href="#">Điều khoản</a>
-<a class="hover:text-primary transition-colors" href="#">Hỗ trợ kỹ thuật</a>
-<a class="hover:text-primary transition-colors" href="#">V1.4.2-Stable</a>
-</div>
-</footer>
-</main>
-</body></html>
