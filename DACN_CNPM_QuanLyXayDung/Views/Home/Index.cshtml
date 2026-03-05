@@ -1,0 +1,174 @@
+@{
+    ViewData["Title"] = "Trang chủ";
+}
+
+<section class="home-hero mb-5">
+    <div class="hero-content text-center py-5">
+        <h1 class="display-4 fw-bold text-primary mb-3">Hệ thống Quản lý Xây dựng</h1>
+        <p class="lead text-muted mx-auto" style="max-width: 600px;">
+            Quản lý dự án, công trình, hợp đồng và nhân sự hiệu quả. Theo dõi tiến độ và báo cáo tập trung.
+        </p>
+    </div>
+</section>
+
+<section class="home-stats mb-5">
+    <div class="row g-4">
+        <div class="col-md-3 col-6">
+            <div class="stat-card card border-0 shadow-sm h-100">
+                <div class="card-body d-flex align-items-center">
+                    <div class="stat-icon bg-primary bg-opacity-10 rounded-3 p-3 me-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" class="text-primary" viewBox="0 0 16 16">
+                            <path d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2l-2.218-.887zm3.564 1.426L5.596 5 8 5.961 14.154 3.5l-2.404-.961zm3.25 1.07-4.5 1.8v.9l4.5-1.8v-.9zM8 6.5 1.846 8.5 8 10.5 14.154 8.5 8 6.5zM.124 7.5l4.5 1.8v.9l-4.5-1.8v-.9zm4.5 3.6-4.5 1.8v.9l4.5-1.8v-.9z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="stat-value fw-bold text-dark">0</div>
+                        <div class="stat-label text-muted small">Dự án đang thực hiện</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="stat-card card border-0 shadow-sm h-100">
+                <div class="card-body d-flex align-items-center">
+                    <div class="stat-icon bg-success bg-opacity-10 rounded-3 p-3 me-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" class="text-success" viewBox="0 0 16 16">
+                            <path d="M4 2.5a.5.5 0 0 0-1 0v11a.5.5 0 0 0 1 0v-2a.5.5 0 0 0 1 0v-2a.5.5 0 0 0 1 0v-2a.5.5 0 0 0 1 0v-2a.5.5 0 0 0 1 0v-2a.5.5 0 0 0 1 0v-2a.5.5 0 0 0 1 0V2.5a.5.5 0 0 0-1 0v2a.5.5 0 0 1-1 0v-2a.5.5 0 0 0-1 0v2a.5.5 0 0 1-1 0v-2a.5.5 0 0 0-1 0v2a.5.5 0 0 1-1 0v-2zm-1 1.35a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-11z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="stat-value fw-bold text-dark">0</div>
+                        <div class="stat-label text-muted small">Công trình</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="stat-card card border-0 shadow-sm h-100">
+                <div class="card-body d-flex align-items-center">
+                    <div class="stat-icon bg-warning bg-opacity-10 rounded-3 p-3 me-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" class="text-warning" viewBox="0 0 16 16">
+                            <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="stat-value fw-bold text-dark">0</div>
+                        <div class="stat-label text-muted small">Hợp đồng</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="stat-card card border-0 shadow-sm h-100">
+                <div class="card-body d-flex align-items-center">
+                    <div class="stat-icon bg-info bg-opacity-10 rounded-3 p-3 me-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" class="text-info" viewBox="0 0 16 16">
+                            <path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1h8zm-7.978-1A.261.261 0 0 1 7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002a.274.274 0 0 1-.014.002H7.022zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM6.936 9.28a5.88 5.88 0 0 0-1.23-.247A7.35 7.35 0 0 0 5 9c-4 0-5 3-5 4 0 .667.333 1 1 1h4.216A2.238 2.238 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816zM4.92 10A5.493 5.493 0 0 0 4 13H1c0-.26.164-1.03.76-1.724C2.42 10.43 3.713 10 5 10c.37 0 .724.024 1.065.065A4.482 4.482 0 0 1 4.92 10z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="stat-value fw-bold text-dark">0</div>
+                        <div class="stat-label text-muted small">Nhân sự</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="home-modules">
+    <h2 class="h5 fw-bold text-dark mb-4">Chức năng chính</h2>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <a asp-controller="Home" asp-action="Index" class="text-decoration-none">
+                <div class="card module-card border-0 shadow-sm h-100 transition-hover">
+                    <div class="card-body text-center py-4">
+                        <div class="module-icon mx-auto mb-3 rounded-circle bg-primary bg-opacity-10 d-inline-flex align-items-center justify-content-center" style="width: 64px; height: 64px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="text-primary" viewBox="0 0 16 16">
+                                <path d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2l-2.218-.887zm3.564 1.426L5.596 5 8 5.961 14.154 3.5l-2.404-.961zm3.25 1.07-4.5 1.8v.9l4.5-1.8v-.9z"/>
+                            </svg>
+                        </div>
+                        <h3 class="h6 fw-semibold text-dark mb-2">Dự án</h3>
+                        <p class="text-muted small mb-0">Quản lý danh sách và tiến độ dự án xây dựng</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a asp-controller="Home" asp-action="Index" class="text-decoration-none">
+                <div class="card module-card border-0 shadow-sm h-100 transition-hover">
+                    <div class="card-body text-center py-4">
+                        <div class="module-icon mx-auto mb-3 rounded-circle bg-success bg-opacity-10 d-inline-flex align-items-center justify-content-center" style="width: 64px; height: 64px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="text-success" viewBox="0 0 16 16">
+                                <path d="M4 2.5a.5.5 0 0 0-1 0v11a.5.5 0 0 0 1 0v-2a.5.5 0 0 0 1 0v-2a.5.5 0 0 0 1 0v-2a.5.5 0 0 0 1 0v-2a.5.5 0 0 0 1 0v-2a.5.5 0 0 0 1 0v-2a.5.5 0 0 0 1 0V2.5a.5.5 0 0 0-1 0v2a.5.5 0 0 1-1 0v-2a.5.5 0 0 0-1 0v2a.5.5 0 0 1-1 0v-2a.5.5 0 0 0-1 0v2a.5.5 0 0 1-1 0v-2zm-1 1.35a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-11z"/>
+                            </svg>
+                        </div>
+                        <h3 class="h6 fw-semibold text-dark mb-2">Công trình</h3>
+                        <p class="text-muted small mb-0">Theo dõi công trình và hạng mục thi công</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a asp-controller="Home" asp-action="Index" class="text-decoration-none">
+                <div class="card module-card border-0 shadow-sm h-100 transition-hover">
+                    <div class="card-body text-center py-4">
+                        <div class="module-icon mx-auto mb-3 rounded-circle bg-warning bg-opacity-10 d-inline-flex align-items-center justify-content-center" style="width: 64px; height: 64px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="text-warning" viewBox="0 0 16 16">
+                                <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/>
+                            </svg>
+                        </div>
+                        <h3 class="h6 fw-semibold text-dark mb-2">Hợp đồng</h3>
+                        <p class="text-muted small mb-0">Lưu trữ và quản lý hợp đồng thi công</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a asp-controller="Home" asp-action="Index" class="text-decoration-none">
+                <div class="card module-card border-0 shadow-sm h-100 transition-hover">
+                    <div class="card-body text-center py-4">
+                        <div class="module-icon mx-auto mb-3 rounded-circle bg-info bg-opacity-10 d-inline-flex align-items-center justify-content-center" style="width: 64px; height: 64px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="text-info" viewBox="0 0 16 16">
+                                <path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1h8zm-7.978-1A.261.261 0 0 1 7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002a.274.274 0 0 1-.014.002H7.022zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                            </svg>
+                        </div>
+                        <h3 class="h6 fw-semibold text-dark mb-2">Nhân sự</h3>
+                        <p class="text-muted small mb-0">Quản lý nhân viên và phân công công việc</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a asp-controller="Home" asp-action="Index" class="text-decoration-none">
+                <div class="card module-card border-0 shadow-sm h-100 transition-hover">
+                    <div class="card-body text-center py-4">
+                        <div class="module-icon mx-auto mb-3 rounded-circle bg-secondary bg-opacity-10 d-inline-flex align-items-center justify-content-center" style="width: 64px; height: 64px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="text-secondary" viewBox="0 0 16 16">
+                                <path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5v-3zM2.5 2a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm1 6.5A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm-7 1a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3z"/>
+                            </svg>
+                        </div>
+                        <h3 class="h6 fw-semibold text-dark mb-2">Báo cáo</h3>
+                        <p class="text-muted small mb-0">Báo cáo tiến độ và thống kê tổng hợp</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a asp-controller="Home" asp-action="Privacy" class="text-decoration-none">
+                <div class="card module-card border-0 shadow-sm h-100 transition-hover">
+                    <div class="card-body text-center py-4">
+                        <div class="module-icon mx-auto mb-3 rounded-circle bg-dark bg-opacity-10 d-inline-flex align-items-center justify-content-center" style="width: 64px; height: 64px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="text-dark" viewBox="0 0 16 16">
+                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                            </svg>
+                        </div>
+                        <h3 class="h6 fw-semibold text-dark mb-2">Quy định & Bảo mật</h3>
+                        <p class="text-muted small mb-0">Chính sách bảo mật và quy định sử dụng</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</section>
