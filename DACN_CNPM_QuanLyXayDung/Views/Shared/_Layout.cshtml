@@ -4,12 +4,19 @@
 }
 
 <!DOCTYPE html>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 66c3b2a49d16ceaf7236b82acf156966842b96c1
 <html class="dark" lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+<<<<<<< HEAD
     <title>StitchConstruct - Quản lý dự án xây dựng</title>
+=======
+    <title>@ViewData["Title"] - StitchConstruct</title>
+>>>>>>> 66c3b2a49d16ceaf7236b82acf156966842b96c1
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
@@ -42,24 +49,34 @@
             font-family: 'Inter', sans-serif;
             background-color: #0f2323; /* Matching background-dark */
         }
+<<<<<<< HEAD
 
+=======
+>>>>>>> 66c3b2a49d16ceaf7236b82acf156966842b96c1
         .glass-panel {
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
+<<<<<<< HEAD
 
+=======
+>>>>>>> 66c3b2a49d16ceaf7236b82acf156966842b96c1
         .glass-card {
             background: rgba(178, 255, 255, 0.05);
             backdrop-filter: blur(8px);
             border: 1px solid rgba(178, 255, 255, 0.1);
         }
+<<<<<<< HEAD
 
+=======
+>>>>>>> 66c3b2a49d16ceaf7236b82acf156966842b96c1
         .glass-sidebar {
             background: rgba(15, 35, 35, 0.8);
             backdrop-filter: blur(20px);
             border-right: 1px solid rgba(255, 255, 255, 0.05);
         }
+<<<<<<< HEAD
 
         ::-webkit-scrollbar {
             width: 6px;
@@ -69,11 +86,20 @@
             background: rgba(255, 255, 255, 0.02);
         }
 
+=======
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+        }
+>>>>>>> 66c3b2a49d16ceaf7236b82acf156966842b96c1
         ::-webkit-scrollbar-thumb {
             background: rgba(178, 255, 255, 0.2);
             border-radius: 10px;
         }
     </style>
+<<<<<<< HEAD
 </head>
 <body class="bg-background-light dark:bg-background-dark text-slate-200 font-display min-h-screen flex">
     <!-- Fixed Left Sidebar -->
@@ -157,6 +183,29 @@
         <!-- Footer Footer -->
         <footer class="mt-auto p-8 border-t border-white/5 flex justify-between items-center text-slate-500 text-xs">
             <p>© 2024 StitchConstruct. Bản quyền thuộc về Stitch Technology.</p>
+=======
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-200 font-display min-h-screen flex">
+
+    <!-- Fixed Left Sidebar -->
+    @await Html.PartialAsync("_Sidebar")
+
+    <!-- Main Content -->
+    <main class="ml-64 flex-1 min-h-screen flex flex-col">
+
+        <!-- Header -->
+        @await Html.PartialAsync("_Header")
+
+        <!-- Dashboard Body -->
+        <div class="p-8 space-y-8 flex-1">
+            @RenderBody()
+        </div>
+
+        <!-- Footer Footer -->
+        <footer class="mt-auto p-8 border-t border-white/5 flex justify-between items-center text-slate-500 text-xs">
+            <p>© 2024 StitchConstruct. Bản quyền thuộc về Con Bạc Technology.</p>
+>>>>>>> 66c3b2a49d16ceaf7236b82acf156966842b96c1
             <div class="flex gap-6">
                 <a class="hover:text-primary transition-colors" href="#">Điều khoản</a>
                 <a class="hover:text-primary transition-colors" href="#">Hỗ trợ kỹ thuật</a>
@@ -164,5 +213,10 @@
             </div>
         </footer>
     </main>
+<<<<<<< HEAD
+=======
+
+    @await RenderSectionAsync("Scripts", required: false)
+>>>>>>> 66c3b2a49d16ceaf7236b82acf156966842b96c1
 </body>
 </html>
