@@ -1,0 +1,79 @@
+@model IEnumerable<DACN_CNPM_QuanLyXayDung.Models.Material>
+
+@{
+    ViewData["Title"] = "Quản lý Vật tư";
+}
+
+<div class="p-8 space-y-8">
+    <div class="glass-panel rounded-2xl overflow-hidden">
+        <div class="p-6 border-b border-white/10 flex justify-between items-center">
+            <h3 class="text-lg font-bold text-white">Danh sách Vật tư</h3>
+            <a asp-action="Create" class="px-4 py-2 bg-primary/20 text-primary hover:bg-primary/30 font-bold rounded-xl transition-colors text-sm flex items-center gap-2">
+                <span class="material-icons text-sm">add</span> Thêm mới
+            </a>
+        </div>
+        <div class="flex items-center justify-between p-4 border-b border-white/5 bg-white/5">
+            <div class="relative w-64">
+                <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+                <input type="text" placeholder="Tìm kiếm vật tư..." class="w-full bg-white/5 border border-white/10 rounded-lg text-white pl-9 pr-3 py-1.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary transition-all">
+            </div>
+            <div class="flex gap-2 text-sm text-slate-300">
+                <span class="bg-white/5 px-3 py-1.5 rounded-lg border border-white/10 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> Sắp hết: <span class="font-bold text-white">0</span>
+                </span>
+                <span class="bg-white/5 px-3 py-1.5 rounded-lg border border-white/10 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Đủ kho: <span class="font-bold text-white">@Model.Count()</span>
+                </span>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="text-slate-500 text-xs uppercase tracking-wider bg-white/5">
+                        <th class="px-6 py-4 font-semibold">@Html.DisplayNameFor(model => model.MaterialName)</th>
+                        <th class="px-6 py-4 font-semibold">@Html.DisplayNameFor(model => model.Unit)</th>
+                        <th class="px-6 py-4 font-semibold">Mức tồn kho tối thiểu</th>
+                        <th class="px-6 py-4 font-semibold text-right">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5 text-slate-300 text-sm">
+                    @foreach (var item in Model) {
+                        <tr class="hover:bg-white/5 transition-colors group">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-primary group-hover:bg-primary/10 transition-colors border border-white/5 group-hover:border-primary/20">
+                                        <span class="material-icons text-xl">inventory_2</span>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-white text-base">@Html.DisplayFor(modelItem => item.MaterialName)</p>
+                                        <p class="text-[10px] font-mono text-slate-500">MAT-@item.MaterialId</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="px-2.5 py-1 rounded bg-white/5 border border-white/10 text-xs font-medium">@Html.DisplayFor(modelItem => item.Unit)</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-2 h-2 rounded-full @(item.MinStockLevel > 100 ? "bg-emerald-500 ring-2 ring-emerald-500/20" : "bg-amber-500 ring-2 ring-amber-500/20")"></div>
+                                    <span class="font-semibold @(item.MinStockLevel > 100 ? "text-emerald-400" : "text-amber-400")">@Html.DisplayFor(modelItem => item.MinStockLevel)</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-right flex justify-end gap-2 items-center h-[72px]">
+                                <a asp-action="Edit" asp-route-id="@item.MaterialId" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-300 transition-colors" title="Sửa">
+                                    <span class="material-icons text-sm">edit</span>
+                                </a>
+                                <a asp-action="Details" asp-route-id="@item.MaterialId" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-300 transition-colors" title="Chi tiết">
+                                    <span class="material-icons text-sm">visibility</span>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.MaterialId" class="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 flex items-center justify-center text-red-400 transition-colors" title="Xóa">
+                                    <span class="material-icons text-sm">delete</span>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

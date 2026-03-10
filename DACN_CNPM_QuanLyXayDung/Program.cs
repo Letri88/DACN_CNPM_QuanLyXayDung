@@ -1,7 +1,13 @@
+using Microsoft.EntityFrameworkCore;
+using DACN_CNPM_QuanLyXayDung.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddDbContext<HeThongQlvongDoiDuAnTaiNguyenContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 

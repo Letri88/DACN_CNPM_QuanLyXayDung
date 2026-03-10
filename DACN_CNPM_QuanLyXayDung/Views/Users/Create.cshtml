@@ -1,0 +1,54 @@
+@model DACN_CNPM_QuanLyXayDung.Models.User
+
+@{
+    ViewData["Title"] = "Thêm Người dùng mới";
+}
+
+<div class="p-8 space-y-8">
+    <div class="max-w-2xl mx-auto">
+        <div class="glass-panel rounded-2xl p-6">
+            <h3 class="text-xl font-bold text-white mb-6">Thêm Người dùng mới</h3>
+            <form asp-action="Create" class="space-y-4">
+                <div asp-validation-summary="ModelOnly" class="text-red-400 text-sm mb-4"></div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label asp-for="FullName" class="text-sm font-medium text-slate-300 mb-1 block"></label>
+                        <input asp-for="FullName" class="bg-white/5 border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" placeholder="Nhập họ và tên..." />
+                        <span asp-validation-for="FullName" class="text-red-400 text-xs mt-1 block"></span>
+                    </div>
+                    <div>
+                        <label asp-for="Email" class="text-sm font-medium text-slate-300 mb-1 block"></label>
+                        <input asp-for="Email" type="email" class="bg-white/5 border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" placeholder="example@domain.com" />
+                        <span asp-validation-for="Email" class="text-red-400 text-xs mt-1 block"></span>
+                    </div>
+                    <div>
+                        <label asp-for="Password" class="text-sm font-medium text-slate-300 mb-1 block"></label>
+                        <input asp-for="Password" type="password" class="bg-white/5 border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" placeholder="••••••••" />
+                        <span asp-validation-for="Password" class="text-red-400 text-xs mt-1 block"></span>
+                    </div>
+                    <div>
+                        <label asp-for="RoleId" class="text-sm font-medium text-slate-300 mb-1 block">Vai trò (Role)</label>
+                        <select asp-for="RoleId" class="bg-[#1a2e2e] border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all appearance-none" asp-items="ViewBag.RoleId">
+                            <option value="">-- Chọn Vai trò --</option>
+                        </select>
+                        <span asp-validation-for="RoleId" class="text-red-400 text-xs mt-1 block"></span>
+                    </div>
+                </div>
+
+                <div class="pt-4 flex items-center justify-between border-t border-white/10 mt-6">
+                    <a asp-action="Index" class="text-slate-400 hover:text-white transition-colors text-sm flex items-center gap-2">
+                        <span class="material-icons text-sm">arrow_back</span> Quay lại danh sách
+                    </a>
+                    <button type="submit" class="bg-primary/20 text-primary hover:bg-primary/30 font-bold py-2.5 px-6 rounded-xl transition-colors flex items-center gap-2">
+                        <span class="material-icons text-sm">person_add</span> Tạo người dùng
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

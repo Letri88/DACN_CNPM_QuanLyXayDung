@@ -1,0 +1,89 @@
+@model DACN_CNPM_QuanLyXayDung.Models.User
+
+@{
+    ViewData["Title"] = "Xóa Người dùng";
+}
+
+<div class="p-8 space-y-8">
+    <div class="max-w-3xl mx-auto">
+        
+        <div class="mb-6 p-4 rounded-xl border-l-4 border-red-500 bg-red-500/5 space-y-2">
+            <div class="flex items-center gap-2 text-red-400">
+                <span class="material-icons text-xl">warning</span>
+                <span class="font-bold uppercase tracking-wider text-sm">Cảnh báo xóa dữ liệu</span>
+            </div>
+            <p class="text-slate-300 text-sm">Bạn đang chuẩn bị xóa người dùng <span class="text-white font-bold">@Model.FullName</span>. Hành động này không thể hoàn tác và có thể ảnh hưởng đến các dữ liệu liên kết. Bạn có chắc chắn muốn tiếp tục?</p>
+        </div>
+
+        <div class="glass-card p-8 rounded-2xl relative overflow-hidden border border-red-500/20">
+            <!-- Decorative blur -->
+            <div class="absolute -right-20 -top-20 w-64 h-64 bg-red-500/5 rounded-full blur-3xl"></div>
+            
+            <div class="flex justify-between items-start mb-8 relative z-10">
+                <div class="flex items-center gap-5">
+                    <div class="w-16 h-16 rounded-full bg-slate-700 flex items-center justify-center text-white text-2xl font-bold border-2 border-white/10 shadow-lg">
+                        @(string.IsNullOrEmpty(Model.FullName) ? "?" : Model.FullName.Substring(0, 1).ToUpper())
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold text-white mb-2">@Model.FullName</h3>
+                        <div class="flex items-center gap-3">
+                            <span class="text-sm text-slate-400 font-mono bg-white/5 py-1 px-3 rounded-lg border border-white/10">UID-@Model.UserId</span>
+                            <span class="px-2.5 py-1 rounded-full text-xs font-bold text-primary bg-primary/10 border border-primary/20 uppercase tracking-wide">
+                                @(Model.Role?.RoleName?.Trim().ToLower() switch {
+                                    "admin" => "Quản trị viên",
+                                    "project manager" => "Quản lý dự án",
+                                    "engineer" => "Kỹ sư",
+                                    "warehouse keeper" => "Thủ kho",
+                                    _ => Model.Role?.RoleName ?? "N/A"
+                                })
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
+                <div class="space-y-6">
+                    <div>
+                        <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">@Html.DisplayNameFor(model => model.Email)</p>
+                        <p class="text-white font-semibold flex items-center gap-2">
+                            <span class="material-icons text-sm text-slate-400">mail</span> @Html.DisplayFor(model => model.Email)
+                        </p>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Trạng thái hiện tại</p>
+                        @if(Model.Status == "Active") {
+                            <span class="flex items-center gap-1.5 text-emerald-400 font-medium">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Active
+                            </span>
+                        } else if (Model.Status == "Inactive") {
+                            <span class="flex items-center gap-1.5 text-slate-400 font-medium">
+                                <span class="w-2 h-2 rounded-full bg-slate-400"></span> Inactive
+                            </span>
+                        } else {
+                            <span class="flex items-center gap-1.5 text-amber-400 font-medium">
+                                <span class="w-2 h-2 rounded-full bg-amber-500"></span> @Model.Status
+                            </span>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-6 mt-8 border-t border-white/10 flex items-center justify-between relative z-10">
+                <a asp-action="Index" class="text-slate-400 hover:text-white transition-colors text-sm flex items-center gap-2">
+                    <span class="material-icons text-sm">arrow_back</span> Hủy / Quay lại
+                </a>
+                
+                <form asp-action="Delete">
+                    <input type="hidden" asp-for="UserId" />
+                    <button type="submit" class="bg-red-500/20 text-red-500 hover:bg-red-500/30 font-bold py-2.5 px-6 rounded-xl transition-colors flex items-center gap-2 border border-red-500/20 shadow-[0_0_15px_rgba(239,68,68,0.2)]">
+                        <span class="material-icons text-sm">delete_forever</span> Xác nhận Xóa
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

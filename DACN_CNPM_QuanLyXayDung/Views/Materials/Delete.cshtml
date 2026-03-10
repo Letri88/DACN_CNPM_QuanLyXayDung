@@ -1,0 +1,67 @@
+@model DACN_CNPM_QuanLyXayDung.Models.Material
+
+@{
+    ViewData["Title"] = "Xóa Vật tư";
+}
+
+<div class="p-8 space-y-8">
+    <div class="max-w-3xl mx-auto">
+        
+        <div class="mb-6 p-4 rounded-xl border-l-4 border-red-500 bg-red-500/5 space-y-2">
+            <div class="flex items-center gap-2 text-red-400">
+                <span class="material-icons text-xl">warning</span>
+                <span class="font-bold uppercase tracking-wider text-sm">Cảnh báo xóa dữ liệu</span>
+            </div>
+            <p class="text-slate-300 text-sm">Bạn đang chuẩn bị xóa vật tư <span class="text-white font-bold">@Model.MaterialName</span>. Hành động này không thể hoàn tác. Bạn có chắc chắn muốn tiếp tục?</p>
+        </div>
+
+        <div class="glass-card p-8 rounded-2xl relative overflow-hidden border border-red-500/20">
+            <!-- Decorative blur -->
+            <div class="absolute -right-20 -top-20 w-64 h-64 bg-red-500/5 rounded-full blur-3xl"></div>
+            
+            <div class="flex justify-between items-start mb-8 relative z-10">
+                <div>
+                    <h3 class="text-xl font-bold text-white mb-2">Thông tin Vật tư</h3>
+                    <div class="flex items-center gap-3">
+                        <span class="text-sm text-slate-400 font-mono bg-white/5 py-1 px-3 rounded-lg border border-white/10">Mã NVL: MAT-@Model.MaterialId</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
+                <div class="space-y-6">
+                    <div>
+                        <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">@Html.DisplayNameFor(model => model.MaterialName)</p>
+                        <p class="text-slate-300 text-sm font-semibold text-white">@Html.DisplayFor(model => model.MaterialName)</p>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">@Html.DisplayNameFor(model => model.Unit)</p>
+                            <span class="px-2 py-1 rounded bg-white/10 border border-white/20 text-slate-300 text-xs font-medium">@Html.DisplayFor(model => model.Unit)</span>
+                        </div>
+                        <div>
+                            <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Mức tồn kho tối thiểu</p>
+                            <p class="text-slate-300 text-sm font-semibold">@Html.DisplayFor(model => model.MinStockLevel)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-6 mt-8 border-t border-white/10 flex items-center justify-between relative z-10">
+                <a asp-action="Index" class="text-slate-400 hover:text-white transition-colors text-sm flex items-center gap-2">
+                    <span class="material-icons text-sm">arrow_back</span> Hủy / Quay lại
+                </a>
+                
+                <form asp-action="Delete">
+                    <input type="hidden" asp-for="MaterialId" />
+                    <button type="submit" class="bg-red-500/20 text-red-400 hover:bg-red-500/30 font-bold py-2.5 px-6 rounded-xl transition-colors flex items-center gap-2 border border-red-500/20">
+                        <span class="material-icons text-sm">delete_forever</span> Xác nhận Xóa
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

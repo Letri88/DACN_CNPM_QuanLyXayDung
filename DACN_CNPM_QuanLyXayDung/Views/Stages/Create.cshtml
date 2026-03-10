@@ -1,0 +1,56 @@
+@model DACN_CNPM_QuanLyXayDung.Models.Stage
+
+@{
+    ViewData["Title"] = "Thêm Giai đoạn mới";
+}
+
+<div class="p-8 space-y-8">
+    <div class="max-w-2xl mx-auto">
+        <div class="glass-panel rounded-2xl p-6">
+            <h3 class="text-xl font-bold text-white mb-6">Thêm Giai đoạn mới</h3>
+            <form asp-action="Create" class="space-y-4">
+                <div asp-validation-summary="ModelOnly" class="text-red-400 text-sm mb-4"></div>
+                
+                <div>
+                    <label asp-for="StageName" class="text-sm font-medium text-slate-300 mb-1 block"></label>
+                    <input asp-for="StageName" class="bg-white/5 border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" />
+                    <span asp-validation-for="StageName" class="text-red-400 text-xs mt-1 block"></span>
+                </div>
+                
+                <div>
+                    <label asp-for="ProjectId" class="text-sm font-medium text-slate-300 mb-1 block"></label>
+                    <select asp-for="ProjectId" class="bg-[#1a2e2e] border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all appearance-none" asp-items="ViewBag.ProjectId">
+                        <option value="">-- Chọn Dự án --</option>
+                    </select>
+                    <span asp-validation-for="ProjectId" class="text-red-400 text-xs mt-1 block"></span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label asp-for="StartDate" class="text-sm font-medium text-slate-300 mb-1 block"></label>
+                        <input asp-for="StartDate" type="date" class="bg-white/5 border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all [color-scheme:dark]" />
+                        <span asp-validation-for="StartDate" class="text-red-400 text-xs mt-1 block"></span>
+                    </div>
+                    <div>
+                        <label asp-for="EndDate" class="text-sm font-medium text-slate-300 mb-1 block"></label>
+                        <input asp-for="EndDate" type="date" class="bg-white/5 border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all [color-scheme:dark]" />
+                        <span asp-validation-for="EndDate" class="text-red-400 text-xs mt-1 block"></span>
+                    </div>
+                </div>
+
+                <div class="pt-4 flex items-center justify-between border-t border-white/10 mt-6">
+                    <a asp-action="Index" class="text-slate-400 hover:text-white transition-colors text-sm flex items-center gap-2">
+                        <span class="material-icons text-sm">arrow_back</span> Quay lại danh sách
+                    </a>
+                    <button type="submit" class="bg-primary/20 text-primary hover:bg-primary/30 font-bold py-2.5 px-6 rounded-xl transition-colors flex items-center gap-2">
+                        <span class="material-icons text-sm">save</span> Tạo mới
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

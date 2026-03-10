@@ -1,0 +1,93 @@
+@model IEnumerable<DACN_CNPM_QuanLyXayDung.Models.User>
+
+@{
+    ViewData["Title"] = "Quản lý Người dùng";
+}
+
+<div class="p-8 space-y-8">
+    <div class="glass-panel rounded-2xl overflow-hidden">
+        <div class="p-6 border-b border-white/10 flex justify-between items-center">
+            <h3 class="text-lg font-bold text-white">Danh sách Người dùng</h3>
+            <a asp-action="Create" class="px-4 py-2 bg-primary/20 text-primary hover:bg-primary/30 font-bold rounded-xl transition-colors text-sm flex items-center gap-2">
+                <span class="material-icons text-sm">person_add</span> Thêm người dùng
+            </a>
+        </div>
+        <div class="flex items-center justify-between p-4 border-b border-white/5 bg-white/5">
+            <div class="relative w-64">
+                <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+                <input type="text" placeholder="Tìm kiếm người dùng..." class="w-full bg-white/5 border border-white/10 rounded-lg text-white pl-9 pr-3 py-1.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary transition-all">
+            </div>
+            <div class="flex gap-2 text-sm text-slate-300">
+                <span class="bg-white/5 px-3 py-1.5 rounded-lg border border-white/10">Tổng số: <span class="font-bold text-white">@Model.Count()</span></span>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="text-slate-500 text-xs uppercase tracking-wider bg-white/5">
+                        <th class="px-6 py-4 font-semibold">@Html.DisplayNameFor(model => model.FullName)</th>
+                        <th class="px-6 py-4 font-semibold">@Html.DisplayNameFor(model => model.Email)</th>
+                        <th class="px-6 py-4 font-semibold">@Html.DisplayNameFor(model => model.Role)</th>
+                        <th class="px-6 py-4 font-semibold">@Html.DisplayNameFor(model => model.Status)</th>
+                        <th class="px-6 py-4 font-semibold text-right">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5 text-slate-300 text-sm">
+                    @foreach (var item in Model) {
+                        <tr class="hover:bg-white/5 transition-colors group">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold shadow-inner">
+                                        @(string.IsNullOrEmpty(item.FullName) ? "?" : item.FullName.Substring(0, 1).ToUpper())
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-white">@Html.DisplayFor(modelItem => item.FullName)</p>
+                                        <p class="text-[10px] font-mono text-slate-500">UID-@item.UserId</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-slate-400">@Html.DisplayFor(modelItem => item.Email)</td>
+                            <td class="px-6 py-4">
+                                <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-white/5 border border-white/10">
+                                    @(item.Role?.RoleName?.Trim().ToLower() switch {
+                                        "admin" => "Quản trị viên",
+                                        "project manager" => "Quản lý dự án",
+                                        "engineer" => "Kỹ sư",
+                                        "warehouse keeper" => "Thủ kho",
+                                        _ => item.Role?.RoleName ?? "N/A"
+                                    })
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                @if(item.Status == "Active") {
+                                    <span class="flex items-center gap-1.5 text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full text-xs font-medium border border-emerald-500/20 w-fit">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Active
+                                    </span>
+                                } else if (item.Status == "Inactive") {
+                                    <span class="flex items-center gap-1.5 text-slate-400 bg-white/10 px-2.5 py-1 rounded-full text-xs font-medium border border-white/20 w-fit">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> Inactive
+                                    </span>
+                                } else {
+                                    <span class="flex items-center gap-1.5 text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-full text-xs font-medium border border-amber-500/20 w-fit">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> @item.Status
+                                    </span>
+                                }
+                            </td>
+                            <td class="px-6 py-4 text-right flex justify-end gap-2 items-center h-[72px]">
+                                <a asp-action="Edit" asp-route-id="@item.UserId" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-300 transition-colors" title="Sửa">
+                                    <span class="material-icons text-sm">edit</span>
+                                </a>
+                                <a asp-action="Details" asp-route-id="@item.UserId" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-300 transition-colors" title="Chi tiết">
+                                    <span class="material-icons text-sm">person</span>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.UserId" class="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 flex items-center justify-center text-red-400 transition-colors" title="Xóa">
+                                    <span class="material-icons text-sm">delete</span>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

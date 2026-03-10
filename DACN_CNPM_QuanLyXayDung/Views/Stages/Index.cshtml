@@ -1,0 +1,60 @@
+@model IEnumerable<DACN_CNPM_QuanLyXayDung.Models.Stage>
+
+@{
+    ViewData["Title"] = "Quản lý Giai đoạn";
+}
+
+<div class="p-8 space-y-8">
+    <div class="glass-panel rounded-2xl overflow-hidden">
+        <div class="p-6 border-b border-white/10 flex justify-between items-center">
+            <h3 class="text-lg font-bold text-white">Danh sách Giai đoạn</h3>
+            <a asp-action="Create" class="px-4 py-2 bg-primary/20 text-primary hover:bg-primary/30 font-bold rounded-xl transition-colors text-sm flex items-center gap-2">
+                <span class="material-icons text-sm">add</span> Thêm mới
+            </a>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="text-slate-500 text-xs uppercase tracking-wider bg-white/5">
+                        <th class="px-6 py-4 font-semibold">@Html.DisplayNameFor(model => model.StageName)</th>
+                        <th class="px-6 py-4 font-semibold">@Html.DisplayNameFor(model => model.Project)</th>
+                        <th class="px-6 py-4 font-semibold">@Html.DisplayNameFor(model => model.StartDate)</th>
+                        <th class="px-6 py-4 font-semibold">@Html.DisplayNameFor(model => model.EndDate)</th>
+                        <th class="px-6 py-4 font-semibold">@Html.DisplayNameFor(model => model.Status)</th>
+                        <th class="px-6 py-4 font-semibold text-right">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5 text-slate-300 text-sm">
+                    @foreach (var item in Model) {
+                        <tr class="hover:bg-white/5 transition-colors">
+                            <td class="px-6 py-4 font-semibold text-white">@Html.DisplayFor(modelItem => item.StageName)</td>
+                            <td class="px-6 py-4">PRJ-@Html.DisplayFor(modelItem => item.Project.ProjectId)</td>
+                            <td class="px-6 py-4">@(item.StartDate?.ToString("dd/MM/yyyy") ?? "-")</td>
+                            <td class="px-6 py-4">@(item.EndDate?.ToString("dd/MM/yyyy") ?? "-")</td>
+                            <td class="px-6 py-4">
+                                @if(item.Status == "Planned" || item.Status == "Pending") {
+                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-amber-500/10 text-amber-400 border border-amber-500/20">@item.Status</span>
+                                } else if (item.Status == "Active" || item.Status == "In Progress") {
+                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">@item.Status</span>
+                                } else {
+                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-white/10 text-slate-300 border border-white/20">@item.Status</span>
+                                }
+                            </td>
+                            <td class="px-6 py-4 text-right flex justify-end gap-2">
+                                <a asp-action="Edit" asp-route-id="@item.StageId" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-300 transition-colors" title="Sửa">
+                                    <span class="material-icons text-sm">edit</span>
+                                </a>
+                                <a asp-action="Details" asp-route-id="@item.StageId" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-300 transition-colors" title="Chi tiết">
+                                    <span class="material-icons text-sm">visibility</span>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.StageId" class="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 flex items-center justify-center text-red-400 transition-colors" title="Xóa">
+                                    <span class="material-icons text-sm">delete</span>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

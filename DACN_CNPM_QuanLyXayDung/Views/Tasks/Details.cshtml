@@ -1,0 +1,127 @@
+@model DACN_CNPM_QuanLyXayDung.Models.Task
+
+@{
+    ViewData["Title"] = "Chi tiết Công việc";
+}
+
+<div class="p-8 space-y-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="glass-card p-8 rounded-2xl relative overflow-hidden">
+            <!-- Decorative blur -->
+            <div class="absolute -right-20 -top-20 w-64 h-64 bg-primary/5 rounded-full blur-3xl"></div>
+            
+            <div class="flex justify-between items-start mb-8 relative z-10">
+                <div class="flex-1 pr-8">
+                    <h3 class="text-2xl font-bold text-white mb-2">@Model.TaskName</h3>
+                    <div class="flex flex-wrap items-center gap-3 mb-4">
+                        <span class="text-sm text-slate-400 font-mono bg-white/5 py-1 px-3 rounded-lg border border-white/10">ID: TSK-@Model.TaskId</span>
+                        @if (Model.Status == "Planned" || Model.Status == "Pending" || Model.Status == "Not Started")
+                        {
+                            <span class="px-3 py-1 rounded-full text-xs font-bold uppercase bg-amber-500/10 text-amber-400 border border-amber-500/20">@Model.Status</span>
+                        }
+                        else if (Model.Status == "Active" || Model.Status == "In Progress")
+                        {
+                            <span class="px-3 py-1 rounded-full text-xs font-bold uppercase bg-blue-500/10 text-blue-400 border border-blue-500/20">@Model.Status</span>
+                        }
+                        else if (Model.Status == "Completed" || Model.Status == "Done")
+                        {
+                            <span class="px-3 py-1 rounded-full text-xs font-bold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">@Model.Status</span>
+                        }
+                        else
+                        {
+                            <span class="px-3 py-1 rounded-full text-xs font-bold uppercase bg-white/10 text-slate-300 border border-white/20">@Model.Status</span>
+                        }
+                    </div>
+                    <p class="text-slate-300 text-sm leading-relaxed">@(string.IsNullOrEmpty(Model.Description) ? "Không có mô tả chi tiết cho công việc này." : Model.Description)</p>
+                </div>
+                <div class="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20 shadow-lg shadow-primary/5 shrink-0">
+                    <span class="material-icons text-4xl">task_alt</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10 mb-8">
+                <!-- Info block -->
+                <div class="bg-white/5 p-5 rounded-xl border border-white/5 space-y-4">
+                    <div>
+                        <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Thuộc Dự án / Giai đoạn</p>
+                        <div class="flex items-center gap-2 mt-1">
+                            <span class="material-icons text-primary/70 text-sm">foundation</span>
+                            <span class="text-slate-200 font-semibold text-sm">PRJ-@Html.DisplayFor(model => model.Project.ProjectId)</span>
+                            <span class="text-slate-500 text-xs">/</span>
+                            <span class="text-slate-300 text-sm font-mono bg-white/5 px-2 rounded">STG-@Html.DisplayFor(model => model.Stage.StageId)</span>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Người phụ trách</p>
+                        <div class="flex items-center gap-3 mt-1">
+                            <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-white shadow-inner">
+                                @(Model.AssignedUser?.UserId.ToString() ?? "?")
+                            </div>
+                            <span class="text-slate-200 text-sm font-medium">User ID: @Html.DisplayFor(model => model.AssignedUser.UserId)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Schedule block -->
+                <div class="bg-white/5 p-5 rounded-xl border border-white/5 space-y-4">
+                    <div>
+                        <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">@Html.DisplayNameFor(model => model.StartDate)</p>
+                        <p class="text-white font-medium flex items-center gap-2 text-sm">
+                            <span class="material-icons text-[16px] text-slate-400">event</span>
+                            @(Model.StartDate?.ToString("dd/MM/yyyy") ?? "-")
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">@Html.DisplayNameFor(model => model.EndDate)</p>
+                        <p class="text-white font-medium flex items-center gap-2 text-sm">
+                            <span class="material-icons text-[16px] text-slate-400">event_available</span>
+                            @(Model.EndDate?.ToString("dd/MM/yyyy") ?? "-")
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Progress block -->
+                <div class="bg-white/5 p-5 rounded-xl border border-white/5 lg:col-span-1 md:col-span-2">
+                    <div class="flex justify-between items-end mb-2">
+                        <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Tiến độ hoàn thành</p>
+                        <span class="text-2xl font-black text-white">@(Model.PercentComplete)%</span>
+                    </div>
+                    <div class="h-3 bg-white/10 rounded-full overflow-hidden mb-4 shadow-inner">
+                        <div class="h-full bg-gradient-to-r from-primary/80 to-primary rounded-full relative" style="width: @(Model.PercentComplete)%">
+                            <div class="absolute inset-0 bg-white/20 overflow-hidden">
+                                <div class="w-full h-full -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/40 to-transparent"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-400 text-center">
+                        @if (Model.PercentComplete == 100)
+                        {
+                            <span>Tuyệt vời! Công việc đã hoàn thành.</span>
+                        }
+                        else if (Model.PercentComplete > 50)
+                        {
+                            <span>Đã vượt qua nửa chặng đường.</span>
+                        }
+                        else if (Model.PercentComplete > 0)
+                        {
+                            <span>Công việc đang được thực hiện.</span>
+                        }
+                        else
+                        {
+                            <span>Chưa bắt đầu thực hiện.</span>
+                        }
+                    </p>
+                </div>
+            </div>
+
+            <div class="pt-6 mt-8 border-t border-white/10 flex flex-wrap items-center justify-between gap-4 relative z-10">
+                <a asp-action="Index" class="text-slate-400 hover:text-white transition-colors text-sm flex items-center gap-2">
+                    <span class="material-icons text-sm">arrow_back</span> Quay lại
+                </a>
+                <a asp-action="Edit" asp-route-id="@Model?.TaskId" class="bg-white/10 hover:bg-white/20 text-white font-bold py-2.5 px-6 rounded-xl transition-colors flex items-center gap-2 border border-white/10">
+                    <span class="material-icons text-sm">edit</span> Chỉnh sửa công việc
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

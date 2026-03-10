@@ -1,0 +1,52 @@
+@model DACN_CNPM_QuanLyXayDung.Models.Material
+
+@{
+    ViewData["Title"] = "Cập nhật Vật tư";
+}
+
+<div class="p-8 space-y-8">
+    <div class="max-w-xl mx-auto">
+        <div class="glass-panel rounded-2xl p-6">
+            <h3 class="text-xl font-bold text-white mb-6">Cập nhật Vật tư</h3>
+            <form asp-action="Edit" class="space-y-4">
+                <div asp-validation-summary="ModelOnly" class="text-red-400 text-sm mb-4"></div>
+                <input type="hidden" asp-for="MaterialId" />
+                
+                <div>
+                    <label asp-for="MaterialName" class="text-sm font-medium text-slate-300 mb-1 block"></label>
+                    <input asp-for="MaterialName" class="bg-white/5 border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" />
+                    <span asp-validation-for="MaterialName" class="text-red-400 text-xs mt-1 block"></span>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label asp-for="Unit" class="text-sm font-medium text-slate-300 mb-1 block"></label>
+                        <!-- Giả sử Unit ban đầu được sinh ra là input text, đổi qua select cho chuẩn -->
+                        <select asp-for="Unit" class="bg-[#1a2e2e] border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all appearance-none" asp-items="@(new SelectList(new[] { "Cái", "Viên", "Tấn", "Kg", "Khối", "Mét", "Bao", "Hộp", "Thùng" }, Model.Unit))">
+                            <option value="">-- Chọn Đơn vị --</option>
+                        </select>
+                        <span asp-validation-for="Unit" class="text-red-400 text-xs mt-1 block"></span>
+                    </div>
+                    <div>
+                        <label asp-for="MinStockLevel" class="text-sm font-medium text-slate-300 mb-1 block"></label>
+                        <input asp-for="MinStockLevel" type="number" min="0" class="bg-white/5 border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" />
+                        <span asp-validation-for="MinStockLevel" class="text-red-400 text-xs mt-1 block"></span>
+                    </div>
+                </div>
+
+                <div class="pt-4 flex items-center justify-between border-t border-white/10 mt-6">
+                    <a asp-action="Index" class="text-slate-400 hover:text-white transition-colors text-sm flex items-center gap-2">
+                        <span class="material-icons text-sm">arrow_back</span> Quay lại danh sách
+                    </a>
+                    <button type="submit" class="bg-primary/20 text-primary hover:bg-primary/30 font-bold py-2.5 px-6 rounded-xl transition-colors flex items-center gap-2">
+                        <span class="material-icons text-sm">save</span> Cập nhật
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
