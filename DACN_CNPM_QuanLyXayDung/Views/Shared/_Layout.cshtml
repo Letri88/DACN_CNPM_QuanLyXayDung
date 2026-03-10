@@ -4,191 +4,79 @@
 }
 
 <!DOCTYPE html>
-<<<<<<< HEAD
-
-=======
->>>>>>> 66c3b2a49d16ceaf7236b82acf156966842b96c1
 <html class="dark" lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-<<<<<<< HEAD
-    <title>StitchConstruct - Quản lý dự án xây dựng</title>
-=======
     <title>@ViewData["Title"] - StitchConstruct</title>
->>>>>>> 66c3b2a49d16ceaf7236b82acf156966842b96c1
+
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet" />
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
-    <script id="tailwind-config">
+
+    <script>
         tailwind.config = {
             darkMode: "class",
             theme: {
                 extend: {
                     colors: {
-                        "primary": "#b2ffff",
+                        primary: "#b2ffff",
                         "background-light": "#f5f8f8",
                         "background-dark": "#0f2323",
                     },
                     fontFamily: {
-                        "display": ["Inter", "sans-serif"]
-                    },
-                    borderRadius: {
-                        "DEFAULT": "0.25rem",
-                        "lg": "0.5rem",
-                        "xl": "0.75rem",
-                        "full": "9999px"
-                    },
-                },
-            },
+                        display: ["Inter", "sans-serif"]
+                    }
+                }
+            }
         }
     </script>
+
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0f2323; /* Matching background-dark */
+            background-color: #0f2323;
         }
-<<<<<<< HEAD
 
-=======
->>>>>>> 66c3b2a49d16ceaf7236b82acf156966842b96c1
         .glass-panel {
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(255,255,255,0.03);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255,255,255,0.1);
         }
-<<<<<<< HEAD
 
-=======
->>>>>>> 66c3b2a49d16ceaf7236b82acf156966842b96c1
         .glass-card {
-            background: rgba(178, 255, 255, 0.05);
+            background: rgba(178,255,255,0.05);
             backdrop-filter: blur(8px);
-            border: 1px solid rgba(178, 255, 255, 0.1);
+            border: 1px solid rgba(178,255,255,0.1);
         }
-<<<<<<< HEAD
 
-=======
->>>>>>> 66c3b2a49d16ceaf7236b82acf156966842b96c1
         .glass-sidebar {
-            background: rgba(15, 35, 35, 0.8);
+            background: rgba(15,35,35,0.8);
             backdrop-filter: blur(20px);
-            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            border-right: 1px solid rgba(255,255,255,0.05);
         }
-<<<<<<< HEAD
 
         ::-webkit-scrollbar {
             width: 6px;
         }
 
         ::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.02);
+            background: rgba(255,255,255,0.02);
         }
 
-=======
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.02);
-        }
->>>>>>> 66c3b2a49d16ceaf7236b82acf156966842b96c1
         ::-webkit-scrollbar-thumb {
-            background: rgba(178, 255, 255, 0.2);
+            background: rgba(178,255,255,0.2);
             border-radius: 10px;
         }
     </style>
-<<<<<<< HEAD
-</head>
-<body class="bg-background-light dark:bg-background-dark text-slate-200 font-display min-h-screen flex">
-    <!-- Fixed Left Sidebar -->
-    <aside class="fixed left-0 top-0 h-full w-64 glass-sidebar z-50 flex flex-col">
-        <div class="p-6">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(178,255,255,0.3)]">
-                    <span class="material-icons text-background-dark font-bold">architecture</span>
-                </div>
-                <h1 class="text-xl font-bold tracking-tight text-white">Stitch<span class="text-primary">Construct</span></h1>
-            </div>
-        </div>
-        <nav class="flex-1 px-4 space-y-2 mt-4">
-            <a class="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/10 text-primary border border-primary/20" href="#">
-                <span class="material-icons text-xl">dashboard</span>
-                <span class="font-medium">Tổng quan</span>
-            </a>
-            <a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="#">
-                <span class="material-icons text-xl">construction</span>
-                <span class="font-medium">Dự án</span>
-            </a>
-            <a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="#">
-                <span class="material-icons text-xl">loop</span>
-                <span class="font-medium">Vòng đời</span>
-            </a>
-            <a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="#">
-                <span class="material-icons text-xl">assignment</span>
-                <span class="font-medium">Công việc</span>
-            </a>
-            <a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="#">
-                <span class="material-icons text-xl">inventory_2</span>
-                <span class="font-medium">Tài nguyên</span>
-            </a>
-            <a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="#">
-                <span class="material-icons text-xl">groups</span>
-                <span class="font-medium">Nhân sự</span>
-            </a>
-            <a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="#">
-                <span class="material-icons text-xl">bar_chart</span>
-                <span class="font-medium">Báo cáo</span>
-            </a>
-        </nav>
-        <div class="p-6 border-t border-white/5">
-            <div class="flex items-center gap-3 glass-panel p-3 rounded-xl">
-                <img class="w-10 h-10 rounded-lg object-cover" data-alt="Chân dung quản lý nam chuyên nghiệp" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAmk8Y27i5yHvKfEcnFdbL2w-kHPSClp2hf2erRuw33bsl2FeKQMtqt1hAXVCrNH_9_V7yp2NBaNf80MF3ZBxYyew5vKzNtDF9y16ywSIBhLMUp9O330gUv0_Rw9S99GN_P3BZiwHnlr2O8VWj1M9wy-7LUiY8Bj4vE7lLae6czyYZ3uyAFiSENVIh-xmeNTJhycKsM4NV-nU_tiO9R2FkONfGefbmjy_yRU4kh4752vdQ57WCdmN30I9cdNKvSkS4bjffvCTEwvKw" />
-                <div class="overflow-hidden">
-                    <p class="text-sm font-semibold text-white truncate">Phan Anh Tuấn</p>
-                    <p class="text-xs text-slate-400 truncate">Quản lý cấp cao</p>
-                </div>
-            </div>
-        </div>
-    </aside>
-    <!-- Main Content -->
-    <main class="ml-64 flex-1 min-h-screen flex flex-col">
-        <!-- Header -->
-        <header class="h-20 glass-panel border-b-0 sticky top-0 z-40 px-8 flex items-center justify-between">
-            <div class="flex-1 max-w-xl">
-                <div class="relative group">
-                    <span class="material-icons absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors">search</span>
-                    <input class="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-12 pr-4 text-sm focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-white outline-none" placeholder="Tìm kiếm dự án, vật tư hoặc báo cáo..." type="text" />
-                </div>
-            </div>
-            <div class="flex items-center gap-4">
-                <button class="bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 px-5 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2">
-                    <span class="material-icons text-lg">add_box</span>
-                    Nhập vật tư
-                </button>
-                <button class="bg-primary hover:bg-primary/90 text-background-dark px-5 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2 shadow-[0_4px_15px_rgba(178,255,255,0.2)]">
-                    <span class="material-icons text-lg">add</span>
-                    Tạo dự án
-                </button>
-                <div class="h-8 w-px bg-white/10 mx-2"></div>
-                <button class="w-10 h-10 rounded-xl glass-panel flex items-center justify-center text-slate-400 hover:text-white transition-colors relative">
-                    <span class="material-icons">notifications</span>
-                    <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border border-background-dark"></span>
-                </button>
-            </div>
-        </header>
-        <!-- Dashboard Body -->
-         @RenderBody()
-        <!-- Footer Footer -->
-        <footer class="mt-auto p-8 border-t border-white/5 flex justify-between items-center text-slate-500 text-xs">
-            <p>© 2024 StitchConstruct. Bản quyền thuộc về Stitch Technology.</p>
-=======
+
     @await RenderSectionAsync("Styles", required: false)
 </head>
+
 <body class="bg-background-light dark:bg-background-dark text-slate-200 font-display min-h-screen flex">
 
-    <!-- Fixed Left Sidebar -->
+    <!-- Sidebar -->
     @await Html.PartialAsync("_Sidebar")
 
     <!-- Main Content -->
@@ -197,26 +85,24 @@
         <!-- Header -->
         @await Html.PartialAsync("_Header")
 
-        <!-- Dashboard Body -->
+        <!-- Body -->
         <div class="p-8 space-y-8 flex-1">
             @RenderBody()
         </div>
 
-        <!-- Footer Footer -->
+        <!-- Footer -->
         <footer class="mt-auto p-8 border-t border-white/5 flex justify-between items-center text-slate-500 text-xs">
             <p>© 2024 StitchConstruct. Bản quyền thuộc về Con Bạc Technology.</p>
->>>>>>> 66c3b2a49d16ceaf7236b82acf156966842b96c1
             <div class="flex gap-6">
                 <a class="hover:text-primary transition-colors" href="#">Điều khoản</a>
                 <a class="hover:text-primary transition-colors" href="#">Hỗ trợ kỹ thuật</a>
                 <a class="hover:text-primary transition-colors" href="#">V1.4.2-Stable</a>
             </div>
         </footer>
+
     </main>
-<<<<<<< HEAD
-=======
 
     @await RenderSectionAsync("Scripts", required: false)
->>>>>>> 66c3b2a49d16ceaf7236b82acf156966842b96c1
+
 </body>
 </html>
