@@ -43,10 +43,10 @@
                     <div>
                         <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">@Html.DisplayNameFor(model => model.Manager)</p>
                         <div class="flex items-center gap-3 mt-2">
-                            <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-white border-2 border-background-dark">
-                                M
+                            <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-white border-2 border-background-dark" title="ID: @Html.DisplayFor(model => model.Manager.UserId)">
+                                @(Model.Manager != null && !string.IsNullOrEmpty(Model.Manager.FullName) ? Model.Manager.FullName.Substring(0, 1).ToUpper() : "?")
                             </div>
-                            <p class="text-white font-medium text-sm">User ID: @Html.DisplayFor(model => model.Manager.UserId)</p>
+                            <p class="text-white font-medium text-sm">@(Model.Manager?.FullName ?? "Chưa chỉ định")</p>
                         </div>
                     </div>
                 </div>

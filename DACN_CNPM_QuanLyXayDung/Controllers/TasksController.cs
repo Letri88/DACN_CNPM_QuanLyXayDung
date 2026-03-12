@@ -49,9 +49,9 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         // GET: Tasks/Create
         public IActionResult Create()
         {
-            ViewData["AssignedUserId"] = new SelectList(_context.Users, "UserId", "UserId");
-            ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectId");
-            ViewData["StageId"] = new SelectList(_context.Stages, "StageId", "StageId");
+            ViewData["AssignedUserId"] = new SelectList(_context.Users, "UserId", "FullName");
+            ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectName");
+            ViewData["StageId"] = new SelectList(_context.Stages, "StageId", "StageName");
             return View();
         }
 
@@ -62,15 +62,18 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("TaskId,ProjectId,StageId,AssignedUserId,TaskName,Description,PercentComplete,StartDate,EndDate,Status")] Models.Task task)
         {
+            ModelState.Remove(nameof(task.AssignedUser));
+            ModelState.Remove(nameof(task.Project));
+            ModelState.Remove(nameof(task.Stage));
             if (ModelState.IsValid)
             {
                 _context.Add(task);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["AssignedUserId"] = new SelectList(_context.Users, "UserId", "UserId", task.AssignedUserId);
-            ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectId", task.ProjectId);
-            ViewData["StageId"] = new SelectList(_context.Stages, "StageId", "StageId", task.StageId);
+            ViewData["AssignedUserId"] = new SelectList(_context.Users, "UserId", "FullName", task.AssignedUserId);
+            ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectName", task.ProjectId);
+            ViewData["StageId"] = new SelectList(_context.Stages, "StageId", "StageName", task.StageId);
             return View(task);
         }
 
@@ -87,9 +90,9 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             {
                 return NotFound();
             }
-            ViewData["AssignedUserId"] = new SelectList(_context.Users, "UserId", "UserId", task.AssignedUserId);
-            ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectId", task.ProjectId);
-            ViewData["StageId"] = new SelectList(_context.Stages, "StageId", "StageId", task.StageId);
+            ViewData["AssignedUserId"] = new SelectList(_context.Users, "UserId", "FullName", task.AssignedUserId);
+            ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectName", task.ProjectId);
+            ViewData["StageId"] = new SelectList(_context.Stages, "StageId", "StageName", task.StageId);
             return View(task);
         }
 
@@ -105,6 +108,9 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
                 return NotFound();
             }
 
+            ModelState.Remove(nameof(task.AssignedUser));
+            ModelState.Remove(nameof(task.Project));
+            ModelState.Remove(nameof(task.Stage));
             if (ModelState.IsValid)
             {
                 try
@@ -125,9 +131,9 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["AssignedUserId"] = new SelectList(_context.Users, "UserId", "UserId", task.AssignedUserId);
-            ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectId", task.ProjectId);
-            ViewData["StageId"] = new SelectList(_context.Stages, "StageId", "StageId", task.StageId);
+            ViewData["AssignedUserId"] = new SelectList(_context.Users, "UserId", "FullName", task.AssignedUserId);
+            ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectName", task.ProjectId);
+            ViewData["StageId"] = new SelectList(_context.Stages, "StageId", "StageName", task.StageId);
             return View(task);
         }
 

@@ -29,15 +29,16 @@
                     @foreach (var item in Model) {
                         <tr class="hover:bg-white/5 transition-colors">
                             <td class="px-6 py-4 font-semibold text-white">@Html.DisplayFor(modelItem => item.TaskName)</td>
-                            <td class="px-6 py-4">PRJ-@Html.DisplayFor(modelItem => item.Project.ProjectId)</td>
-                            <td class="px-6 py-4 border-l border-white/5 relative group cursor-pointer" title="@Html.DisplayFor(modelItem => item.Stage.StageName)">
-                                <span class="bg-white/5 px-2 py-1 rounded text-xs text-slate-400 font-mono">STG-@Html.DisplayFor(modelItem => item.Stage.StageId)</span>
+                            <td class="px-6 py-4">@Html.DisplayFor(modelItem => item.Project.ProjectName)</td>
+                            <td class="px-6 py-4 border-l border-white/5 relative group cursor-pointer">
+                                <span class="bg-white/5 px-2 py-1 rounded text-xs text-slate-300">@Html.DisplayFor(modelItem => item.Stage.StageName)</span>
                             </td>
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-2">
-                                    <div class="w-6 h-6 rounded-full bg-slate-700 flex items-center justify-center text-[10px] font-bold text-white">
-                                        @(item.AssignedUser?.UserId.ToString() ?? "?")
+                                    <div class="w-6 h-6 rounded-full bg-slate-700 flex items-center justify-center text-[10px] font-bold text-white" title="@(item.AssignedUser?.FullName ?? "Chưa giao")">
+                                        @(item.AssignedUser != null && !string.IsNullOrEmpty(item.AssignedUser.FullName) ? item.AssignedUser.FullName.Substring(0, 1).ToUpper() : "?")
                                     </div>
+                                    <span class="text-sm">@(item.AssignedUser?.FullName ?? "Chưa giao")</span>
                                 </div>
                             </td>
                             <td class="px-6 py-4 w-32">

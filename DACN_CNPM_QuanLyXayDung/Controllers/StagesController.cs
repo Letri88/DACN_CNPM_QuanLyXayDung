@@ -47,7 +47,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         // GET: Stages/Create
         public IActionResult Create()
         {
-            ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectId");
+            ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectName");
             return View();
         }
 
@@ -58,13 +58,15 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("StageId,ProjectId,StageName,StartDate,EndDate,Status")] Stage stage)
         {
+            ModelState.Remove(nameof(stage.Project));
+            ModelState.Remove(nameof(stage.Tasks));
             if (ModelState.IsValid)
             {
                 _context.Add(stage);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectId", stage.ProjectId);
+            ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectName", stage.ProjectId);
             return View(stage);
         }
 
@@ -81,7 +83,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             {
                 return NotFound();
             }
-            ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectId", stage.ProjectId);
+            ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectName", stage.ProjectId);
             return View(stage);
         }
 
@@ -97,6 +99,8 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
                 return NotFound();
             }
 
+            ModelState.Remove(nameof(stage.Project));
+            ModelState.Remove(nameof(stage.Tasks));
             if (ModelState.IsValid)
             {
                 try
@@ -117,7 +121,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectId", stage.ProjectId);
+            ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectName", stage.ProjectId);
             return View(stage);
         }
 

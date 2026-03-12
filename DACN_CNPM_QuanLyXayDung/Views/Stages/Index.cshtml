@@ -28,7 +28,7 @@
                     @foreach (var item in Model) {
                         <tr class="hover:bg-white/5 transition-colors">
                             <td class="px-6 py-4 font-semibold text-white">@Html.DisplayFor(modelItem => item.StageName)</td>
-                            <td class="px-6 py-4">PRJ-@Html.DisplayFor(modelItem => item.Project.ProjectId)</td>
+                            <td class="px-6 py-4">@Html.DisplayFor(modelItem => item.Project.ProjectName)</td>
                             <td class="px-6 py-4">@(item.StartDate?.ToString("dd/MM/yyyy") ?? "-")</td>
                             <td class="px-6 py-4">@(item.EndDate?.ToString("dd/MM/yyyy") ?? "-")</td>
                             <td class="px-6 py-4">

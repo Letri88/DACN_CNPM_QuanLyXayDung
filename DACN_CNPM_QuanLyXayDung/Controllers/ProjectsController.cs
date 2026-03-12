@@ -47,7 +47,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         // GET: Projects/Create
         public IActionResult Create()
         {
-            ViewData["ManagerId"] = new SelectList(_context.Users, "UserId", "UserId");
+            ViewData["ManagerId"] = new SelectList(_context.Users, "UserId", "FullName");
             return View();
         }
 
@@ -64,7 +64,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ManagerId"] = new SelectList(_context.Users, "UserId", "UserId", project.ManagerId);
+            ViewData["ManagerId"] = new SelectList(_context.Users, "UserId", "FullName", project.ManagerId);
             return View(project);
         }
 
@@ -81,7 +81,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             {
                 return NotFound();
             }
-            ViewData["ManagerId"] = new SelectList(_context.Users, "UserId", "UserId", project.ManagerId);
+            ViewData["ManagerId"] = new SelectList(_context.Users, "UserId", "FullName", project.ManagerId);
             return View(project);
         }
 
@@ -117,7 +117,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ManagerId"] = new SelectList(_context.Users, "UserId", "UserId", project.ManagerId);
+            ViewData["ManagerId"] = new SelectList(_context.Users, "UserId", "FullName", project.ManagerId);
             return View(project);
         }
 
