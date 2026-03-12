@@ -253,15 +253,29 @@
             <!-- Weather Info (Nice to have for construction) -->
             <div class="glass-card rounded-2xl p-6 relative overflow-hidden">
                 <div class="flex items-center justify-between relative z-10">
-                    <div>
-                        <h4 class="text-sm font-bold text-white">TP. Hồ Chí Minh</h4>
-                        <p class="text-2xl font-bold text-primary mt-1">32°C</p>
-                        <p class="text-[10px] text-slate-400 uppercase tracking-tight">Trời nắng - Tốt cho đổ bê tông</p>
-                    </div>
-                    <span class="material-icons text-4xl text-amber-400">wb_sunny</span>
+                    @if (Model.Weather != null)
+                    {
+                        <div>
+                            <h4 class="text-sm font-bold text-white">@Model.Weather.City</h4>
+                            <p class="text-2xl font-bold text-primary mt-1">
+                                @Model.Weather.Temperature.ToString("0.#")°C
+                            </p>
+                            <p class="text-[10px] text-slate-400 uppercase tracking-tight">
+                                @Model.Weather.Description - Độ ẩm @Model.Weather.Humidity% · Gió @Model.Weather.WindSpeed.ToString("0.#") m/s
+                            </p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div>
+                            <h4 class="text-sm font-bold text-white">Đà Nẵng</h4>
+                            <p class="text-sm text-slate-400 mt-1">Không lấy được dữ liệu thời tiết hiện tại.</p>
+                        </div>
+                    }
+                    <span class="material-icons text-4xl text-amber-400">@(Model.Weather?.Icon ?? "wb_sunny")</span>
                 </div>
                 <div class="absolute -bottom-6 -right-6 opacity-5">
-                    <span class="material-icons text-9xl">wb_sunny</span>
+                    <span class="material-icons text-9xl">@(Model.Weather?.Icon ?? "wb_sunny")</span>
                 </div>
             </div>
         </div>
