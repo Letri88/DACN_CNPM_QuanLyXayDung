@@ -1,9 +1,6 @@
 <aside class="fixed left-0 top-0 h-full w-64 glass-sidebar z-50 flex flex-col">
     <div class="p-6">
         <div class="flex items-center gap-3">
-            <div class="logo pull-left">
-                <a href="index.html"><img src="images//a.jpg" alt="" /></a>
-            </div>
             <h1 class="text-xl font-bold tracking-tight text-white">VIbe<span class="text-primary">Construct</span></h1>
         </div>
     </div>
@@ -21,17 +18,27 @@
 
         <a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="~/Stages">
             <span class="material-icons text-xl">loop</span>
-            <span class="font-medium">Vòng đời</span>
+            <span class="font-medium">Giai đoạn</span>
         </a>
 
-        <a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="~/Tasks">
+        @* <a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="~/Tasks">
             <span class="material-icons text-xl">assignment</span>
             <span class="font-medium">Công việc</span>
-        </a>
+        </a> *@
 
         <a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="~/Materials">
             <span class="material-icons text-xl">inventory_2</span>
             <span class="font-medium">Tài nguyên</span>
+        </a>
+
+        <a class="flex items-center gap-3 px-4 py-3 pl-8 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all text-sm" href="~/InventoryTransactions">
+            <span class="material-icons text-lg">add_shopping_cart</span>
+            <span class="font-medium">Nhập kho (Transactions)</span>
+        </a>
+
+        <a class="flex items-center gap-3 px-4 py-3 pl-8 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all text-sm" href="~/MaterialUsages">
+            <span class="material-icons text-lg">outbox</span>
+            <span class="font-medium">Xuất kho (Usages)</span>
         </a>
 
         <a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="~/Users">
@@ -43,13 +50,4 @@
             <span class="font-medium">Báo cáo</span>
         </a>
     </nav>
-    <div class="p-6 border-t border-white/5">
-        <div class="flex items-center gap-3 glass-panel p-3 rounded-xl">
-            <img class="w-10 h-10 rounded-lg object-cover" data-alt="Chân dung quản lý nam chuyên nghiệp" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAmk8Y27i5yHvKfEcnFdbL2w-kHPSClp2hf2erRuw33bsl2FeKQMtqt1hAXVCrNH_9_V7yp2NBaNf80MF3ZBxYyew5vKzNtDF9y16ywSIBhLMUp9O330gUv0_Rw9S99GN_P3BZiwHnlr2O8VWj1M9wy-7LUiY8Bj4vE7lLae6czyYZ3uyAFiSENVIh-xmeNTJhycKsM4NV-nU_tiO9R2FkONfGefbmjy_yRU4kh4752vdQ57WCdmN30I9cdNKvSkS4bjffvCTEwvKw" />
-            <div class="overflow-hidden">
-                <p class="text-sm font-semibold text-white truncate">Phan Anh Tuấn</p>
-                <p class="text-xs text-slate-400 truncate">Quản lý cấp cao</p>
-            </div>
-        </div>
-    </div>
 </aside>

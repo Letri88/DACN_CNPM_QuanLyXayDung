@@ -58,6 +58,10 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("UserId,RoleId,FullName,Email,Password,Status")] User user)
         {
+            ModelState.Remove(nameof(user.Role));
+            ModelState.Remove(nameof(user.InventoryTransactions));
+            ModelState.Remove(nameof(user.Projects));
+
             if (ModelState.IsValid)
             {
                 _context.Add(user);
@@ -96,6 +100,10 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             {
                 return NotFound();
             }
+
+            ModelState.Remove(nameof(user.Role));
+            ModelState.Remove(nameof(user.InventoryTransactions));
+            ModelState.Remove(nameof(user.Projects));
 
             if (ModelState.IsValid)
             {

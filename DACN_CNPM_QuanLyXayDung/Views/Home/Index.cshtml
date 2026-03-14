@@ -9,7 +9,6 @@
     <section class="space-y-6">
         <div>
             <h2 class="text-2xl font-bold text-white">Quản lý dự án &amp; tài nguyên</h2>
-            <p class="text-slate-400 mt-1">Hôm nay là @DateTime.Now.ToString("dddd, ngày dd tháng MM năm yyyy"). Chúc bạn một ngày làm việc hiệu quả.</p>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <!-- KPI 1 -->
@@ -103,7 +102,7 @@
                         <tbody class="divide-y divide-white/5">
                             @foreach (var project in Model.ProjectsOverview)
                             {
-                                var percent = project.Tasks != null && project.Tasks.Any() ? project.Tasks.Average(t => t.PercentComplete ?? 0) : 0;
+                                var percent = project.Stages != null && project.Stages.Any() ? project.Stages.Average(t => t.PercentComplete ?? 0) : 0;
                                 <tr class="hover:bg-white/5 transition-colors">
                                     <td class="px-6 py-4 text-sm font-mono text-slate-400">PRJ-@project.ProjectId</td>
                                     <td class="px-6 py-4 text-sm font-semibold text-white">@project.ProjectName</td>
@@ -192,6 +191,10 @@
                     {
                         @foreach (var mat in Model.LowStockMaterials)
                         {
+                            var totalImport = mat.InventoryTransactions.Sum(x => x.Quantity);
+                            var totalUsed = mat.MaterialUsages.Sum(x => x.QuantityUsage);
+                            var currentStock = totalImport - totalUsed;
+
                             <div class="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
                                 <div class="flex items-center gap-3">
                                     <div class="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center text-orange-400">
@@ -199,12 +202,19 @@
                                     </div>
                                     <div>
                                         <p class="text-sm font-bold text-white">@mat.MaterialName</p>
-                                        <p class="text-[10px] text-slate-400 uppercase">Mức tối đa: @mat.MinStockLevel</p>
+                                        <p class="text-[10px] text-slate-400 uppercase">
+                                            Tồn kho: @currentStock @mat.Unit
+                                        </p>
                                     </div>
                                 </div>
+
                                 <div class="text-right">
-                                    <p class="text-sm font-bold text-orange-400">Cần nhập thêm</p>
-                                    <p class="text-[10px] text-slate-500">Đơn vị: @mat.Unit</p>
+                                    <p class="text-sm font-bold text-orange-400">
+                                        Tối thiểu: @mat.MinStockLevel
+                                    </p>
+                                    <p class="text-[10px] text-slate-500">
+                                        Cần nhập thêm
+                                    </p>
                                 </div>
                             </div>
                         }
@@ -218,51 +228,6 @@
                 </div>
                 <button class="w-full mt-6 py-2.5 rounded-xl border border-white/10 text-xs font-bold text-slate-300 hover:bg-white/5 transition-colors">Xem báo cáo vật tư</button>
             </div>
-            <!-- Risks & Alerts -->
-            <div class="glass-panel rounded-2xl p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-lg font-bold text-white">Rủi ro &amp; Cảnh báo</h3>
-                    <span class="material-icons text-red-400">gpp_maybe</span>
-                </div>
-                <div class="space-y-4">
-                    <!-- Warning Card 1 -->
-                    <div class="p-4 rounded-xl border-l-4 border-red-500 bg-red-500/5 space-y-2">
-                        <div class="flex justify-between items-start">
-                            <span class="text-xs font-bold text-red-400 uppercase">Vượt ngân sách</span>
-                            <span class="text-[10px] text-slate-500">2 giờ trước</span>
-                        </div>
-                        <p class="text-sm text-slate-200">Dự án <span class="text-white font-semibold">Skyline Tower</span> đã vượt 5.2% chi phí nhân công so với kế hoạch tháng 5.</p>
-                        <div class="flex gap-2 pt-1">
-                            <button class="text-[10px] px-2 py-1 bg-red-500/20 text-red-400 rounded-md font-bold uppercase">Phê duyệt</button>
-                            <button class="text-[10px] px-2 py-1 bg-white/5 text-slate-400 rounded-md font-bold uppercase">Bỏ qua</button>
-                        </div>
-                    </div>
-                    <!-- Warning Card 2 -->
-                    <div class="p-4 rounded-xl border-l-4 border-amber-500 bg-amber-500/5 space-y-2">
-                        <div class="flex justify-between items-start">
-                            <span class="text-xs font-bold text-amber-400 uppercase">Chậm bàn giao</span>
-                            <span class="text-[10px] text-slate-500">1 ngày trước</span>
-                        </div>
-                        <p class="text-sm text-slate-200">Nhà thầu phụ điện chưa hoàn thành lắp đặt tại <span class="text-white font-semibold">Vincom Phase 2</span>.</p>
-                        <div class="flex gap-2 pt-1">
-                            <button class="text-[10px] px-2 py-1 bg-amber-500/20 text-amber-400 rounded-md font-bold uppercase">Gửi nhắc nhở</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- Weather Info (Nice to have for construction) -->
-            <div class="glass-card rounded-2xl p-6 relative overflow-hidden">
-                <div class="flex items-center justify-between relative z-10">
-                    <div>
-                        <h4 class="text-sm font-bold text-white">TP. Hồ Chí Minh</h4>
-                        <p class="text-2xl font-bold text-primary mt-1">32°C</p>
-                        <p class="text-[10px] text-slate-400 uppercase tracking-tight">Trời nắng - Tốt cho đổ bê tông</p>
-                    </div>
-                    <span class="material-icons text-4xl text-amber-400">wb_sunny</span>
-                </div>
-                <div class="absolute -bottom-6 -right-6 opacity-5">
-                    <span class="material-icons text-9xl">wb_sunny</span>
-                </div>
-            </div>
+
         </div>
     </div>
