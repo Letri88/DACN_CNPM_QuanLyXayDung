@@ -47,23 +47,15 @@
                         <div class="flex flex-col gap-1 mt-1">
                             <div class="flex items-center gap-2">
                                 <span class="material-icons text-primary/70 text-sm">foundation</span>
-                                <span class="text-slate-200 font-semibold text-sm">@Html.DisplayFor(model => model.Project.ProjectName)</span>
+                                <span class="text-slate-200 font-semibold text-sm">@Html.DisplayFor(model => model.Project!.ProjectName)</span>
                             </div>
                             <div class="flex items-center gap-2">
                                 <span class="material-icons text-primary/70 text-sm">account_tree</span>
-                                <span class="text-slate-300 text-sm bg-white/5 px-2 py-0.5 rounded">@Html.DisplayFor(model => model.Stage.StageName)</span>
+                                <span class="text-slate-300 text-sm bg-white/5 px-2 py-0.5 rounded">@Html.DisplayFor(model => model.Stage!.StageName)</span>
                             </div>
                         </div>
                     </div>
-                    <div>
-                        <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Người phụ trách</p>
-                        <div class="flex items-center gap-3 mt-1">
-                            <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-white shadow-inner" title="User ID: @Html.DisplayFor(model => model.AssignedUser.UserId)">
-                                @(Model.AssignedUser != null && !string.IsNullOrEmpty(Model.AssignedUser.FullName) ? Model.AssignedUser.FullName.Substring(0, 1).ToUpper() : "?")
-                            </div>
-                            <span class="text-slate-200 text-sm font-medium">@(Model.AssignedUser?.FullName ?? "Chưa giao")</span>
-                        </div>
-                    </div>
+
                 </div>
 
                 <!-- Schedule block -->
@@ -84,38 +76,7 @@
                     </div>
                 </div>
                 
-                <!-- Progress block -->
-                <div class="bg-white/5 p-5 rounded-xl border border-white/5 lg:col-span-1 md:col-span-2">
-                    <div class="flex justify-between items-end mb-2">
-                        <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Tiến độ hoàn thành</p>
-                        <span class="text-2xl font-black text-white">@(Model.PercentComplete)%</span>
-                    </div>
-                    <div class="h-3 bg-white/10 rounded-full overflow-hidden mb-4 shadow-inner">
-                        <div class="h-full bg-gradient-to-r from-primary/80 to-primary rounded-full relative" style="width: @(Model.PercentComplete)%">
-                            <div class="absolute inset-0 bg-white/20 overflow-hidden">
-                                <div class="w-full h-full -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/40 to-transparent"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <p class="text-xs text-slate-400 text-center">
-                        @if (Model.PercentComplete == 100)
-                        {
-                            <span>Tuyệt vời! Công việc đã hoàn thành.</span>
-                        }
-                        else if (Model.PercentComplete > 50)
-                        {
-                            <span>Đã vượt qua nửa chặng đường.</span>
-                        }
-                        else if (Model.PercentComplete > 0)
-                        {
-                            <span>Công việc đang được thực hiện.</span>
-                        }
-                        else
-                        {
-                            <span>Chưa bắt đầu thực hiện.</span>
-                        }
-                    </p>
-                </div>
+
             </div>
 
             <div class="pt-6 mt-8 border-t border-white/10 flex flex-wrap items-center justify-between gap-4 relative z-10">

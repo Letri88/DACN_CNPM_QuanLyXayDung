@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace DACN_CNPM_QuanLyXayDung.Models;
@@ -23,5 +23,5 @@ public partial class User
 
     public virtual Role? Role { get; set; }
 
-    public virtual ICollection<Task> Tasks { get; set; } = new List<Task>();
+    public virtual ICollection<Stage> Stages { get; set; } = new List<Stage>();
 }

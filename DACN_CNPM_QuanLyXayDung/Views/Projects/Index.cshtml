@@ -16,11 +16,13 @@
             <table class="w-full text-left">
                 <thead>
                     <tr class="text-slate-500 text-xs uppercase tracking-wider bg-white/5">
-                        <th class="px-6 py-4 font-semibold">@Html.DisplayNameFor(model => model.ProjectName)</th>
-                        <th class="px-6 py-4 font-semibold">@Html.DisplayNameFor(model => model.Budget)</th>
-                        <th class="px-6 py-4 font-semibold">@Html.DisplayNameFor(model => model.StartDate)</th>
-                        <th class="px-6 py-4 font-semibold">@Html.DisplayNameFor(model => model.EndDate)</th>
-                        <th class="px-6 py-4 font-semibold">@Html.DisplayNameFor(model => model.Status)</th>
+                        <th class="px-6 py-4 font-semibold">Tên dự án</th>
+                        <th class="px-6 py-4 font-semibold">Quản lý dự án</th>
+                        <th class="px-6 py-4 font-semibold">Tiến độ</th>
+                        <th class="px-6 py-4 font-semibold">Ngân sách</th>
+                        <th class="px-6 py-4 font-semibold">Ngày bắt đầu</th>
+                        <th class="px-6 py-4 font-semibold">Ngày kết thúc</th>
+                        <th class="px-6 py-4 font-semibold">Trạng thái</th>
                         <th class="px-6 py-4 font-semibold text-right">Thao tác</th>
                     </tr>
                 </thead>
@@ -28,7 +30,35 @@
                     @foreach (var item in Model) {
                         <tr class="hover:bg-white/5 transition-colors">
                             <td class="px-6 py-4 font-semibold text-white">@Html.DisplayFor(modelItem => item.ProjectName)</td>
-                            <td class="px-6 py-4">@Html.DisplayFor(modelItem => item.Budget)</td>
+                            <td class="px-6 py-4">
+                                @{
+                                    var roleName = item.Manager?.Role?.RoleName?.Trim().ToLower() switch {
+                                        "admin" => "Quản trị viên",
+                                        "project manager" => "Quản lý dự án",
+                                        "engineer" => "Kỹ sư",
+                                        "warehouse keeper" => "Thủ kho",
+                                        _ => item.Manager?.Role?.RoleName
+                                    };
+                                }
+                                <div class="flex flex-col">
+                                    <span>@(item.Manager?.FullName ?? "Chưa rõ")</span>
+                                    @if (!string.IsNullOrEmpty(roleName)) {
+                                        <span class="text-[10px] text-slate-400">@roleName</span>
+                                    }
+                                </div>
+                            </td>
+                            @{
+                                var percent = item.Stages != null && item.Stages.Any() ? item.Stages.Average(t => t.PercentComplete ?? 0) : 0;
+                            }
+                            <td class="px-6 py-4 min-w-[140px]">
+                                <div class="flex items-center gap-3">
+                                    <div class="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                                        <div class="h-full bg-primary" style="width: @Math.Round((double)percent)%"></div>
+                                    </div>
+                                    <span class="text-xs font-medium text-slate-300">@Math.Round((double)percent)%</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">@(item.Budget?.ToString("N0"))</td>
                             <td class="px-6 py-4">@(item.StartDate?.ToString("dd/MM/yyyy") ?? "-")</td>
                             <td class="px-6 py-4">@(item.EndDate?.ToString("dd/MM/yyyy") ?? "-")</td>
                             <td class="px-6 py-4">

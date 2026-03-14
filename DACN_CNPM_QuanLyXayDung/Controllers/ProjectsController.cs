@@ -21,7 +21,11 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         // GET: Projects
         public async Task<IActionResult> Index()
         {
-            var heThongQlvongDoiDuAnTaiNguyenContext = _context.Projects.Include(p => p.Manager);
+            var heThongQlvongDoiDuAnTaiNguyenContext = _context.Projects
+                .Include(p => p.Manager)
+                    .ThenInclude(u => u.Role)
+                .Include(p => p.Stages)
+                    .ThenInclude(s => s.Tasks);
             return View(await heThongQlvongDoiDuAnTaiNguyenContext.ToListAsync());
         }
 
@@ -35,6 +39,11 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
 
             var project = await _context.Projects
                 .Include(p => p.Manager)
+                    .ThenInclude(u => u.Role)
+                .Include(p => p.MaterialUsages)
+                    .ThenInclude(mu => mu.Material)
+                .Include(p => p.Stages)
+                    .ThenInclude(s => s.Tasks)
                 .FirstOrDefaultAsync(m => m.ProjectId == id);
             if (project == null)
             {
@@ -47,7 +56,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         // GET: Projects/Create
         public IActionResult Create()
         {
-            ViewData["ManagerId"] = new SelectList(_context.Users, "UserId", "FullName");
+            ViewData["ManagerId"] = GetUsersWithRoles();
             return View();
         }
 
@@ -58,13 +67,19 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ProjectId,ManagerId,ProjectName,Description,Budget,StartDate,EndDate,Status")] Project project)
         {
+            ModelState.Remove(nameof(project.Manager));
+            ModelState.Remove(nameof(project.InventoryTransactions));
+            ModelState.Remove(nameof(project.MaterialUsages));
+            ModelState.Remove(nameof(project.Stages));
+            ModelState.Remove(nameof(project.Tasks));
+
             if (ModelState.IsValid)
             {
                 _context.Add(project);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ManagerId"] = new SelectList(_context.Users, "UserId", "FullName", project.ManagerId);
+            ViewData["ManagerId"] = GetUsersWithRoles(project.ManagerId);
             return View(project);
         }
 
@@ -81,7 +96,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             {
                 return NotFound();
             }
-            ViewData["ManagerId"] = new SelectList(_context.Users, "UserId", "FullName", project.ManagerId);
+            ViewData["ManagerId"] = GetUsersWithRoles(project.ManagerId);
             return View(project);
         }
 
@@ -96,6 +111,12 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             {
                 return NotFound();
             }
+
+            ModelState.Remove(nameof(project.Manager));
+            ModelState.Remove(nameof(project.InventoryTransactions));
+            ModelState.Remove(nameof(project.MaterialUsages));
+            ModelState.Remove(nameof(project.Stages));
+            ModelState.Remove(nameof(project.Tasks));
 
             if (ModelState.IsValid)
             {
@@ -117,7 +138,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ManagerId"] = new SelectList(_context.Users, "UserId", "FullName", project.ManagerId);
+            ViewData["ManagerId"] = GetUsersWithRoles(project.ManagerId);
             return View(project);
         }
 
@@ -158,6 +179,27 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         private bool ProjectExists(int id)
         {
             return _context.Projects.Any(e => e.ProjectId == id);
+        }
+
+        private string TranslateRole(string roleName)
+        {
+            if (string.IsNullOrWhiteSpace(roleName)) return "";
+            return roleName.Trim().ToLower() switch {
+                "admin" => "Quản trị viên",
+                "project manager" => "Quản lý dự án",
+                "engineer" => "Kỹ sư",
+                "warehouse keeper" => "Thủ kho",
+                _ => roleName
+            };
+        }
+
+        private SelectList GetUsersWithRoles(int? selectedId = null)
+        {
+            var users = _context.Users.Include(u => u.Role).ToList().Select(u => new {
+                UserId = u.UserId,
+                DisplayName = $"{u.FullName} - {TranslateRole(u.Role?.RoleName)}"
+            });
+            return new SelectList(users, "UserId", "DisplayName", selectedId);
         }
     }
 }

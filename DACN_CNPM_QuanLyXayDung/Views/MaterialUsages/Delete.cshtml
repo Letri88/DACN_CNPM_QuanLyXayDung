@@ -1,0 +1,61 @@
+@model DACN_CNPM_QuanLyXayDung.Models.MaterialUsage
+
+@{
+    ViewData["Title"] = "Xoá Ghi nhận Xuất";
+}
+
+<div class="p-8 space-y-8">
+    <div class="max-w-3xl mx-auto">
+        <div class="glass-card p-8 rounded-2xl relative overflow-hidden border-red-500/20">
+            <!-- Decorative blur -->
+            <div class="absolute -right-20 -top-20 w-64 h-64 bg-red-500/5 rounded-full blur-3xl"></div>
+            
+            <div class="flex flex-col items-center justify-center mb-8 relative z-10 text-center">
+                <div class="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 border border-red-500/20 shadow-lg shadow-red-500/5 mb-4">
+                    <span class="material-icons text-4xl">warning</span>
+                </div>
+                <h3 class="text-2xl font-bold text-white mb-2">Xác nhận Xóa Ghi nhận Xuất</h3>
+                <p class="text-slate-400">Bạn có chắc chắn muốn xóa ghi nhận sử dụng vật tư này không?</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10 bg-black/20 p-6 rounded-xl border border-white/5">
+                <div class="space-y-6">
+                    <div>
+                        <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Dự án sử dụng</p>
+                        <p class="text-white font-medium text-lg">@Html.DisplayFor(model => model.Project.ProjectName)</p>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Vật liệu</p>
+                        <p class="text-lg font-bold text-white">@Html.DisplayFor(model => model.Material.MaterialName)</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-6 pt-4 border-t border-white/5">
+                        <div>
+                            <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Số lượng dùng</p>
+                            <p class="text-xl font-bold text-amber-400">@Html.DisplayFor(model => model.QuantityUsage)</p>
+                        </div>
+                        <div>
+                            <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Ngày ghi nhận</p>
+                            <p class="text-white font-medium">@(Model.Date?.ToString("dd/MM/yyyy") ?? "-")</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-6 mt-8 border-t border-white/10 flex items-center justify-between relative z-10">
+                <a asp-action="Index" class="text-slate-400 hover:text-white transition-colors text-sm flex items-center gap-2">
+                    <span class="material-icons text-sm">arrow_back</span> Hủy và Quay lại
+                </a>
+                
+                <form asp-action="Delete">
+                    <input type="hidden" asp-for="UsageId" />
+                    <button type="submit" class="bg-red-500/20 text-red-500 hover:bg-red-500/30 font-bold py-2.5 px-6 rounded-xl transition-colors flex items-center gap-2 border border-red-500/20">
+                        <span class="material-icons text-sm">delete_forever</span> Xác nhận Xóa
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -13,9 +13,15 @@
                 <input type="hidden" asp-for="StageId" />
                 
                 <div>
-                    <label asp-for="StageName" class="text-sm font-medium text-slate-300 mb-1 block"></label>
+                    <label asp-for="StageName" class="text-sm font-medium text-slate-300 mb-1 block">Tên giai đoạn</label>
                     <input asp-for="StageName" class="bg-white/5 border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" />
                     <span asp-validation-for="StageName" class="text-red-400 text-xs mt-1 block"></span>
+                </div>
+                
+                <div>
+                    <label asp-for="PercentComplete" class="text-sm font-medium text-slate-300 mb-1 block">Tiến độ (%)</label>
+                    <input asp-for="PercentComplete" type="number" min="0" max="100" class="bg-white/5 border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" />
+                    <span asp-validation-for="PercentComplete" class="text-red-400 text-xs mt-1 block"></span>
                 </div>
                 
                 <div>
@@ -24,6 +30,14 @@
                         <option value="">-- Chọn Dự án --</option>
                     </select>
                     <span asp-validation-for="ProjectId" class="text-red-400 text-xs mt-1 block"></span>
+                </div>
+
+                <div>
+                    <label asp-for="AssignedUserId" class="text-sm font-medium text-slate-300 mb-1 block">Người phụ trách</label>
+                    <select asp-for="AssignedUserId" class="bg-[#1a2e2e] border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all appearance-none" asp-items="ViewBag.AssignedUserId">
+                        <option value="">-- Chọn người phụ trách --</option>
+                    </select>
+                    <span asp-validation-for="AssignedUserId" class="text-red-400 text-xs mt-1 block"></span>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">

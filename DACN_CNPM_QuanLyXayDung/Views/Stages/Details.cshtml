@@ -43,6 +43,40 @@
                             <span class="text-slate-200 font-semibold text-sm">@Html.DisplayFor(model => model.Project.ProjectName)</span>
                         </div>
                     </div>
+
+                    <div>
+                        <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Người phụ trách</p>
+                        <div class="flex items-center gap-3 mt-1">
+                            @{
+                                var roleName = Model.AssignedUser?.Role?.RoleName?.Trim().ToLower() switch {
+                                    "admin" => "Quản trị viên",
+                                    "project manager" => "Quản lý dự án",
+                                    "engineer" => "Kỹ sư",
+                                    "warehouse keeper" => "Thủ kho",
+                                    _ => Model.AssignedUser?.Role?.RoleName
+                                };
+                            }
+                            <div class="w-8 h-8 rounded-full border-2 border-background-dark bg-slate-700 flex items-center justify-center text-[12px] text-white font-bold">
+                                @(Model.AssignedUser != null && !string.IsNullOrEmpty(Model.AssignedUser.FullName) ? Model.AssignedUser.FullName.Substring(0, 1).ToUpper() : "?")
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="text-slate-200 font-semibold text-sm">@(Model.AssignedUser?.FullName ?? "Chưa phân công")</span>
+                                @if (!string.IsNullOrEmpty(roleName)) {
+                                    <span class="text-[10px] text-slate-400">@roleName</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Tiến độ</p>
+                        <div class="flex items-center gap-3 mt-2">
+                            <div class="flex-1 h-2 bg-white/10 rounded-full overflow-hidden max-w-[200px]">
+                                <div class="h-full bg-primary" style="width: @(Model.PercentComplete ?? 0)%"></div>
+                            </div>
+                            <span class="text-sm font-medium text-slate-300">@(Model.PercentComplete ?? 0)%</span>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="space-y-6 bg-white/5 p-5 rounded-xl border border-white/5">
@@ -63,6 +97,79 @@
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- Tasks List Section -->
+            <div class="mt-8 relative z-10">
+                <div class="flex items-center justify-between mb-4 border-b border-white/10 pb-4">
+                    <h4 class="text-xl font-bold text-white flex items-center gap-2">
+                        <span class="material-icons text-primary rounded-lg bg-primary/10 p-1.5">task</span>
+                        Danh sách Công việc
+                    </h4>
+                    <a asp-controller="Tasks" asp-action="Create" asp-route-stageId="@Model.StageId" class="px-3 py-1.5 bg-primary/20 text-primary hover:bg-primary/30 font-bold rounded-xl transition-colors text-xs flex items-center gap-1">
+                        <span class="material-icons text-xs">add</span> 
+                        Thêm việc mới
+                    </a>
+                </div>
+                @if (Model.Tasks != null && Model.Tasks.Any())
+                {
+                    <div class="bg-white/5 rounded-xl border border-white/5 overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm">
+                                <thead>
+                                    <tr class="text-slate-500 text-xs uppercase tracking-wider bg-white/5 border-b border-white/5">
+                                        <th class="px-4 py-3 font-semibold">Tên công việc</th>
+                                        <th class="px-4 py-3 font-semibold">Dự kiến</th>
+                                        <th class="px-4 py-3 font-semibold">Trạng thái</th>
+                                        <th class="px-4 py-3 font-semibold text-right">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-white/5 text-slate-300">
+                                    @foreach (var task in Model.Tasks)
+                                    {
+                                        <tr class="hover:bg-white/5 transition-colors">
+                                            <td class="px-4 py-3 font-medium text-white">@task.TaskName</td>
+                                            <td class="px-4 py-3 text-xs text-slate-400">
+                                                @(task.StartDate?.ToString("dd/MM/yy") ?? "-") &rarr; @(task.EndDate?.ToString("dd/MM/yy") ?? "-")
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                @if(task.Status == "Planned" || task.Status == "Pending" || task.Status == "Not Started") {
+                                                    <span class="px-2 py-0.5 rounded border border-amber-500/20 text-[10px] uppercase font-bold bg-amber-500/10 text-amber-400">@task.Status</span>
+                                                } else if (task.Status == "Active" || task.Status == "In Progress") {
+                                                    <span class="px-2 py-0.5 rounded border border-blue-500/20 text-[10px] uppercase font-bold bg-blue-500/10 text-blue-400">@task.Status</span>
+                                                } else if (task.Status == "Completed" || task.Status == "Done") {
+                                                    <span class="px-2 py-0.5 rounded border border-emerald-500/20 text-[10px] uppercase font-bold bg-emerald-500/10 text-emerald-400">@task.Status</span>
+                                                } else {
+                                                    <span class="px-2 py-0.5 rounded border border-white/20 text-[10px] uppercase font-bold bg-white/10 text-slate-300">@task.Status</span>
+                                                }
+                                            </td>
+                                            <td class="px-4 py-3 text-right">
+                                                <div class="flex justify-end gap-1">
+                                                    <a asp-controller="Tasks" asp-action="Edit" asp-route-id="@task.TaskId" class="w-7 h-7 rounded bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-300" title="Sửa">
+                                                        <span class="material-icons text-[14px]">edit</span>
+                                                    </a>
+                                                    <a asp-controller="Tasks" asp-action="Details" asp-route-id="@task.TaskId" class="w-7 h-7 rounded bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-300" title="Chi tiết">
+                                                        <span class="material-icons text-[14px]">visibility</span>
+                                                    </a>
+                                                    <a asp-controller="Tasks" asp-action="Delete" asp-route-id="@task.TaskId" class="w-7 h-7 rounded bg-white/5 hover:bg-red-500/20 flex items-center justify-center text-slate-300 hover:text-red-400" title="Xóa">
+                                                        <span class="material-icons text-[14px]">delete</span>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-8 bg-white/5 rounded-xl border border-white/5 border-dashed">
+                        <span class="material-icons text-4xl text-white/10 mb-2">task</span>
+                        <p class="text-slate-400 text-sm">Giai đoạn này chưa có công việc nào.</p>
+                    </div>
+                }
             </div>
 
             <div class="pt-6 mt-8 border-t border-white/10 flex items-center justify-between relative z-10">

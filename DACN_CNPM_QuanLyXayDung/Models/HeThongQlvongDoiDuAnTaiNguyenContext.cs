@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -129,6 +129,7 @@ public partial class HeThongQlvongDoiDuAnTaiNguyenContext : DbContext
 
             entity.Property(e => e.StageId).HasColumnName("StageID");
             entity.Property(e => e.ProjectId).HasColumnName("ProjectID");
+            entity.Property(e => e.AssignedUserId).HasColumnName("AssignedUserID");
             entity.Property(e => e.StageName).HasMaxLength(150);
             entity.Property(e => e.Status)
                 .HasMaxLength(20)
@@ -138,6 +139,10 @@ public partial class HeThongQlvongDoiDuAnTaiNguyenContext : DbContext
                 .HasForeignKey(d => d.ProjectId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Stages_Project");
+
+            entity.HasOne(d => d.AssignedUser).WithMany(p => p.Stages)
+                .HasForeignKey(d => d.AssignedUserId)
+                .HasConstraintName("FK_Stages_User");
         });
 
         modelBuilder.Entity<Task>(entity =>
@@ -145,18 +150,12 @@ public partial class HeThongQlvongDoiDuAnTaiNguyenContext : DbContext
             entity.HasKey(e => e.TaskId).HasName("PK__Tasks__7C6949D13E927275");
 
             entity.Property(e => e.TaskId).HasColumnName("TaskID");
-            entity.Property(e => e.AssignedUserId).HasColumnName("AssignedUserID");
-            entity.Property(e => e.PercentComplete).HasDefaultValue(0);
             entity.Property(e => e.ProjectId).HasColumnName("ProjectID");
             entity.Property(e => e.StageId).HasColumnName("StageID");
             entity.Property(e => e.Status)
                 .HasMaxLength(20)
                 .HasDefaultValue("Pending");
             entity.Property(e => e.TaskName).HasMaxLength(150);
-
-            entity.HasOne(d => d.AssignedUser).WithMany(p => p.Tasks)
-                .HasForeignKey(d => d.AssignedUserId)
-                .HasConstraintName("FK_Tasks_User");
 
             entity.HasOne(d => d.Project).WithMany(p => p.Tasks)
                 .HasForeignKey(d => d.ProjectId)
