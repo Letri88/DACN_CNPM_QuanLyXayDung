@@ -50,9 +50,36 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         // GET: Tasks/Create
         public IActionResult Create(int? stageId = null)
         {
+            Stage? stage = null;
+            if (stageId.HasValue)
+            {
+                stage = _context.Stages
+                    .Include(s => s.Project)
+                    .FirstOrDefault(s => s.StageId == stageId.Value);
+            }
+
+            if (stage != null)
+            {
+                // Tạo task gắn chặt với stage này và project tương ứng
+                var model = new Models.Task
+                {
+                    ProjectId = stage.ProjectId,
+                    StageId = stage.StageId
+                };
+
+                ViewBag.FixedStage = true;
+                ViewBag.ProjectName = stage.Project.ProjectName;
+                ViewBag.StageName = stage.StageName;
+                ViewBag.ReturnStageId = stageId;
+
+                return View(model);
+            }
+
+            // Trường hợp tạo task chung (không từ giai đoạn cụ thể)
             ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectName");
-            ViewData["StageId"] = new SelectList(_context.Stages, "StageId", "StageName", stageId);
-            ViewBag.ReturnStageId = stageId;
+            ViewData["StageId"] = new SelectList(Enumerable.Empty<Stage>(), "StageId", "StageName");
+            ViewBag.FixedStage = false;
+            ViewBag.ReturnStageId = null;
             return View();
         }
 
@@ -65,14 +92,53 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         {
             ModelState.Remove(nameof(task.Project));
             ModelState.Remove(nameof(task.Stage));
+
+            if (task.StartDate.HasValue && task.EndDate.HasValue && task.EndDate < task.StartDate)
+            {
+                ModelState.AddModelError(nameof(task.EndDate), "Ngày kết thúc công việc không được nhỏ hơn ngày bắt đầu.");
+            }
+
+            if (task.StageId != 0)
+            {
+                var stage = await _context.Stages.Include(s => s.Project).FirstOrDefaultAsync(s => s.StageId == task.StageId);
+                if (stage != null)
+                {
+                    // Đảm bảo task luôn thuộc đúng dự án của giai đoạn
+                    task.ProjectId = stage.ProjectId;
+
+                    if (stage.StartDate.HasValue && task.StartDate.HasValue && task.StartDate < stage.StartDate)
+                    {
+                        ModelState.AddModelError(nameof(task.StartDate), "Ngày bắt đầu công việc không được nhỏ hơn ngày bắt đầu giai đoạn.");
+                    }
+                    if (stage.EndDate.HasValue && task.EndDate.HasValue && task.EndDate > stage.EndDate)
+                    {
+                        ModelState.AddModelError(nameof(task.EndDate), "Ngày kết thúc công việc không được vượt quá ngày kết thúc giai đoạn.");
+                    }
+
+                    var project = stage.Project;
+                    if (project != null)
+                    {
+                        if (project.StartDate.HasValue && task.StartDate.HasValue && task.StartDate < project.StartDate)
+                        {
+                            ModelState.AddModelError(nameof(task.StartDate), "Ngày bắt đầu công việc không được nhỏ hơn ngày bắt đầu dự án.");
+                        }
+                        if (project.EndDate.HasValue && task.EndDate.HasValue && task.EndDate > project.EndDate)
+                        {
+                            ModelState.AddModelError(nameof(task.EndDate), "Ngày kết thúc công việc không được vượt quá ngày kết thúc dự án.");
+                        }
+                    }
+                }
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(task);
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Details", "Stages", new { id = task.StageId });
             }
+
             ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectName", task.ProjectId);
-            ViewData["StageId"] = new SelectList(_context.Stages, "StageId", "StageName", task.StageId);
+            ViewData["StageId"] = new SelectList(_context.Stages.Where(s => s.ProjectId == task.ProjectId), "StageId", "StageName", task.StageId);
             return View(task);
         }
 
@@ -108,6 +174,46 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
 
             ModelState.Remove(nameof(task.Project));
             ModelState.Remove(nameof(task.Stage));
+
+            if (task.StartDate.HasValue && task.EndDate.HasValue && task.EndDate < task.StartDate)
+            {
+                ModelState.AddModelError(nameof(task.EndDate), "Ngày kết thúc công việc không được nhỏ hơn ngày bắt đầu.");
+            }
+
+            if (task.StageId != 0)
+            {
+                var stage = await _context.Stages.Include(s => s.Project).FirstOrDefaultAsync(s => s.StageId == task.StageId);
+                if (stage != null)
+                {
+                    if (task.ProjectId != stage.ProjectId)
+                    {
+                        ModelState.AddModelError(nameof(task.StageId), "Giai đoạn được chọn không thuộc dự án này.");
+                    }
+
+                    if (stage.StartDate.HasValue && task.StartDate.HasValue && task.StartDate < stage.StartDate)
+                    {
+                        ModelState.AddModelError(nameof(task.StartDate), "Ngày bắt đầu công việc không được nhỏ hơn ngày bắt đầu giai đoạn.");
+                    }
+                    if (stage.EndDate.HasValue && task.EndDate.HasValue && task.EndDate > stage.EndDate)
+                    {
+                        ModelState.AddModelError(nameof(task.EndDate), "Ngày kết thúc công việc không được vượt quá ngày kết thúc giai đoạn.");
+                    }
+
+                    var project = stage.Project;
+                    if (project != null)
+                    {
+                        if (project.StartDate.HasValue && task.StartDate.HasValue && task.StartDate < project.StartDate)
+                        {
+                            ModelState.AddModelError(nameof(task.StartDate), "Ngày bắt đầu công việc không được nhỏ hơn ngày bắt đầu dự án.");
+                        }
+                        if (project.EndDate.HasValue && task.EndDate.HasValue && task.EndDate > project.EndDate)
+                        {
+                            ModelState.AddModelError(nameof(task.EndDate), "Ngày kết thúc công việc không được vượt quá ngày kết thúc dự án.");
+                        }
+                    }
+                }
+            }
+
             if (ModelState.IsValid)
             {
                 try
@@ -129,8 +235,19 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
                 return RedirectToAction("Details", "Stages", new { id = task.StageId });
             }
             ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectName", task.ProjectId);
-            ViewData["StageId"] = new SelectList(_context.Stages, "StageId", "StageName", task.StageId);
+            ViewData["StageId"] = new SelectList(_context.Stages.Where(s => s.ProjectId == task.ProjectId), "StageId", "StageName", task.StageId);
             return View(task);
+        }
+
+        [HttpGet]
+        public JsonResult GetStagesByProject(int projectId)
+        {
+            var stages = _context.Stages
+                .Where(s => s.ProjectId == projectId)
+                .Select(s => new { s.StageId, s.StageName })
+                .ToList();
+
+            return Json(stages);
         }
 
         // GET: Tasks/Delete/5

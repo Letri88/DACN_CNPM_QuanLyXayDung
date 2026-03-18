@@ -68,6 +68,28 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             ModelState.Remove(nameof(stage.Project));
             ModelState.Remove(nameof(stage.Tasks));
             ModelState.Remove(nameof(stage.AssignedUser));
+
+            if (stage.StartDate.HasValue && stage.EndDate.HasValue && stage.EndDate < stage.StartDate)
+            {
+                ModelState.AddModelError(nameof(stage.EndDate), "Ngày kết thúc giai đoạn không được nhỏ hơn ngày bắt đầu.");
+            }
+
+            if (stage.ProjectId != 0)
+            {
+                var project = await _context.Projects.FindAsync(stage.ProjectId);
+                if (project != null)
+                {
+                    if (project.StartDate.HasValue && stage.StartDate.HasValue && stage.StartDate < project.StartDate)
+                    {
+                        ModelState.AddModelError(nameof(stage.StartDate), "Ngày bắt đầu giai đoạn không được nhỏ hơn ngày bắt đầu dự án.");
+                    }
+                    if (project.EndDate.HasValue && stage.EndDate.HasValue && stage.EndDate > project.EndDate)
+                    {
+                        ModelState.AddModelError(nameof(stage.EndDate), "Ngày kết thúc giai đoạn không được vượt quá ngày kết thúc dự án.");
+                    }
+                }
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(stage);
@@ -111,6 +133,28 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             ModelState.Remove(nameof(stage.Project));
             ModelState.Remove(nameof(stage.Tasks));
             ModelState.Remove(nameof(stage.AssignedUser));
+
+            if (stage.StartDate.HasValue && stage.EndDate.HasValue && stage.EndDate < stage.StartDate)
+            {
+                ModelState.AddModelError(nameof(stage.EndDate), "Ngày kết thúc giai đoạn không được nhỏ hơn ngày bắt đầu.");
+            }
+
+            if (stage.ProjectId != 0)
+            {
+                var project = await _context.Projects.FindAsync(stage.ProjectId);
+                if (project != null)
+                {
+                    if (project.StartDate.HasValue && stage.StartDate.HasValue && stage.StartDate < project.StartDate)
+                    {
+                        ModelState.AddModelError(nameof(stage.StartDate), "Ngày bắt đầu giai đoạn không được nhỏ hơn ngày bắt đầu dự án.");
+                    }
+                    if (project.EndDate.HasValue && stage.EndDate.HasValue && stage.EndDate > project.EndDate)
+                    {
+                        ModelState.AddModelError(nameof(stage.EndDate), "Ngày kết thúc giai đoạn không được vượt quá ngày kết thúc dự án.");
+                    }
+                }
+            }
+
             if (ModelState.IsValid)
             {
                 try
@@ -159,9 +203,17 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var stage = await _context.Stages.FindAsync(id);
+            var stage = await _context.Stages
+                .Include(s => s.Tasks)
+                .FirstOrDefaultAsync(s => s.StageId == id);
+
             if (stage != null)
             {
+                if (stage.Tasks.Any())
+                {
+                    _context.Tasks.RemoveRange(stage.Tasks);
+                }
+
                 _context.Stages.Remove(stage);
             }
 

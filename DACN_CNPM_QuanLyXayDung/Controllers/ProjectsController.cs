@@ -73,6 +73,11 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             ModelState.Remove(nameof(project.Stages));
             ModelState.Remove(nameof(project.Tasks));
 
+            if (project.StartDate.HasValue && project.EndDate.HasValue && project.EndDate < project.StartDate)
+            {
+                ModelState.AddModelError(nameof(project.EndDate), "Ngày kết thúc dự án không được nhỏ hơn ngày bắt đầu.");
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(project);
@@ -117,6 +122,11 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             ModelState.Remove(nameof(project.MaterialUsages));
             ModelState.Remove(nameof(project.Stages));
             ModelState.Remove(nameof(project.Tasks));
+
+            if (project.StartDate.HasValue && project.EndDate.HasValue && project.EndDate < project.StartDate)
+            {
+                ModelState.AddModelError(nameof(project.EndDate), "Ngày kết thúc dự án không được nhỏ hơn ngày bắt đầu.");
+            }
 
             if (ModelState.IsValid)
             {
@@ -166,9 +176,34 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var project = await _context.Projects.FindAsync(id);
+            var project = await _context.Projects
+                .Include(p => p.Stages)
+                    .ThenInclude(s => s.Tasks)
+                .FirstOrDefaultAsync(p => p.ProjectId == id);
+
             if (project != null)
             {
+                // Xóa toàn bộ task thuộc các stage của dự án
+                var allTasks = project.Stages.SelectMany(s => s.Tasks).ToList();
+                if (allTasks.Any())
+                {
+                    _context.Tasks.RemoveRange(allTasks);
+                }
+
+                // Xóa các stage của dự án
+                if (project.Stages.Any())
+                {
+                    _context.Stages.RemoveRange(project.Stages);
+                }
+
+                // (Tuỳ chọn) Nếu bạn muốn, có thể xóa luôn Tasks gắn thẳng với Project mà không qua Stage
+                var projectLevelTasks = _context.Tasks.Where(t => t.ProjectId == id).ToList();
+                if (projectLevelTasks.Any())
+                {
+                    _context.Tasks.RemoveRange(projectLevelTasks);
+                }
+
+                // Cuối cùng xóa chính dự án
                 _context.Projects.Remove(project);
             }
 

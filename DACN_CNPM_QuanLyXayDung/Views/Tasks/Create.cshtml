@@ -24,20 +24,42 @@
                 </div>
                 
                 <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label asp-for="ProjectId" class="text-sm font-medium text-slate-300 mb-1 block"></label>
-                        <select asp-for="ProjectId" class="bg-[#1a2e2e] border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all appearance-none" asp-items="ViewBag.ProjectId">
-                            <option value="">-- Chọn Dự án --</option>
-                        </select>
-                        <span asp-validation-for="ProjectId" class="text-red-400 text-xs mt-1 block"></span>
-                    </div>
-                    <div>
-                        <label asp-for="StageId" class="text-sm font-medium text-slate-300 mb-1 block"></label>
-                        <select asp-for="StageId" class="bg-[#1a2e2e] border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all appearance-none" asp-items="ViewBag.StageId">
-                            <option value="">-- Chọn Giai đoạn --</option>
-                        </select>
-                        <span asp-validation-for="StageId" class="text-red-400 text-xs mt-1 block"></span>
-                    </div>
+                    @if (ViewBag.FixedStage == true)
+                    {
+                        <div>
+                            <label class="text-sm font-medium text-slate-300 mb-1 block">Dự án</label>
+                            <div class="bg-white/5 border border-white/10 rounded-lg text-white p-2.5">
+                                @ViewBag.ProjectName
+                            </div>
+                            <input type="hidden" asp-for="ProjectId" />
+                            <span asp-validation-for="ProjectId" class="text-red-400 text-xs mt-1 block"></span>
+                        </div>
+                        <div>
+                            <label class="text-sm font-medium text-slate-300 mb-1 block">Giai đoạn</label>
+                            <div class="bg-white/5 border border-white/10 rounded-lg text-white p-2.5">
+                                @ViewBag.StageName
+                            </div>
+                            <input type="hidden" asp-for="StageId" />
+                            <span asp-validation-for="StageId" class="text-red-400 text-xs mt-1 block"></span>
+                        </div>
+                    }
+                    else
+                    {
+                        <div>
+                            <label asp-for="ProjectId" class="text-sm font-medium text-slate-300 mb-1 block"></label>
+                            <select asp-for="ProjectId" id="ProjectId" class="bg-[#1a2e2e] border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all appearance-none" asp-items="ViewBag.ProjectId">
+                                <option value="">-- Chọn Dự án --</option>
+                            </select>
+                            <span asp-validation-for="ProjectId" class="text-red-400 text-xs mt-1 block"></span>
+                        </div>
+                        <div>
+                            <label asp-for="StageId" class="text-sm font-medium text-slate-300 mb-1 block"></label>
+                            <select asp-for="StageId" id="StageId" class="bg-[#1a2e2e] border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all appearance-none" asp-items="ViewBag.StageId">
+                                <option value="">-- Chọn Giai đoạn --</option>
+                            </select>
+                            <span asp-validation-for="StageId" class="text-red-400 text-xs mt-1 block"></span>
+                        </div>
+                    }
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
@@ -68,4 +90,40 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        (function () {
+            // Chỉ bật logic chọn Project/Stage khi không cố định theo giai đoạn
+            const isFixedStage = @((ViewBag.FixedStage ?? false).ToString().ToLower());
+            if (isFixedStage) return;
+
+            const projectSelect = document.getElementById('ProjectId');
+            const stageSelect = document.getElementById('StageId');
+
+            if (!projectSelect || !stageSelect) return;
+
+            projectSelect.addEventListener('change', function () {
+                const projectId = this.value;
+                stageSelect.innerHTML = '<option value=\"\">-- Chọn Giai đoạn --</option>';
+
+                if (!projectId) {
+                    return;
+                }
+
+                fetch(`/Tasks/GetStagesByProject?projectId=${projectId}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        data.forEach(function (item) {
+                            const opt = document.createElement('option');
+                            opt.value = item.stageId;
+                            opt.textContent = item.stageName;
+                            stageSelect.appendChild(opt);
+                        });
+                    })
+                    .catch(err => {
+                        console.error('Lỗi tải danh sách giai đoạn', err);
+                    });
+            });
+        })();
+    </script>
 }
