@@ -78,6 +78,11 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
                 ModelState.AddModelError(nameof(project.EndDate), "Ngày kết thúc dự án không được nhỏ hơn ngày bắt đầu.");
             }
 
+            if (_context.Projects.Any(p => p.ProjectName.Trim().ToLower() == project.ProjectName.Trim().ToLower()))
+            {
+                ModelState.AddModelError(nameof(project.ProjectName), "Tên dự án đã tồn tại.");
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(project);
@@ -126,6 +131,11 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             if (project.StartDate.HasValue && project.EndDate.HasValue && project.EndDate < project.StartDate)
             {
                 ModelState.AddModelError(nameof(project.EndDate), "Ngày kết thúc dự án không được nhỏ hơn ngày bắt đầu.");
+            }
+
+            if (_context.Projects.Any(p => p.ProjectId != id && p.ProjectName.Trim().ToLower() == project.ProjectName.Trim().ToLower()))
+            {
+                ModelState.AddModelError(nameof(project.ProjectName), "Tên dự án đã tồn tại.");
             }
 
             if (ModelState.IsValid)
@@ -201,6 +211,20 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
                 if (projectLevelTasks.Any())
                 {
                     _context.Tasks.RemoveRange(projectLevelTasks);
+                }
+
+                // Xóa các giao dịch kho liên quan đến dự án
+                var inventoryTransactions = _context.InventoryTransactions.Where(it => it.ProjectId == id).ToList();
+                if (inventoryTransactions.Any())
+                {
+                    _context.InventoryTransactions.RemoveRange(inventoryTransactions);
+                }
+                
+                // Xóa các giao dịch sử dụng vật liệu liên quan đến dự án
+                var materialUsages = _context.MaterialUsages.Where(mu => mu.ProjectId == id).ToList();
+                if (materialUsages.Any())
+                {
+                    _context.MaterialUsages.RemoveRange(materialUsages);
                 }
 
                 // Cuối cùng xóa chính dự án

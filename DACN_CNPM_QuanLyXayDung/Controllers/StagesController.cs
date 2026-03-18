@@ -74,6 +74,11 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
                 ModelState.AddModelError(nameof(stage.EndDate), "Ngày kết thúc giai đoạn không được nhỏ hơn ngày bắt đầu.");
             }
 
+            if (_context.Stages.Any(s => s.ProjectId == stage.ProjectId && s.StageName.Trim().ToLower() == stage.StageName.Trim().ToLower()))
+            {
+                ModelState.AddModelError(nameof(stage.StageName), "Tên giai đoạn đã tồn tại trong dự án này.");
+            }
+
             if (stage.ProjectId != 0)
             {
                 var project = await _context.Projects.FindAsync(stage.ProjectId);
@@ -137,6 +142,11 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             if (stage.StartDate.HasValue && stage.EndDate.HasValue && stage.EndDate < stage.StartDate)
             {
                 ModelState.AddModelError(nameof(stage.EndDate), "Ngày kết thúc giai đoạn không được nhỏ hơn ngày bắt đầu.");
+            }
+
+            if (_context.Stages.Any(s => s.StageId != id && s.ProjectId == stage.ProjectId && s.StageName.Trim().ToLower() == stage.StageName.Trim().ToLower()))
+            {
+                ModelState.AddModelError(nameof(stage.StageName), "Tên giai đoạn đã tồn tại trong dự án này.");
             }
 
             if (stage.ProjectId != 0)

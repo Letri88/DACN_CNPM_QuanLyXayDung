@@ -63,6 +63,11 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             ModelState.Remove(nameof(material.InventoryTransactions));
             ModelState.Remove(nameof(material.MaterialUsages));
 
+            if (_context.Materials.Any(m => m.MaterialName.Trim().ToLower() == material.MaterialName.Trim().ToLower()))
+            {
+                ModelState.AddModelError(nameof(material.MaterialName), "Tên vật liệu đã tồn tại.");
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(material);
@@ -102,6 +107,11 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
 
             ModelState.Remove(nameof(material.InventoryTransactions));
             ModelState.Remove(nameof(material.MaterialUsages));
+
+            if (_context.Materials.Any(m => m.MaterialId != id && m.MaterialName.Trim().ToLower() == material.MaterialName.Trim().ToLower()))
+            {
+                ModelState.AddModelError(nameof(material.MaterialName), "Tên vật liệu đã tồn tại.");
+            }
 
             if (ModelState.IsValid)
             {
