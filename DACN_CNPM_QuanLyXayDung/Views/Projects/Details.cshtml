@@ -43,10 +43,24 @@
                     <div>
                         <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">@Html.DisplayNameFor(model => model.Manager)</p>
                         <div class="flex items-center gap-3 mt-2">
-                            <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-white border-2 border-background-dark" title="ID: @Html.DisplayFor(model => model.Manager.UserId)">
+                            <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-white border-2 border-background-dark" title="ID: @(Model.Manager?.UserId.ToString() ?? "?")">
                                 @(Model.Manager != null && !string.IsNullOrEmpty(Model.Manager.FullName) ? Model.Manager.FullName.Substring(0, 1).ToUpper() : "?")
                             </div>
-                            <p class="text-white font-medium text-sm">@(Model.Manager?.FullName ?? "Chưa chỉ định")</p>
+                            <div>
+                                <p class="text-white font-medium text-sm">@(Model.Manager?.FullName ?? "Chưa chỉ định")</p>
+                                @{
+                                    var roleNameDetail = Model.Manager?.Role?.RoleName?.Trim().ToLower() switch {
+                                        "admin" => "Quản trị viên",
+                                        "project manager" => "Quản lý dự án",
+                                        "engineer" => "Kỹ sư",
+                                        "warehouse keeper" => "Thủ kho",
+                                        _ => Model.Manager?.Role?.RoleName
+                                    };
+                                }
+                                @if(!string.IsNullOrEmpty(roleNameDetail)) {
+                                    <p class="text-[10px] text-slate-400">@roleNameDetail</p>
+                                }
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -83,6 +97,54 @@
                     <span class="material-icons text-sm">edit</span> Chỉnh sửa
                 </a>
             </div>
+
+            <!-- Material Usages Section -->
+            <div class="mt-12 relative z-10">
+                <div class="flex items-center justify-between mb-6">
+                    <h4 class="text-xl font-bold text-white flex items-center gap-2">
+                        <span class="material-icons text-emerald-400">inventory_2</span>
+                        Chi tiết vật liệu đã sử dụng
+                    </h4>
+                    <a asp-controller="MaterialUsages" asp-action="Create" asp-route-projectId="@Model?.ProjectId" class="text-sm bg-primary/20 hover:bg-primary/30 text-primary px-4 py-2 rounded-lg flex items-center gap-2 transition-colors border border-primary/20">
+                        <span class="material-icons text-sm">add</span> Thêm sử dụng
+                    </a>
+                </div>
+
+                @if (Model.MaterialUsages != null && Model.MaterialUsages.Any())
+                {
+                    <div class="overflow-hidden rounded-xl border border-white/10 bg-white/5">
+                        <table class="w-full text-left text-sm text-slate-300">
+                            <thead class="bg-white/5 text-xs uppercase text-slate-400">
+                                <tr>
+                                    <th scope="col" class="px-6 py-4 font-medium tracking-wider">Tên vật liệu</th>
+                                    <th scope="col" class="px-6 py-4 font-medium tracking-wider">Số lượng dùng</th>
+                                    <th scope="col" class="px-6 py-4 font-medium tracking-wider">DVT</th>
+                                    <th scope="col" class="px-6 py-4 font-medium tracking-wider">Ngày ghi nhận</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-white/5">
+                                @foreach (var usage in Model.MaterialUsages.OrderByDescending(u => u.Date))
+                                {
+                                    <tr class="hover:bg-white/5 transition-colors">
+                                        <td class="px-6 py-4">@usage.Material?.MaterialName</td>
+                                        <td class="px-6 py-4 font-medium text-white">@usage.QuantityUsage</td>
+                                        <td class="px-6 py-4">@usage.Material?.Unit</td>
+                                        <td class="px-6 py-4 text-slate-400">@(usage.Date?.ToString("dd/MM/yyyy HH:mm") ?? "-")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="bg-white/5 border border-white/10 rounded-xl p-8 text-center">
+                        <span class="material-icons text-5xl text-slate-600 mb-3 block">inventory</span>
+                        <p class="text-slate-400">Chưa có vật liệu nào được ghi nhận sử dụng cho dự án này.</p>
+                    </div>
+                }
+            </div>
+
         </div>
     </div>
 </div>

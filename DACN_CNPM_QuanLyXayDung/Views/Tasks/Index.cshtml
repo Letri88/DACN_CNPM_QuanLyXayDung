@@ -16,12 +16,11 @@
             <table class="w-full text-left">
                 <thead>
                     <tr class="text-slate-500 text-xs uppercase tracking-wider bg-white/5">
-                        <th class="px-6 py-4 font-semibold">@Html.DisplayNameFor(model => model.TaskName)</th>
-                        <th class="px-6 py-4 font-semibold">@Html.DisplayNameFor(model => model.Project)</th>
-                        <th class="px-6 py-4 font-semibold">@Html.DisplayNameFor(model => model.Stage)</th>
-                        <th class="px-6 py-4 font-semibold">@Html.DisplayNameFor(model => model.AssignedUser)</th>
-                        <th class="px-6 py-4 font-semibold">Tiến độ</th>
-                        <th class="px-6 py-4 font-semibold">@Html.DisplayNameFor(model => model.Status)</th>
+                        <th class="px-6 py-4 font-semibold">Tên công việc</th>
+                        <th class="px-6 py-4 font-semibold">Dự án</th>
+                        <th class="px-6 py-4 font-semibold">Giai đoạn</th>
+
+                        <th class="px-6 py-4 font-semibold">Trạng thái</th>
                         <th class="px-6 py-4 font-semibold text-right">Thao tác</th>
                     </tr>
                 </thead>
@@ -29,26 +28,11 @@
                     @foreach (var item in Model) {
                         <tr class="hover:bg-white/5 transition-colors">
                             <td class="px-6 py-4 font-semibold text-white">@Html.DisplayFor(modelItem => item.TaskName)</td>
-                            <td class="px-6 py-4">@Html.DisplayFor(modelItem => item.Project.ProjectName)</td>
+                            <td class="px-6 py-4">@Html.DisplayFor(modelItem => item.Project!.ProjectName)</td>
                             <td class="px-6 py-4 border-l border-white/5 relative group cursor-pointer">
-                                <span class="bg-white/5 px-2 py-1 rounded text-xs text-slate-300">@Html.DisplayFor(modelItem => item.Stage.StageName)</span>
+                                <span class="bg-white/5 px-2 py-1 rounded text-xs text-slate-300">@Html.DisplayFor(modelItem => item.Stage!.StageName)</span>
                             </td>
-                            <td class="px-6 py-4">
-                                <div class="flex items-center gap-2">
-                                    <div class="w-6 h-6 rounded-full bg-slate-700 flex items-center justify-center text-[10px] font-bold text-white" title="@(item.AssignedUser?.FullName ?? "Chưa giao")">
-                                        @(item.AssignedUser != null && !string.IsNullOrEmpty(item.AssignedUser.FullName) ? item.AssignedUser.FullName.Substring(0, 1).ToUpper() : "?")
-                                    </div>
-                                    <span class="text-sm">@(item.AssignedUser?.FullName ?? "Chưa giao")</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 w-32">
-                                <div class="flex items-center gap-2">
-                                    <div class="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
-                                        <div class="h-full bg-primary rounded-full" style="width: @(item.PercentComplete)%"></div>
-                                    </div>
-                                    <span class="text-xs font-mono">@(item.PercentComplete)%</span>
-                                </div>
-                            </td>
+
                             <td class="px-6 py-4">
                                 @if(item.Status == "Planned" || item.Status == "Pending" || item.Status == "Not Started") {
                                     <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-amber-500/10 text-amber-400 border border-amber-500/20 whitespace-nowrap">@item.Status</span>

@@ -1,0 +1,65 @@
+@model DACN_CNPM_QuanLyXayDung.Models.MaterialUsage
+
+@{
+    ViewData["Title"] = "Chi tiết Sử dụng";
+}
+
+<div class="p-8 space-y-8">
+    <div class="max-w-3xl mx-auto">
+        <div class="glass-card p-8 rounded-2xl relative overflow-hidden">
+            <!-- Decorative blur -->
+            <div class="absolute -right-20 -top-20 w-64 h-64 bg-amber-500/5 rounded-full blur-3xl"></div>
+            
+            <div class="flex justify-between items-start mb-8 relative z-10">
+                <div>
+                    <h3 class="text-2xl font-bold text-white mb-2">Chi tiết Ghi nhận Xuất</h3>
+                    <div class="flex items-center gap-3">
+                        <span class="text-sm text-slate-400 font-mono bg-white/5 py-1 px-3 rounded-lg border border-white/10">ID: MU-@Model.UsageId</span>
+                        <span class="px-3 py-1 rounded-full text-xs font-bold uppercase bg-amber-500/10 text-amber-500 border border-amber-500/20">SỬ DỤNG</span>
+                    </div>
+                </div>
+                <div class="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500 border border-amber-500/20 shadow-lg shadow-amber-500/5">
+                    <span class="material-icons text-3xl">outbox</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
+                <div class="space-y-6">
+                    <div>
+                        <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Dự án sử dụng</p>
+                        <p class="text-white font-medium text-lg">@Html.DisplayFor(model => model.Project.ProjectName)</p>
+                    </div>
+                </div>
+
+                <div class="space-y-6 bg-white/5 p-5 rounded-xl border border-white/5">
+                    <div>
+                        <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Vật liệu</p>
+                        <p class="text-lg font-bold text-white">@Html.DisplayFor(model => model.Material.MaterialName)</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-6 pt-4 border-t border-white/5">
+                        <div>
+                            <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Số lượng dùng</p>
+                            <p class="text-2xl font-bold text-amber-400">@Html.DisplayFor(model => model.QuantityUsage)</p>
+                        </div>
+                        <div>
+                            <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Ngày ghi nhận</p>
+                            <p class="text-white font-medium flex items-center gap-2 mt-1">
+                                <span class="material-icons text-sm text-slate-400">event</span>
+                                @(Model.Date?.ToString("dd/MM/yyyy") ?? "-")
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-6 mt-8 border-t border-white/10 flex items-center justify-between relative z-10">
+                <a asp-action="Index" class="text-slate-400 hover:text-white transition-colors text-sm flex items-center gap-2">
+                    <span class="material-icons text-sm">arrow_back</span> Quay lại
+                </a>
+                <a asp-action="Edit" asp-route-id="@Model?.UsageId" class="bg-white/10 hover:bg-white/20 text-white font-bold py-2.5 px-6 rounded-xl transition-colors flex items-center gap-2 border border-white/10">
+                    <span class="material-icons text-sm">edit</span> Chỉnh sửa
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

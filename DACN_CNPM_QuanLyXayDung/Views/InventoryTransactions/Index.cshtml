@@ -1,0 +1,65 @@
+@model IEnumerable<DACN_CNPM_QuanLyXayDung.Models.InventoryTransaction>
+
+@{
+    ViewData["Title"] = "Quản lý Nhập kho";
+}
+
+<div class="p-8 space-y-8">
+    <div class="glass-panel rounded-2xl overflow-hidden">
+        <div class="p-6 border-b border-white/10 flex justify-between items-center">
+            <h3 class="text-lg font-bold text-white">Lịch sử Nhập kho</h3>
+            <a asp-action="Create" class="px-4 py-2 bg-primary/20 text-primary hover:bg-primary/30 font-bold rounded-xl transition-colors text-sm flex items-center gap-2">
+                <span class="material-icons text-sm">add</span> Thêm giao dịch
+            </a>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead class="text-slate-500 text-xs uppercase tracking-wider bg-white/5">
+                    <tr>
+                        <th class="px-6 py-4 font-semibold">Tên vật liệu</th>
+                        <th class="px-6 py-4 font-semibold">Số lượng</th>
+                        <th class="px-6 py-4 font-semibold">Trạng thái</th>
+                        <th class="px-6 py-4 font-semibold">Ngày</th>
+                        <th class="px-6 py-4 font-semibold">Tên dự án</th>
+                        <th class="px-6 py-4 font-semibold">Người phụ trách</th>
+                        <th class="px-6 py-4 font-semibold text-right">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5 text-slate-300 text-sm">
+                    @foreach (var item in Model) {
+                        <tr class="hover:bg-white/5 transition-colors">
+                            <td class="px-6 py-4 font-medium text-white">@Html.DisplayFor(modelItem => item.Material.MaterialName)</td>
+                            <td class="px-6 py-4 font-bold text-emerald-400">@Html.DisplayFor(modelItem => item.Quantity)</td>
+                            <td class="px-6 py-4">@Html.DisplayFor(modelItem => item.Type)</td>
+                            <td class="px-6 py-4">@(item.Date?.ToString("dd/MM/yyyy") ?? "-")</td>
+                            <td class="px-6 py-4">@Html.DisplayFor(modelItem => item.Project.ProjectName)</td>
+                            <td class="px-6 py-4">
+                                @{
+                                    var roleName = item.WarehouseKeeper?.Role?.RoleName?.Trim().ToLower() switch {
+                                        "admin" => "Quản trị viên",
+                                        "project manager" => "Quản lý dự án",
+                                        "engineer" => "Kỹ sư",
+                                        "warehouse keeper" => "Thủ kho",
+                                        _ => item.WarehouseKeeper?.Role?.RoleName
+                                    };
+                                }
+                                @item.WarehouseKeeper?.FullName - @roleName
+                            </td>
+                            <td class="px-6 py-4 text-right flex justify-end gap-2">
+                                <a asp-action="Edit" asp-route-id="@item.TransactionId" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-300 transition-colors" title="Sửa">
+                                    <span class="material-icons text-sm">edit</span>
+                                </a>
+                                <a asp-action="Details" asp-route-id="@item.TransactionId" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-300 transition-colors" title="Chi tiết">
+                                    <span class="material-icons text-sm">visibility</span>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.TransactionId" class="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 flex items-center justify-center text-red-400 transition-colors" title="Xóa">
+                                    <span class="material-icons text-sm">delete</span>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

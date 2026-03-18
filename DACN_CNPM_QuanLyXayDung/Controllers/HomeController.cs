@@ -19,25 +19,36 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var activeProjectsCount = await _context.Projects.CountAsync(p => p.Status == "Active" || p.Status == "In Progress");
-            var delayedProjectsCount = await _context.Projects.CountAsync(p => p.EndDate < DateOnly.FromDateTime(DateTime.Today) && p.Status != "Completed" && p.Status != "Done");
+            var activeProjectsCount = await _context.Projects
+                .CountAsync(p => p.Status == "Active" || p.Status == "In Progress");
+
+            var delayedProjectsCount = await _context.Projects
+                .CountAsync(p => p.EndDate < DateOnly.FromDateTime(DateTime.Today)
+                && p.Status != "Completed" && p.Status != "Done");
+
             var totalBudget = await _context.Projects.SumAsync(p => p.Budget ?? 0);
-            var totalStaff = await _context.Users.CountAsync(u => u.Status == "Active");
+
+            var totalStaff = await _context.Users
+                .CountAsync(u => u.Status == "Active");
+
 
             var projectsOverview = await _context.Projects
                 .Include(p => p.Manager)
-                .Include(p => p.Tasks)
+                .Include(p => p.Stages)
+                    .ThenInclude(s => s.Tasks)
                 .Take(5)
                 .ToListAsync();
+
 
             var projectsTimeline = await _context.Projects
                 .Include(p => p.Stages)
                 .Take(3)
                 .ToListAsync();
 
-            var lowStockMaterials = await _context.Materials
-                .Where(m => m.MinStockLevel.HasValue && m.MinStockLevel > 0)
-                .Take(3)
+
+            var materials = await _context.Materials
+                .Include(m => m.InventoryTransactions)
+                .Include(m => m.MaterialUsages)
                 .ToListAsync();
             WeatherSummaryViewModel? weather = null;
             try
@@ -86,6 +97,19 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
                 _logger.LogError(ex, "Lỗi gọi API thời tiết OpenWeather");
             }
 
+            var lowStockMaterials = materials
+                .Where(m =>
+                {
+                    var totalImport = m.InventoryTransactions.Sum(x => x.Quantity);
+                    var totalUsed = m.MaterialUsages.Sum(x => x.QuantityUsage);
+                    var currentStock = totalImport - totalUsed;
+
+                    return currentStock <= (m.MinStockLevel ?? 0);
+                })
+                .Take(3)
+                .ToList();
+
+
             var model = new DashboardViewModel
             {
                 ActiveProjectsCount = activeProjectsCount,
@@ -102,10 +126,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             return View(model);
         }
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
+
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

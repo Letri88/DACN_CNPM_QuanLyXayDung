@@ -21,7 +21,10 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         // GET: Stages
         public async Task<IActionResult> Index()
         {
-            var heThongQlvongDoiDuAnTaiNguyenContext = _context.Stages.Include(s => s.Project);
+            var heThongQlvongDoiDuAnTaiNguyenContext = _context.Stages
+                .Include(s => s.Project)
+                .Include(s => s.AssignedUser)
+                .Include(s => s.Tasks);
             return View(await heThongQlvongDoiDuAnTaiNguyenContext.ToListAsync());
         }
 
@@ -35,6 +38,9 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
 
             var stage = await _context.Stages
                 .Include(s => s.Project)
+                .Include(s => s.AssignedUser)
+                    .ThenInclude(u => u.Role)
+                .Include(s => s.Tasks)
                 .FirstOrDefaultAsync(m => m.StageId == id);
             if (stage == null)
             {
@@ -48,6 +54,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         public IActionResult Create()
         {
             ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectName");
+            ViewData["AssignedUserId"] = GetUsersWithRoles();
             return View();
         }
 
@@ -56,10 +63,11 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("StageId,ProjectId,StageName,StartDate,EndDate,Status")] Stage stage)
+        public async Task<IActionResult> Create([Bind("StageId,ProjectId,StageName,StartDate,EndDate,Status,AssignedUserId")] Stage stage)
         {
             ModelState.Remove(nameof(stage.Project));
             ModelState.Remove(nameof(stage.Tasks));
+            ModelState.Remove(nameof(stage.AssignedUser));
             if (ModelState.IsValid)
             {
                 _context.Add(stage);
@@ -84,6 +92,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
                 return NotFound();
             }
             ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectName", stage.ProjectId);
+            ViewData["AssignedUserId"] = GetUsersWithRoles(stage.AssignedUserId);
             return View(stage);
         }
 
@@ -92,7 +101,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("StageId,ProjectId,StageName,StartDate,EndDate,Status")] Stage stage)
+        public async Task<IActionResult> Edit(int id, [Bind("StageId,ProjectId,StageName,StartDate,EndDate,Status,AssignedUserId")] Stage stage)
         {
             if (id != stage.StageId)
             {
@@ -101,6 +110,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
 
             ModelState.Remove(nameof(stage.Project));
             ModelState.Remove(nameof(stage.Tasks));
+            ModelState.Remove(nameof(stage.AssignedUser));
             if (ModelState.IsValid)
             {
                 try
@@ -162,6 +172,27 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         private bool StageExists(int id)
         {
             return _context.Stages.Any(e => e.StageId == id);
+        }
+
+        private string TranslateRole(string? roleName)
+        {
+            if (string.IsNullOrWhiteSpace(roleName)) return "";
+            return roleName.Trim().ToLower() switch {
+                "admin" => "Quản trị viên",
+                "project manager" => "Quản lý dự án",
+                "engineer" => "Kỹ sư",
+                "warehouse keeper" => "Thủ kho",
+                _ => roleName
+            };
+        }
+
+        private SelectList GetUsersWithRoles(int? selectedId = null)
+        {
+            var users = _context.Users.Include(u => u.Role).ToList().Select(u => new {
+                UserId = u.UserId,
+                DisplayName = $"{u.FullName} - {TranslateRole(u.Role?.RoleName)}"
+            });
+            return new SelectList(users, "UserId", "DisplayName", selectedId);
         }
     }
 }
