@@ -4,8 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using System.Text.Json;
 
+using Microsoft.AspNetCore.Authorization;
+
 namespace DACN_CNPM_QuanLyXayDung.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;

@@ -11,40 +11,53 @@
             <span class="font-medium">Tổng quan</span>
         </a>
 
-        <a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="~/Projects">
-            <span class="material-icons text-xl">construction</span>
-            <span class="font-medium">Dự án</span>
-        </a>
+        @if (User.IsInRole("Admin") || User.IsInRole("Project Manager") || User.IsInRole("Quản trị viên") || User.IsInRole("Quản lý dự án"))
+        {
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="~/Projects">
+                <span class="material-icons text-xl">construction</span>
+                <span class="font-medium">Dự án</span>
+            </a>
 
-        <a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="~/Stages">
-            <span class="material-icons text-xl">loop</span>
-            <span class="font-medium">Giai đoạn</span>
-        </a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="~/Stages">
+                <span class="material-icons text-xl">loop</span>
+                <span class="font-medium">Giai đoạn</span>
+            </a>
+        }
 
-        @* <a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="~/Tasks">
-            <span class="material-icons text-xl">assignment</span>
-            <span class="font-medium">Công việc</span>
-        </a> *@
+        @if (User.IsInRole("Admin") || User.IsInRole("Project Manager") || User.IsInRole("Engineer") || User.IsInRole("Quản trị viên") || User.IsInRole("Quản lý dự án") || User.IsInRole("Kỹ sư"))
+        {
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="~/Tasks">
+                <span class="material-icons text-xl">assignment</span>
+                <span class="font-medium">Công việc</span>
+            </a>
+        }
 
-        <a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="~/Materials">
-            <span class="material-icons text-xl">inventory_2</span>
-            <span class="font-medium">Tài nguyên</span>
-        </a>
+        @if (User.IsInRole("Admin") || User.IsInRole("Warehouse Keeper") || User.IsInRole("Quản trị viên") || User.IsInRole("Thủ kho"))
+        {
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="~/Materials">
+                <span class="material-icons text-xl">inventory_2</span>
+                <span class="font-medium">Tài nguyên</span>
+            </a>
 
-        <a class="flex items-center gap-3 px-4 py-3 pl-8 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all text-sm" href="~/InventoryTransactions">
-            <span class="material-icons text-lg">add_shopping_cart</span>
-            <span class="font-medium">Nhập kho (Transactions)</span>
-        </a>
+            <a class="flex items-center gap-3 px-4 py-3 pl-8 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all text-sm" href="~/InventoryTransactions">
+                <span class="material-icons text-lg">add_shopping_cart</span>
+                <span class="font-medium">Nhập kho (Transactions)</span>
+            </a>
 
-        <a class="flex items-center gap-3 px-4 py-3 pl-8 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all text-sm" href="~/MaterialUsages">
-            <span class="material-icons text-lg">outbox</span>
-            <span class="font-medium">Xuất kho (Usages)</span>
-        </a>
+            <a class="flex items-center gap-3 px-4 py-3 pl-8 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all text-sm" href="~/MaterialUsages">
+                <span class="material-icons text-lg">outbox</span>
+                <span class="font-medium">Xuất kho (Usages)</span>
+            </a>
+        }
 
-        <a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="~/Users">
-            <span class="material-icons text-xl">groups</span>
-            <span class="font-medium">Nhân sự</span>
-        </a>
+        @if (User.IsInRole("Admin") || User.IsInRole("Quản trị viên"))
+        {
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="~/Users">
+                <span class="material-icons text-xl">groups</span>
+                <span class="font-medium">Nhân sự</span>
+            </a>
+        }
+        
         <a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="#">
             <span class="material-icons text-xl">bar_chart</span>
             <span class="font-medium">Báo cáo</span>

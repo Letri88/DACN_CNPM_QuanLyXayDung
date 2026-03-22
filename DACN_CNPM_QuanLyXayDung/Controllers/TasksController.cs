@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DACN_CNPM_QuanLyXayDung.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DACN_CNPM_QuanLyXayDung.Controllers
 {
+    [Authorize(Roles = "Admin, Project Manager, Engineer, Quản trị viên, Quản lý dự án, Kỹ sư")]
     public class TasksController : Controller
     {
         private readonly HeThongQlvongDoiDuAnTaiNguyenContext _context;

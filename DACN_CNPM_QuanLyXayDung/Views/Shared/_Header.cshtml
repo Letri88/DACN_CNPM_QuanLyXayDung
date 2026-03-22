@@ -6,18 +6,37 @@
         </div>
     </div>
     <div class="flex items-center gap-4">
-        <button class="bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 px-5 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2">
-            <span class="material-icons text-lg">add_box</span>
-            Nhập vật tư
-        </button>
-        <button class="bg-primary hover:bg-primary/90 text-background-dark px-5 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2 shadow-[0_4px_15px_rgba(178,255,255,0.2)]">
-            <span class="material-icons text-lg">add</span>
-            Tạo dự án
-        </button>
+        @if (User.IsInRole("Admin") || User.IsInRole("Warehouse Keeper") || User.IsInRole("Quản trị viên") || User.IsInRole("Thủ kho"))
+        {
+            <a href="~/InventoryTransactions" class="bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 px-5 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2">
+                <span class="material-icons text-lg">add_box</span>
+                Nhập vật tư
+            </a>
+        }
+        @if (User.IsInRole("Admin") || User.IsInRole("Project Manager") || User.IsInRole("Quản trị viên") || User.IsInRole("Quản lý dự án"))
+        {
+            <a href="~/Projects/Create" class="bg-primary hover:bg-primary/90 text-background-dark px-5 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2 shadow-[0_4px_15px_rgba(178,255,255,0.2)]">
+                <span class="material-icons text-lg">add</span>
+                Tạo dự án
+            </a>
+        }
         <div class="h-8 w-px bg-white/10 mx-2"></div>
         <button class="w-10 h-10 rounded-xl glass-panel flex items-center justify-center text-slate-400 hover:text-white transition-colors relative">
             <span class="material-icons">notifications</span>
             <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border border-background-dark"></span>
         </button>
+
+        <div class="h-8 w-px bg-white/10 mx-2"></div>
+        <div class="flex items-center gap-3">
+            <div class="text-right hidden sm:block">
+                <div class="text-sm font-semibold text-white">@(User.Identity?.Name ?? "Người dùng")</div>
+                <div class="text-xs text-slate-400">@User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value</div>
+            </div>
+            <form asp-controller="Account" asp-action="Logout" method="post" class="m-0 p-0">
+                <button type="submit" class="w-10 h-10 rounded-xl glass-panel flex items-center justify-center text-slate-400 hover:text-red-400 transition-colors" title="Đăng xuất">
+                    <span class="material-icons">logout</span>
+                </button>
+            </form>
+        </div>
     </div>
 </header>

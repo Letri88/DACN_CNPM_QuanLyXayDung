@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DACN_CNPM_QuanLyXayDung.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DACN_CNPM_QuanLyXayDung.Controllers
 {
+    [Authorize(Roles = "Admin, Project Manager, Quản trị viên, Quản lý dự án")]
     public class ProjectsController : Controller
     {
         private readonly HeThongQlvongDoiDuAnTaiNguyenContext _context;

@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DACN_CNPM_QuanLyXayDung.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DACN_CNPM_QuanLyXayDung.Controllers
 {
+    [Authorize(Roles = "Admin, Warehouse Keeper, Quản trị viên, Thủ kho")]
     public class MaterialsController : Controller
     {
         private readonly HeThongQlvongDoiDuAnTaiNguyenContext _context;
