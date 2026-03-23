@@ -96,6 +96,53 @@
                             </p>
                         </div>
                     </div>
+
+                    <div>
+                        <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">@Html.DisplayNameFor(model => model.Budget)</p>
+                        <div class="flex items-center gap-3 mt-2">
+                            <input asp-for="Budget"
+                                   class="bg-white/5 border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all"
+                                   disabled="@(Model.BudgetLocked ? "disabled" : null)" />
+                        </div>
+                        @if (Model.BudgetLocked)
+                        {
+                            <div class="text-[12px] text-emerald-400 mt-2">
+                                Budget đã được khóa và tự động điền từ bản kê khai.
+                            </div>
+                        }
+                    </div>
+
+                    <div class="pt-4 border-t border-white/10">
+                        <h4 class="text-sm font-bold text-white mb-3 flex items-center gap-2">
+                            <span class="material-icons text-sm text-primary rounded-lg bg-primary/10 p-1.5">description</span>
+                            Upload bản kê khai vật liệu (PDF)
+                        </h4>
+
+                        <form asp-action="UploadMaterialDeclaration"
+                              asp-route-id="@Model.StageId"
+                              method="post"
+                              enctype="multipart/form-data"
+                              class="space-y-3">
+                            <div asp-validation-summary="ModelOnly" class="text-red-400 text-sm"></div>
+
+                            <div>
+                                <label class="text-sm font-medium text-slate-300 mb-1 block" for="materialDeclarationFile">
+                                    Chọn file PDF
+                                </label>
+                                <input id="materialDeclarationFile"
+                                       name="materialDeclarationFile"
+                                       type="file"
+                                       accept="application/pdf"
+                                       class="bg-white/5 border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" />
+                            </div>
+
+                            <button type="submit"
+                                    class="bg-primary/20 text-primary hover:bg-primary/30 font-bold py-2.5 px-6 rounded-xl transition-colors flex items-center gap-2">
+                                <span class="material-icons text-sm">upload_file</span>
+                                Trích tổng chi phí
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
 

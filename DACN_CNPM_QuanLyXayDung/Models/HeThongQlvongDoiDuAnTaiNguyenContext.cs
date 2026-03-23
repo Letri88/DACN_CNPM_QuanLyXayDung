@@ -33,7 +33,7 @@ public partial class HeThongQlvongDoiDuAnTaiNguyenContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=thaipro113\\SQLEXPRESS;Initial Catalog=HeThongQLVongDoiDuAnTaiNguyen;Integrated Security=True;Trust Server Certificate=True");
+        => optionsBuilder.UseSqlServer("Data Source=LAPTOP-KFJT09DH\\SQLEXPRESS;Initial Catalog=HeThongQLVongDoiDuAnTaiNguyen;Integrated Security=True;Trust Server Certificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -131,6 +131,8 @@ public partial class HeThongQlvongDoiDuAnTaiNguyenContext : DbContext
             entity.Property(e => e.ProjectId).HasColumnName("ProjectID");
             entity.Property(e => e.AssignedUserId).HasColumnName("AssignedUserID");
             entity.Property(e => e.StageName).HasMaxLength(150);
+            entity.Property(e => e.Budget).HasColumnType("decimal(15, 2)");
+            entity.Property(e => e.BudgetLocked).HasDefaultValue(false);
             entity.Property(e => e.Status)
                 .HasMaxLength(20)
                 .HasDefaultValue("Planned");

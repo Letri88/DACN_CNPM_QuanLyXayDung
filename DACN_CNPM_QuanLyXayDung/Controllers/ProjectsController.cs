@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -67,7 +68,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ProjectId,ManagerId,ProjectName,Description,Budget,StartDate,EndDate,Status")] Project project)
+        public async Task<IActionResult> Create([Bind("ProjectId,ManagerId,ProjectName,Description,Budget,StartDate,EndDate,Status")] Project project, IFormFile? contractFile)
         {
             ModelState.Remove(nameof(project.Manager));
             ModelState.Remove(nameof(project.InventoryTransactions));
@@ -83,6 +84,27 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             if (_context.Projects.Any(p => p.ProjectName.Trim().ToLower() == project.ProjectName.Trim().ToLower()))
             {
                 ModelState.AddModelError(nameof(project.ProjectName), "Tên dự án đã tồn tại.");
+            }
+
+            if (contractFile is not null && contractFile.Length > 0)
+            {
+                if (contractFile.Length > 15 * 1024 * 1024)
+                {
+                    ModelState.AddModelError("contractFile", "File hợp đồng quá lớn. Vui lòng chọn file nhỏ hơn 15MB.");
+                }
+                else
+                {
+                    var extractedBudget = await ContractBudgetExtractor.TryExtractTotalCostAsync(contractFile);
+                    if (extractedBudget is not null)
+                    {
+                        // If contract provides total cost, override user input to keep data consistent.
+                        project.Budget = extractedBudget.Value;
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("contractFile", "Không thể trích xuất tổng chi phí từ hợp đồng. Hãy kiểm tra lại file (định dạng PDF với văn bản có thể chọn).");
+                    }
+                }
             }
 
             if (ModelState.IsValid)
