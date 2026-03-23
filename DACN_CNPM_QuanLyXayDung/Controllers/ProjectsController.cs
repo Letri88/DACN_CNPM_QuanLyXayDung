@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace DACN_CNPM_QuanLyXayDung.Controllers
 {
-    [Authorize(Roles = "Admin, Project Manager, Quản trị viên, Quản lý dự án")]
+    [Authorize(Roles = "Admin, Project Manager, Quản trị viên, Quản lý dự án, engineer, kỹ sư")]
     public class ProjectsController : Controller
     {
         private readonly HeThongQlvongDoiDuAnTaiNguyenContext _context;
@@ -54,6 +54,57 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             }
 
             return View(project);
+        }
+
+        // POST: Projects/ExtractContractBudget
+        // Dùng AJAX để trích tổng chi phí từ PDF hợp đồng -> trả về budget cho UI.
+        [HttpPost]
+        public async Task<IActionResult> ExtractContractBudget(IFormFile? contractFile)
+        {
+            if (contractFile is null || contractFile.Length == 0)
+            {
+                return BadRequest(new { message = "Bạn cần chọn file hợp đồng (PDF)." });
+            }
+
+            if (!string.Equals(Path.GetExtension(contractFile.FileName), ".pdf", StringComparison.OrdinalIgnoreCase))
+            {
+                return BadRequest(new { message = "Định dạng file phải là PDF." });
+            }
+
+            if (contractFile.Length > 15 * 1024 * 1024)
+            {
+                return BadRequest(new { message = "File hợp đồng quá lớn. Vui lòng chọn file nhỏ hơn 15MB." });
+            }
+
+            var extractedBudget = await ContractBudgetExtractor.TryExtractTotalCostAsync(contractFile);
+            if (extractedBudget is null)
+            {
+                return BadRequest(new { message = "Không thể trích xuất tổng chi phí từ hợp đồng." });
+            }
+
+            return Ok(new { budget = extractedBudget.Value, budgetLocked = true });
+        }
+
+        // GET: Projects/DownloadContract
+        // Trả về PDF hợp đồng đã upload để người dùng xem lại.
+        [HttpGet]
+        public async Task<IActionResult> DownloadContract(int id)
+        {
+            var project = await _context.Projects.FirstOrDefaultAsync(m => m.ProjectId == id);
+            if (project == null || project.ContractFileContent == null || project.ContractFileContent.Length == 0)
+            {
+                return NotFound();
+            }
+
+            var contentType = string.IsNullOrWhiteSpace(project.ContractFileContentType)
+                ? "application/pdf"
+                : project.ContractFileContentType;
+
+            var fileName = string.IsNullOrWhiteSpace(project.ContractFileName)
+                ? "contract.pdf"
+                : project.ContractFileName;
+
+            return File(project.ContractFileContent, contentType, fileName);
         }
 
         // GET: Projects/Create
@@ -99,6 +150,17 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
                     {
                         // If contract provides total cost, override user input to keep data consistent.
                         project.Budget = extractedBudget.Value;
+                        project.BudgetLocked = true;
+
+                        // Save uploaded PDF into database.
+                        await using (var ms = new System.IO.MemoryStream())
+                        {
+                            await contractFile.CopyToAsync(ms);
+                            project.ContractFileContent = ms.ToArray();
+                        }
+                        project.ContractFileName = contractFile.FileName;
+                        project.ContractFileContentType = contractFile.ContentType;
+                        project.ContractUploadedAt = DateTime.UtcNow;
                     }
                     else
                     {
@@ -166,7 +228,29 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             {
                 try
                 {
-                    _context.Update(project);
+                    // Preserve contract file + BudgetLocked fields so that budget cannot be unlocked
+                    // when user edits other properties.
+                    var existing = await _context.Projects.FirstOrDefaultAsync(p => p.ProjectId == id);
+                    if (existing == null)
+                    {
+                        return NotFound();
+                    }
+
+                    existing.ManagerId = project.ManagerId;
+                    existing.ProjectName = project.ProjectName;
+                    existing.Description = project.Description;
+                    existing.StartDate = project.StartDate;
+                    existing.EndDate = project.EndDate;
+                    existing.Status = project.Status;
+
+                    if (!existing.BudgetLocked)
+                    {
+                        existing.Budget = project.Budget;
+                    }
+
+                    // BudgetLocked is not changed here by UI.
+                    // Contract file fields are also preserved (no contract upload on Edit screen).
+
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)

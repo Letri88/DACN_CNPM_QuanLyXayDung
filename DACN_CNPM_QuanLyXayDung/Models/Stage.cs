@@ -23,6 +23,14 @@ public partial class Stage
 
     public bool BudgetLocked { get; set; } = false;
 
+    public byte[]? MaterialDeclarationFileContent { get; set; }
+
+    public string? MaterialDeclarationFileName { get; set; }
+
+    public string? MaterialDeclarationContentType { get; set; }
+
+    public DateTime? MaterialDeclarationUploadedAt { get; set; }
+
     public int? PercentComplete => Tasks != null && Tasks.Any() ? (int)Math.Round((double)Tasks.Count(t => t.Status == "Done" || t.Status == "Completed") / Tasks.Count * 100) : 0;
 
     public virtual User? AssignedUser { get; set; }

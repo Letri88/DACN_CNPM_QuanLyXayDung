@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace DACN_CNPM_QuanLyXayDung.Models;
@@ -14,6 +14,16 @@ public partial class Project
     public string? Description { get; set; }
 
     public decimal? Budget { get; set; }
+
+    public bool BudgetLocked { get; set; } = false;
+
+    public byte[]? ContractFileContent { get; set; }
+
+    public string? ContractFileName { get; set; }
+
+    public string? ContractFileContentType { get; set; }
+
+    public DateTime? ContractUploadedAt { get; set; }
 
     public DateOnly? StartDate { get; set; }
 

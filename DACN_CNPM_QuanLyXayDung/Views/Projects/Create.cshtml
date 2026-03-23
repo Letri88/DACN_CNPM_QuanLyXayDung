@@ -29,6 +29,7 @@
                     </label>
                     <input id="contractFile" name="contractFile" type="file" accept="application/pdf"
                            class="bg-white/5 border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" />
+                    <div id="ContractBudgetError" class="text-red-400 text-xs mt-2"></div>
                     <div class="text-slate-300 text-xs mt-1 block">
                     </div>
                 </div>
@@ -80,17 +81,69 @@
         (function () {
             const contractInput = document.getElementById('contractFile');
             const budgetInput = document.getElementById('Budget');
+            const submitBtn = document.querySelector('button[type="submit"]');
+            const errorBox = document.getElementById('ContractBudgetError');
 
-            function syncBudgetDisabled() {
+            async function extractBudgetFromContractFile() {
                 if (!contractInput || !budgetInput) return;
-                const hasFile = contractInput.files && contractInput.files.length > 0;
-                budgetInput.disabled = hasFile;
+
+                const files = contractInput.files;
+                if (!files || files.length === 0) {
+                    budgetInput.disabled = false;
+                    if (submitBtn) submitBtn.disabled = false;
+                    return;
+                }
+
+                const file = files[0];
+
+                const formData = new FormData();
+                formData.append('contractFile', file);
+
+                // Antiforgery (nếu action có validate trong tương lai).
+                const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+                if (tokenInput && tokenInput.value) {
+                    formData.append('__RequestVerificationToken', tokenInput.value);
+                }
+
+                if (errorBox) errorBox.textContent = '';
+                if (submitBtn) submitBtn.disabled = true;
+
+                try {
+                    const response = await fetch('@Url.Action("ExtractContractBudget", "Projects")', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        let msg = 'Không thể trích xuất tổng chi phí từ hợp đồng.';
+                        try {
+                            const data = await response.json();
+                            msg = data && data.message ? data.message : msg;
+                        } catch {
+                            // ignore
+                        }
+                        if (errorBox) errorBox.textContent = msg;
+                        if (submitBtn) submitBtn.disabled = false;
+                        return;
+                    }
+
+                    const data = await response.json();
+                    if (data && data.budget != null) {
+                        // 1) điền xong
+                        budgetInput.value = Number(data.budget).toFixed(2);
+                        // 2) rồi mới khóa
+                        budgetInput.disabled = true;
+                        if (submitBtn) submitBtn.disabled = false; // cho phép submit tạo dự án
+                    }
+                } catch (e) {
+                    if (errorBox) errorBox.textContent = 'Lỗi kết nối. Vui lòng thử lại.';
+                    if (submitBtn) submitBtn.disabled = false;
+                }
             }
 
             if (contractInput) {
-                contractInput.addEventListener('change', syncBudgetDisabled);
+                contractInput.addEventListener('change', extractBudgetFromContractFile);
             }
-            syncBudgetDisabled();
         })();
     </script>
 }

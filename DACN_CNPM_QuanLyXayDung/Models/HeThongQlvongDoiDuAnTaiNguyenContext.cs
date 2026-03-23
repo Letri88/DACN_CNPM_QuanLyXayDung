@@ -104,6 +104,11 @@ public partial class HeThongQlvongDoiDuAnTaiNguyenContext : DbContext
 
             entity.Property(e => e.ProjectId).HasColumnName("ProjectID");
             entity.Property(e => e.Budget).HasColumnType("decimal(15, 2)");
+            entity.Property(e => e.BudgetLocked).HasDefaultValue(false);
+            entity.Property(e => e.ContractFileContent).HasColumnType("varbinary(max)");
+            entity.Property(e => e.ContractFileName).HasMaxLength(255);
+            entity.Property(e => e.ContractFileContentType).HasMaxLength(100);
+            entity.Property(e => e.ContractUploadedAt).HasColumnType("datetime2");
             entity.Property(e => e.ManagerId).HasColumnName("ManagerID");
             entity.Property(e => e.ProjectName).HasMaxLength(150);
             entity.Property(e => e.Status)
@@ -133,6 +138,10 @@ public partial class HeThongQlvongDoiDuAnTaiNguyenContext : DbContext
             entity.Property(e => e.StageName).HasMaxLength(150);
             entity.Property(e => e.Budget).HasColumnType("decimal(15, 2)");
             entity.Property(e => e.BudgetLocked).HasDefaultValue(false);
+            entity.Property(e => e.MaterialDeclarationFileContent).HasColumnType("varbinary(max)");
+            entity.Property(e => e.MaterialDeclarationFileName).HasMaxLength(255);
+            entity.Property(e => e.MaterialDeclarationContentType).HasMaxLength(100);
+            entity.Property(e => e.MaterialDeclarationUploadedAt).HasColumnType("datetime2");
             entity.Property(e => e.Status)
                 .HasMaxLength(20)
                 .HasDefaultValue("Planned");

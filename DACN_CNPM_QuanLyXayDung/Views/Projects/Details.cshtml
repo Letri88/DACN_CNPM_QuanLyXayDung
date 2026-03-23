@@ -69,7 +69,38 @@
                     <div>
                         <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">@Html.DisplayNameFor(model => model.Budget)</p>
                         <p class="text-xl font-bold text-emerald-400">@Html.DisplayFor(model => model.Budget)</p>
+                        @if (Model.BudgetLocked)
+                        {
+                            <div class="text-[12px] text-emerald-400 mt-2">
+                                Budget đã được khóa theo hợp đồng.
+                            </div>
+                        }
                     </div>
+
+                    @if (Model.ContractFileContent != null && Model.ContractFileContent.Length > 0)
+                    {
+                        <div class="mt-4">
+                            <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                                Hợp đồng đã upload
+                            </p>
+                            <div class="flex items-center justify-between gap-3">
+                                <div class="text-slate-300 text-sm truncate">
+                                    @Model.ContractFileName
+                                </div>
+                                <a asp-action="DownloadContract"
+                                   asp-route-id="@Model.ProjectId"
+                                   class="text-sm bg-primary/20 hover:bg-primary/30 text-primary px-4 py-2 rounded-lg transition-colors border border-primary/20">
+                                    Xem/Tải PDF
+                                </a>
+                            </div>
+                            @if (Model.ContractUploadedAt != null)
+                            {
+                                <div class="text-xs text-slate-400 mt-2">
+                                    Lúc: @Model.ContractUploadedAt?.ToString("dd/MM/yyyy HH:mm")
+                                </div>
+                            }
+                        </div>
+                    }
                     <div class="grid grid-cols-2 gap-6 pt-4 border-t border-white/5">
                         <div>
                             <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">@Html.DisplayNameFor(model => model.StartDate)</p>

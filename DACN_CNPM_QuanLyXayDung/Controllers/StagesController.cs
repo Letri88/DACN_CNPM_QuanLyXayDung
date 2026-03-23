@@ -53,6 +53,28 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             return View(stage);
         }
 
+        // GET: Stages/DownloadMaterialDeclaration
+        // Trả về PDF đã upload để người dùng xem lại.
+        [HttpGet]
+        public async Task<IActionResult> DownloadMaterialDeclaration(int id)
+        {
+            var stage = await _context.Stages.FirstOrDefaultAsync(m => m.StageId == id);
+            if (stage == null || stage.MaterialDeclarationFileContent == null || stage.MaterialDeclarationFileContent.Length == 0)
+            {
+                return NotFound();
+            }
+
+            var contentType = string.IsNullOrWhiteSpace(stage.MaterialDeclarationContentType)
+                ? "application/pdf"
+                : stage.MaterialDeclarationContentType;
+
+            var fileName = string.IsNullOrWhiteSpace(stage.MaterialDeclarationFileName)
+                ? "material-declaration.pdf"
+                : stage.MaterialDeclarationFileName;
+
+            return File(stage.MaterialDeclarationFileContent, contentType, fileName);
+        }
+
         // POST: Stages/UploadMaterialDeclaration
         // Upload bản kê khai vật liệu (PDF) -> trích "tổng chi phí" -> điền Budget cho giai đoạn.
         [HttpPost]
@@ -104,6 +126,17 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
 
             stage.Budget = extractedBudget;
             stage.BudgetLocked = true;
+
+            // Save uploaded PDF into database.
+            await using (var ms = new System.IO.MemoryStream())
+            {
+                await materialDeclarationFile.CopyToAsync(ms);
+                stage.MaterialDeclarationFileContent = ms.ToArray();
+            }
+            stage.MaterialDeclarationFileName = materialDeclarationFile.FileName;
+            stage.MaterialDeclarationContentType = materialDeclarationFile.ContentType;
+            stage.MaterialDeclarationUploadedAt = DateTime.UtcNow;
+
             await _context.SaveChangesAsync();
 
             return View("Details", stage);
