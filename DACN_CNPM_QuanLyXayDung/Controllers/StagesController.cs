@@ -75,6 +75,20 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             return File(stage.MaterialDeclarationFileContent, contentType, fileName);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> ExtractStageBudget(string stageName, IFormFile? contractFile)
+        {
+            if (string.IsNullOrWhiteSpace(stageName)) return BadRequest(new { message = "Vui lòng nhập tên giai đoạn trước khi tải file lên." });
+            if (contractFile is null || contractFile.Length == 0) return BadRequest(new { message = "Bạn cần chọn file hợp đồng (PDF)." });
+            if (!string.Equals(Path.GetExtension(contractFile.FileName), ".pdf", StringComparison.OrdinalIgnoreCase)) return BadRequest(new { message = "Định dạng file phải là PDF." });
+            if (contractFile.Length > 15 * 1024 * 1024) return BadRequest(new { message = "File hợp đồng quá lớn. Vui lòng chọn file nhỏ hơn 15MB." });
+
+            var extractedBudget = await ContractBudgetExtractor.TryExtractStageBudgetAsync(contractFile, stageName);
+            if (extractedBudget is null) return BadRequest(new { message = $"Không thể trích xuất chi phí cho giai đoạn '{stageName}' từ hợp đồng. Vui lòng kiểm tra file." });
+
+            return Ok(new { budget = extractedBudget.Value, budgetLocked = true });
+        }
+
         // POST: Stages/UploadMaterialDeclaration
         // Upload bản kê khai vật liệu (PDF) -> trích "tổng chi phí" -> điền Budget cho giai đoạn.
         [HttpPost]
@@ -117,10 +131,10 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
                 return View("Details", stage);
             }
 
-            var extractedBudget = await ContractBudgetExtractor.TryExtractTotalCostAsync(materialDeclarationFile);
+            var extractedBudget = await ContractBudgetExtractor.TryExtractStageBudgetAsync(materialDeclarationFile, stage.StageName);
             if (extractedBudget is null)
             {
-                ModelState.AddModelError("materialDeclarationFile", "Không thể trích xuất tổng chi phí từ PDF. Hãy kiểm tra lại định dạng file.");
+                ModelState.AddModelError("materialDeclarationFile", "Không thể trích xuất tổng chi phí từ PDF. Hãy kiểm tra lại định dạng file hoặc tên giai đoạn.");
                 return View("Details", stage);
             }
 
@@ -155,7 +169,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("StageId,ProjectId,StageName,StartDate,EndDate,Status,AssignedUserId")] Stage stage)
+        public async Task<IActionResult> Create([Bind("StageId,ProjectId,StageName,StartDate,EndDate,Status,AssignedUserId,Budget")] Stage stage, IFormFile? contractFile)
         {
             ModelState.Remove(nameof(stage.Project));
             ModelState.Remove(nameof(stage.Tasks));
@@ -183,6 +197,36 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
                     if (project.EndDate.HasValue && stage.EndDate.HasValue && stage.EndDate > project.EndDate)
                     {
                         ModelState.AddModelError(nameof(stage.EndDate), "Ngày kết thúc giai đoạn không được vượt quá ngày kết thúc dự án.");
+                    }
+                }
+            }
+
+            if (contractFile is not null && contractFile.Length > 0)
+            {
+                if (contractFile.Length > 15 * 1024 * 1024)
+                {
+                    ModelState.AddModelError("contractFile", "File hợp đồng quá lớn. Vui lòng chọn file nhỏ hơn 15MB.");
+                }
+                else
+                {
+                    var extractedBudget = await ContractBudgetExtractor.TryExtractStageBudgetAsync(contractFile, stage.StageName);
+                    if (extractedBudget is not null)
+                    {
+                        stage.Budget = extractedBudget.Value;
+                        stage.BudgetLocked = true;
+
+                        await using (var ms = new System.IO.MemoryStream())
+                        {
+                            await contractFile.CopyToAsync(ms);
+                            stage.MaterialDeclarationFileContent = ms.ToArray();
+                        }
+                        stage.MaterialDeclarationFileName = contractFile.FileName;
+                        stage.MaterialDeclarationContentType = contractFile.ContentType;
+                        stage.MaterialDeclarationUploadedAt = DateTime.UtcNow;
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("contractFile", "Không thể trích xuất chi phí từ hợp đồng. Hãy kiểm tra lại file (nhớ nhập đúng Tên giai đoạn).");
                     }
                 }
             }

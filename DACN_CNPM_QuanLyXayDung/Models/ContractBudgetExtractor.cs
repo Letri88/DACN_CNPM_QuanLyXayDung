@@ -9,9 +9,19 @@ namespace DACN_CNPM_QuanLyXayDung.Models;
 
 public static class ContractBudgetExtractor
 {
-    // Try to extract "total cost"/"total amount"/"tổng chi phí" from contract PDF text.
-    // Assumption: PDF has selectable text (not scanned image). OCR is out of scope.
-    public static async Task<decimal?> TryExtractTotalCostAsync(IFormFile contractFile, CancellationToken cancellationToken = default)
+    public static async Task<decimal?> TryExtractProjectBudgetAsync(IFormFile contractFile, CancellationToken cancellationToken = default)
+    {
+        return await ExtractMoneyWithPatternAsync(contractFile, @"tổng\s*chi\s*phí\s*dự\s*án\s*[^0-9]{0,30}([0-9][0-9\.\,]*)", cancellationToken);
+    }
+
+    public static async Task<decimal?> TryExtractStageBudgetAsync(IFormFile contractFile, string stageName, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(stageName)) return null;
+        var escapedName = Regex.Escape(stageName);
+        return await ExtractMoneyWithPatternAsync(contractFile, @"chi\s*phí\s*giai\s*đoạn\s*" + escapedName + @"\s*[^0-9]{0,30}([0-9][0-9\.\,]*)", cancellationToken);
+    }
+
+    private static async Task<decimal?> ExtractMoneyWithPatternAsync(IFormFile contractFile, string pattern, CancellationToken cancellationToken = default)
     {
         if (contractFile is null || contractFile.Length == 0)
         {
@@ -33,34 +43,13 @@ public static class ContractBudgetExtractor
             return null;
         }
 
-        // Vietnamese-first, then English fallbacks.
-        var patterns = new[]
-        {
-            // Examples: "Tổng chi phí: 12.345.678,00 VNĐ"
-            @"tổng\s*(?:chi\s*phí|cộng|giá\s*trị|tiền|thành\s*tiền)\s*[^0-9]{0,30}([0-9][0-9\.\,]*)",
-            // Examples: "Tổng giá trị hợp đồng: 12.345.678,00"
-            @"tổng\s*giá\s*(?:trị|trị\s*hợp\s*đồng)\s*[^0-9]{0,30}([0-9][0-9\.\,]*)",
-            // English: "Total cost/amount/value"
-            @"total\s*(?:cost|amount|value)\s*[^0-9]{0,30}([0-9][0-9\.\,]*)",
-        };
+        var match = Regex.Match(text, pattern, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+        if (!match.Success) return null;
 
-        foreach (var pattern in patterns)
+        var numberText = match.Groups[1].Value;
+        if (TryParseMoney(numberText, out var money) && money > 0)
         {
-            var match = Regex.Match(text, pattern, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-            if (!match.Success) continue;
-
-            var numberText = match.Groups[1].Value;
-            if (TryParseMoney(numberText, out var money) && money > 0)
-            {
-                return money;
-            }
-        }
-
-        // Last fallback: look for a number followed by VNĐ.
-        var vnDMatch = Regex.Match(text, @"([0-9][0-9\.\,]*)\s*vnđ", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-        if (vnDMatch.Success && TryParseMoney(vnDMatch.Groups[1].Value, out var vnDMoney) && vnDMoney > 0)
-        {
-            return vnDMoney;
+            return money;
         }
 
         return null;

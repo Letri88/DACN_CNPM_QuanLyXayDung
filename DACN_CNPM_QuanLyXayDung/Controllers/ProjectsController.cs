@@ -76,7 +76,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
                 return BadRequest(new { message = "File hợp đồng quá lớn. Vui lòng chọn file nhỏ hơn 15MB." });
             }
 
-            var extractedBudget = await ContractBudgetExtractor.TryExtractTotalCostAsync(contractFile);
+            var extractedBudget = await ContractBudgetExtractor.TryExtractProjectBudgetAsync(contractFile);
             if (extractedBudget is null)
             {
                 return BadRequest(new { message = "Không thể trích xuất tổng chi phí từ hợp đồng." });
@@ -145,7 +145,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
                 }
                 else
                 {
-                    var extractedBudget = await ContractBudgetExtractor.TryExtractTotalCostAsync(contractFile);
+                    var extractedBudget = await ContractBudgetExtractor.TryExtractProjectBudgetAsync(contractFile);
                     if (extractedBudget is not null)
                     {
                         // If contract provides total cost, override user input to keep data consistent.
