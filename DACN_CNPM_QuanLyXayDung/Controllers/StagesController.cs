@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace DACN_CNPM_QuanLyXayDung.Controllers
 {
-    [Authorize(Roles = "Admin, Project Manager, Quản trị viên, Quản lý dự án, engineer, kỹ sư")]
+    [Authorize(Roles = "Admin,Project Manager,Quản trị viên,Quản lý dự án,Engineer,Kỹ sư,Warehouse Keeper,Thủ kho")]
     public class StagesController : Controller
     {
         private readonly HeThongQlvongDoiDuAnTaiNguyenContext _context;
@@ -107,9 +107,9 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
                 return NotFound();
             }
 
-            if (stage.BudgetLocked)
+            if (stage.MaterialDeclarationFileName != null && stage.MaterialDeclarationFileName.StartsWith("[Đã duyệt]"))
             {
-                ModelState.AddModelError(string.Empty, "Budget của giai đoạn đã được khóa. Không thể cập nhật lại từ bản kê khai.");
+                ModelState.AddModelError(string.Empty, "Yêu cầu vật tư này đã được duyệt. Không thể tải lên lại.");
                 return View("Details", stage);
             }
 
@@ -131,17 +131,9 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
                 return View("Details", stage);
             }
 
-            var extractedBudget = await ContractBudgetExtractor.TryExtractStageBudgetAsync(materialDeclarationFile, stage.StageName);
-            if (extractedBudget is null)
-            {
-                ModelState.AddModelError("materialDeclarationFile", "Không thể trích xuất tổng chi phí từ PDF. Hãy kiểm tra lại định dạng file hoặc tên giai đoạn.");
-                return View("Details", stage);
-            }
+            // DO NOT EXTRACT BUDGET HERE.
+            // Just save the PDF into database and notify the PM.
 
-            stage.Budget = extractedBudget;
-            stage.BudgetLocked = true;
-
-            // Save uploaded PDF into database.
             await using (var ms = new System.IO.MemoryStream())
             {
                 await materialDeclarationFile.CopyToAsync(ms);
@@ -153,22 +145,106 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
 
             await _context.SaveChangesAsync();
 
-            return View("Details", stage);
+            // Notify PM
+            if (stage.Project?.ManagerId != null)
+            {
+                var notification = new Notification
+                {
+                    UserId = stage.Project.ManagerId.Value,
+                    Message = $"Kỹ sư đã gửi yêu cầu vật tư cho giai đoạn '{stage.StageName}'. Vui lòng kiểm tra và duyệt.",
+                    CreatedAt = DateTime.Now,
+                    IsRead = false,
+                    RelatedUrl = $"/Stages/Details/{stage.StageId}"
+                };
+                _context.Notifications.Add(notification);
+                await _context.SaveChangesAsync();
+            }
+
+            TempData["SuccessMessage"] = "Đã gửi bản kê khai vật liệu cho Quản lý dự án để duyệt.";
+            return RedirectToAction("Details", new { id = stage.StageId });
+        }
+
+        // POST: Stages/ApproveMaterialRequest
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,Project Manager,Quản trị viên,Quản lý dự án")]
+        public async Task<IActionResult> ApproveMaterialRequest(int id)
+        {
+            var stage = await _context.Stages
+                .Include(s => s.Project)
+                .FirstOrDefaultAsync(m => m.StageId == id);
+
+            if (stage == null || stage.MaterialDeclarationFileContent == null)
+            {
+                return NotFound();
+            }
+
+            if (stage.MaterialDeclarationFileName != null && stage.MaterialDeclarationFileName.StartsWith("[Đã duyệt]"))
+            {
+                TempData["ErrorMessage"] = "Yêu cầu này đã được duyệt trước đó.";
+                return RedirectToAction("Details", new { id = stage.StageId });
+            }
+
+            var extractedCost = ContractBudgetExtractor.TryExtractMaterialRequestTotal(stage.MaterialDeclarationFileContent);
+            if (extractedCost is null)
+            {
+                TempData["ErrorMessage"] = "Không thể trích xuất 'Tổng chi phí' từ file PDF yêu cầu vật tư. Vui lòng kiểm tra lại cấu trúc file.";
+                return RedirectToAction("Details", new { id = stage.StageId });
+            }
+
+            if (extractedCost > (stage.Budget ?? 0))
+            {
+                TempData["ErrorMessage"] = "Số tiền yêu cầu vật tư (" + extractedCost.Value.ToString("N0") + " đ) lớn hơn ngân sách hiện tại của giai đoạn (" + (stage.Budget ?? 0).ToString("N0") + " đ). Không thể duyệt.";
+                return RedirectToAction("Details", new { id = stage.StageId });
+            }
+
+            stage.Budget = (stage.Budget ?? 0) - extractedCost.Value;
+            
+            // Mark as approved via filename
+            stage.MaterialDeclarationFileName = "[Đã duyệt] " + (stage.MaterialDeclarationFileName ?? "Bản_kê_khai.pdf");
+
+            await _context.SaveChangesAsync();
+
+            // Notify Warehouse Keepers
+            var warehouseKeepers = await _context.Users
+                .Include(u => u.Role)
+                .Where(u => u.Role != null && (u.Role.RoleName.Trim() == "Warehouse Keeper" || u.Role.RoleName.Trim() == "Thủ kho"))
+                .ToListAsync();
+
+            foreach (var wk in warehouseKeepers)
+            {
+                var notification = new Notification
+                {
+                    UserId = wk.UserId,
+                    Message = $"PM đã duyệt yêu cầu vật tư cho giai đoạn '{stage.StageName}'. Vui lòng tiến hành xuất kho.",
+                    CreatedAt = DateTime.Now,
+                    IsRead = false,
+                    RelatedUrl = $"/Stages/Details/{stage.StageId}"
+                };
+                _context.Notifications.Add(notification);
+            }
+            if (warehouseKeepers.Any())
+            {
+                await _context.SaveChangesAsync();
+            }
+
+            TempData["SuccessMessage"] = "Đã duyệt yêu cầu vật tư thành công. Chi phí đã được trừ vào ngân sách giai đoạn.";
+            return RedirectToAction("Details", new { id = stage.StageId });
         }
 
         // GET: Stages/Create
+        [Authorize(Roles = "Admin,Project Manager,Quản trị viên,Quản lý dự án")]
         public IActionResult Create()
         {
             ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectName");
-            ViewData["AssignedUserId"] = GetUsersWithRoles();
+            ViewData["AssignedUserId"] = GetUsersWithRoles(null, new[] { "Engineer", "Kỹ sư" });
             return View();
         }
 
         // POST: Stages/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,Project Manager,Quản trị viên,Quản lý dự án")]
         public async Task<IActionResult> Create([Bind("StageId,ProjectId,StageName,StartDate,EndDate,Status,AssignedUserId,Budget")] Stage stage, IFormFile? contractFile)
         {
             ModelState.Remove(nameof(stage.Project));
@@ -214,15 +290,8 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
                     {
                         stage.Budget = extractedBudget.Value;
                         stage.BudgetLocked = true;
-
-                        await using (var ms = new System.IO.MemoryStream())
-                        {
-                            await contractFile.CopyToAsync(ms);
-                            stage.MaterialDeclarationFileContent = ms.ToArray();
-                        }
-                        stage.MaterialDeclarationFileName = contractFile.FileName;
-                        stage.MaterialDeclarationContentType = contractFile.ContentType;
-                        stage.MaterialDeclarationUploadedAt = DateTime.UtcNow;
+                        // Note: We deliberately do NOT save this Contract File into the MaterialDeclaration fields
+                        // so that the Engineer can later upload their own Material Request PDF.
                     }
                     else
                     {
@@ -235,6 +304,21 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             {
                 _context.Add(stage);
                 await _context.SaveChangesAsync();
+
+                if (stage.AssignedUserId.HasValue)
+                {
+                    var notification = new Notification
+                    {
+                        UserId = stage.AssignedUserId.Value,
+                        Message = $"Bạn đã được phân công vào giai đoạn '{stage.StageName}'",
+                        CreatedAt = DateTime.Now,
+                        IsRead = false,
+                        RelatedUrl = $"/Stages/Details/{stage.StageId}"
+                    };
+                    _context.Notifications.Add(notification);
+                    await _context.SaveChangesAsync();
+                }
+
                 return RedirectToAction(nameof(Index));
             }
             ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectName", stage.ProjectId);
@@ -242,6 +326,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         }
 
         // GET: Stages/Edit/5
+        [Authorize(Roles = "Admin,Project Manager,Quản trị viên,Quản lý dự án")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -255,16 +340,15 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
                 return NotFound();
             }
             ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectName", stage.ProjectId);
-            ViewData["AssignedUserId"] = GetUsersWithRoles(stage.AssignedUserId);
+            ViewData["AssignedUserId"] = GetUsersWithRoles(stage.AssignedUserId, new[] { "Engineer", "Kỹ sư" });
             return View(stage);
         }
 
         // POST: Stages/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("StageId,ProjectId,StageName,StartDate,EndDate,Status,AssignedUserId")] Stage stage)
+        [Authorize(Roles = "Admin,Project Manager,Quản trị viên,Quản lý dự án")]
+        public async Task<IActionResult> Edit(int id, [Bind("StageId,ProjectId,StageName,StartDate,EndDate,Status,AssignedUserId,Budget")] Stage stage)
         {
             if (id != stage.StageId)
             {
@@ -305,8 +389,25 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             {
                 try
                 {
+                    var originalStage = await _context.Stages.AsNoTracking().FirstOrDefaultAsync(s => s.StageId == stage.StageId);
+                    bool assigneeChanged = originalStage?.AssignedUserId != stage.AssignedUserId;
+
                     _context.Update(stage);
                     await _context.SaveChangesAsync();
+
+                    if (assigneeChanged && stage.AssignedUserId.HasValue)
+                    {
+                        var notification = new Notification
+                        {
+                            UserId = stage.AssignedUserId.Value,
+                            Message = $"Bạn đã được phân công vào giai đoạn '{stage.StageName}'",
+                            CreatedAt = DateTime.Now,
+                            IsRead = false,
+                            RelatedUrl = $"/Stages/Details/{stage.StageId}"
+                        };
+                        _context.Notifications.Add(notification);
+                        await _context.SaveChangesAsync();
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -326,6 +427,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         }
 
         // GET: Stages/Delete/5
+        [Authorize(Roles = "Admin,Project Manager,Quản trị viên,Quản lý dự án")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -347,6 +449,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         // POST: Stages/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,Project Manager,Quản trị viên,Quản lý dự án")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var stage = await _context.Stages
@@ -384,9 +487,15 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             };
         }
 
-        private SelectList GetUsersWithRoles(int? selectedId = null)
+        private SelectList GetUsersWithRoles(int? selectedId = null, string[]? allowedRoles = null)
         {
-            var users = _context.Users.Include(u => u.Role).ToList().Select(u => new {
+            var query = _context.Users.Include(u => u.Role).AsQueryable();
+            if (allowedRoles != null && allowedRoles.Length > 0)
+            {
+                query = query.Where(u => u.Role != null && allowedRoles.Contains(u.Role.RoleName.Trim()));
+            }
+
+            var users = query.ToList().Select(u => new {
                 UserId = u.UserId,
                 DisplayName = $"{u.FullName} - {TranslateRole(u.Role?.RoleName)}"
             });

@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace DACN_CNPM_QuanLyXayDung.Controllers
 {
-    [Authorize(Roles = "Admin, Project Manager, Quản trị viên, Quản lý dự án, engineer, kỹ sư")]
+    [Authorize(Roles = "Admin,Project Manager,Quản trị viên,Quản lý dự án,Engineer,Kỹ sư")]
     public class ProjectsController : Controller
     {
         private readonly HeThongQlvongDoiDuAnTaiNguyenContext _context;
@@ -108,17 +108,18 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         }
 
         // GET: Projects/Create
+        [Authorize(Roles = "Admin,Project Manager,Quản trị viên,Quản lý dự án")]
         public IActionResult Create()
         {
-            ViewData["ManagerId"] = GetUsersWithRoles();
+            var currentUserId = int.Parse(User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value ?? "0");
+            ViewData["ManagerId"] = GetUsersWithRoles(currentUserId, new[] { "Project Manager", "Quản lý dự án", "Admin", "Quản trị viên" });
             return View();
         }
 
         // POST: Projects/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,Project Manager,Quản trị viên,Quản lý dự án")]
         public async Task<IActionResult> Create([Bind("ProjectId,ManagerId,ProjectName,Description,Budget,StartDate,EndDate,Status")] Project project, IFormFile? contractFile)
         {
             ModelState.Remove(nameof(project.Manager));
@@ -175,11 +176,12 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ManagerId"] = GetUsersWithRoles(project.ManagerId);
+            ViewData["ManagerId"] = GetUsersWithRoles(project.ManagerId, new[] { "Project Manager", "Quản lý dự án", "Admin", "Quản trị viên" });
             return View(project);
         }
 
         // GET: Projects/Edit/5
+        [Authorize(Roles = "Admin,Project Manager,Quản trị viên,Quản lý dự án")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -192,15 +194,14 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             {
                 return NotFound();
             }
-            ViewData["ManagerId"] = GetUsersWithRoles(project.ManagerId);
+            ViewData["ManagerId"] = GetUsersWithRoles(project.ManagerId, new[] { "Project Manager", "Quản lý dự án", "Admin", "Quản trị viên" });
             return View(project);
         }
 
         // POST: Projects/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,Project Manager,Quản trị viên,Quản lý dự án")]
         public async Task<IActionResult> Edit(int id, [Bind("ProjectId,ManagerId,ProjectName,Description,Budget,StartDate,EndDate,Status")] Project project)
         {
             if (id != project.ProjectId)
@@ -266,11 +267,12 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ManagerId"] = GetUsersWithRoles(project.ManagerId);
+            ViewData["ManagerId"] = GetUsersWithRoles(project.ManagerId, new[] { "Project Manager", "Quản lý dự án", "Admin", "Quản trị viên" });
             return View(project);
         }
 
         // GET: Projects/Delete/5
+        [Authorize(Roles = "Admin,Project Manager,Quản trị viên,Quản lý dự án")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -292,6 +294,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         // POST: Projects/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,Project Manager,Quản trị viên,Quản lý dự án")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var project = await _context.Projects
@@ -360,9 +363,15 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             };
         }
 
-        private SelectList GetUsersWithRoles(int? selectedId = null)
+        private SelectList GetUsersWithRoles(int? selectedId = null, string[]? allowedRoles = null)
         {
-            var users = _context.Users.Include(u => u.Role).ToList().Select(u => new {
+            var query = _context.Users.Include(u => u.Role).AsQueryable();
+            if (allowedRoles != null && allowedRoles.Length > 0)
+            {
+                query = query.Where(u => u.Role != null && allowedRoles.Contains(u.Role.RoleName.Trim()));
+            }
+
+            var users = query.ToList().Select(u => new {
                 UserId = u.UserId,
                 DisplayName = $"{u.FullName} - {TranslateRole(u.Role?.RoleName)}"
             });

@@ -90,7 +90,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("TaskId,ProjectId,StageId,TaskName,Description,StartDate,EndDate,Status")] Models.Task task)
+        public async Task<IActionResult> Create([Bind("TaskId,ProjectId,StageId,TaskName,Description,StartDate,EndDate,Status,WorkerCount")] Models.Task task)
         {
             ModelState.Remove(nameof(task.Project));
             ModelState.Remove(nameof(task.Stage));
@@ -172,7 +172,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("TaskId,ProjectId,StageId,TaskName,Description,StartDate,EndDate,Status")] Models.Task task)
+        public async Task<IActionResult> Edit(int id, [Bind("TaskId,ProjectId,StageId,TaskName,Description,StartDate,EndDate,Status,WorkerCount")] Models.Task task)
         {
             if (id != task.TaskId)
             {

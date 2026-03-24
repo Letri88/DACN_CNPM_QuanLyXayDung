@@ -22,6 +22,12 @@
                     <textarea asp-for="Description" rows="3" class="bg-white/5 border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all"></textarea>
                     <span asp-validation-for="Description" class="text-red-400 text-xs mt-1 block"></span>
                 </div>
+
+                <div>
+                    <label asp-for="WorkerCount" class="text-sm font-medium text-slate-300 mb-1 block">Số lượng người</label>
+                    <input asp-for="WorkerCount" type="number" min="0" class="bg-white/5 border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" />
+                    <span asp-validation-for="WorkerCount" class="text-red-400 text-xs mt-1 block"></span>
+                </div>
                 
                 <div class="grid grid-cols-2 gap-4">
                     @if (ViewBag.FixedStage == true)

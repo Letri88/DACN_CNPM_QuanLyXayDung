@@ -49,6 +49,12 @@
                 </div>
 
                 <div>
+                    <label asp-for="Budget" class="text-sm font-medium text-slate-300 mb-1 block"></label>
+                    <input asp-for="Budget" id="Budget" class="bg-white/5 border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" />
+                    <span asp-validation-for="Budget" class="text-red-400 text-xs mt-1 block"></span>
+                </div>
+
+                <div>
                     <label asp-for="Status" class="text-sm font-medium text-slate-300 mb-1 block"></label>
                     <select asp-for="Status" class="bg-[#1a2e2e] border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all appearance-none">
                         <option value="Planned">Planned</option>

@@ -74,6 +74,13 @@
                             @(Model.EndDate?.ToString("dd/MM/yyyy") ?? "-")
                         </p>
                     </div>
+                    <div>
+                        <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Số lượng người</p>
+                        <p class="text-white font-medium flex items-center gap-2 text-sm">
+                            <span class="material-icons text-[16px] text-slate-400">group</span>
+                            @(Model.WorkerCount?.ToString() ?? "0") người
+                        </p>
+                    </div>
                 </div>
                 
 

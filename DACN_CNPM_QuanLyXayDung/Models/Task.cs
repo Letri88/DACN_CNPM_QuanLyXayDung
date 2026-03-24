@@ -21,6 +21,8 @@ public partial class Task
 
     public string? Status { get; set; }
 
+    public int? WorkerCount { get; set; }
+
     public virtual Project? Project { get; set; }
 
     public virtual Stage Stage { get; set; } = null!;

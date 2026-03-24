@@ -1,0 +1,73 @@
+@model IEnumerable<DACN_CNPM_QuanLyXayDung.Models.Notification>
+
+@{
+    ViewData["Title"] = "Tất cả thông báo";
+}
+
+<div class="p-8 space-y-8">
+    <div class="max-w-3xl mx-auto">
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h2 class="text-2xl font-bold text-white mb-2 tracking-tight">Tất cả thông báo</h2>
+                <p class="text-slate-400 text-sm">Xem lại lịch sử các thông báo hoạt động gần đây</p>
+            </div>
+            <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
+                <span class="material-icons text-2xl">notifications</span>
+            </div>
+        </div>
+
+        <div class="glass-panel rounded-2xl p-6">
+            @if (Model != null && Model.Any())
+            {
+                <div class="space-y-4">
+                    @foreach (var notif in Model)
+                    {
+                        <div class="p-4 rounded-xl transition-all border @(notif.IsRead ? "bg-white/5 border-white/5" : "bg-primary/5 border-primary/20")">
+                            <div class="flex items-start justify-between gap-4">
+                                <div class="flex items-start gap-4 flex-1">
+                                    <div class="mt-1 w-8 h-8 rounded-full flex items-center justify-center shrink-0 @(notif.IsRead ? "bg-white/10 text-slate-400" : "bg-primary/20 text-primary")">
+                                        <span class="material-icons text-[16px]">@(notif.IsRead ? "notifications_active" : "mark_email_unread")</span>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-medium @(notif.IsRead ? "text-slate-300" : "text-white")">
+                                            @notif.Message
+                                        </p>
+                                        <div class="flex items-center gap-3 mt-2 text-xs">
+                                            <span class="flex items-center gap-1 text-slate-500">
+                                                <span class="material-icons text-[12px]">schedule</span>
+                                                @notif.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                                            </span>
+                                            @if (!notif.IsRead)
+                                            {
+                                                <span class="px-2 py-0.5 rounded border border-red-500/20 text-[10px] uppercase font-bold bg-red-500/10 text-red-400">Chưa xem</span>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="shrink-0 flex items-center flex-col justify-center gap-2">
+                                    @if (!string.IsNullOrEmpty(notif.RelatedUrl))
+                                    {
+                                        <form asp-controller="Notifications" asp-action="MarkAsRead" method="post" class="m-0 p-0">
+                                            <input type="hidden" name="id" value="@notif.NotificationId" />
+                                            <input type="hidden" name="returnUrl" value="@notif.RelatedUrl" />
+                                            <button type="submit" class="bg-primary hover:bg-primary/90 text-background-dark font-bold py-1.5 px-4 rounded-lg transition-colors text-xs flex items-center gap-1">
+                                                Xem chi tiết <span class="material-icons text-[14px]">chevron_right</span>
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-12 border border-white/5 border-dashed rounded-xl">
+                    <span class="material-icons text-5xl text-white/10 mb-3 block">notifications_off</span>
+                    <p class="text-slate-400">Bạn chưa có thông báo nào.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>

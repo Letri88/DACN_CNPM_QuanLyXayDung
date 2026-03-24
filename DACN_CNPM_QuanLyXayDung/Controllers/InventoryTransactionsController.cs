@@ -56,9 +56,10 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         // GET: InventoryTransactions/Create
         public IActionResult Create()
         {
+            var currentUserId = int.Parse(User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value ?? "0");
             ViewData["MaterialId"] = new SelectList(_context.Materials, "MaterialId", "MaterialName");
             ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectName");
-            ViewData["WarehouseKeeperId"] = GetUsersWithRoles();
+            ViewData["WarehouseKeeperId"] = GetUsersWithRoles(currentUserId, new[] { "Warehouse Keeper", "Thủ kho"});
             return View();
         }
 
@@ -81,7 +82,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             }
             ViewData["MaterialId"] = new SelectList(_context.Materials, "MaterialId", "MaterialName", inventoryTransaction.MaterialId);
             ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectName", inventoryTransaction.ProjectId);
-            ViewData["WarehouseKeeperId"] = GetUsersWithRoles(inventoryTransaction.WarehouseKeeperId);
+            ViewData["WarehouseKeeperId"] = GetUsersWithRoles(inventoryTransaction.WarehouseKeeperId, new[] { "Warehouse Keeper", "Thủ kho", "Admin", "Quản trị viên" });
             return View(inventoryTransaction);
         }
 
@@ -100,7 +101,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             }
             ViewData["MaterialId"] = new SelectList(_context.Materials, "MaterialId", "MaterialName", inventoryTransaction.MaterialId);
             ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectName", inventoryTransaction.ProjectId);
-            ViewData["WarehouseKeeperId"] = GetUsersWithRoles(inventoryTransaction.WarehouseKeeperId);
+            ViewData["WarehouseKeeperId"] = GetUsersWithRoles(inventoryTransaction.WarehouseKeeperId, new[] { "Warehouse Keeper", "Thủ kho", "Admin", "Quản trị viên" });
             return View(inventoryTransaction);
         }
 
@@ -142,7 +143,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             }
             ViewData["MaterialId"] = new SelectList(_context.Materials, "MaterialId", "MaterialName", inventoryTransaction.MaterialId);
             ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectName", inventoryTransaction.ProjectId);
-            ViewData["WarehouseKeeperId"] = GetUsersWithRoles(inventoryTransaction.WarehouseKeeperId);
+            ViewData["WarehouseKeeperId"] = GetUsersWithRoles(inventoryTransaction.WarehouseKeeperId, new[] { "Warehouse Keeper", "Thủ kho", "Admin", "Quản trị viên" });
             return View(inventoryTransaction);
         }
 
@@ -199,9 +200,15 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             };
         }
 
-        private SelectList GetUsersWithRoles(int? selectedId = null)
+        private SelectList GetUsersWithRoles(int? selectedId = null, string[]? allowedRoles = null)
         {
-            var users = _context.Users.Include(u => u.Role).ToList().Select(u => new {
+            var query = _context.Users.Include(u => u.Role).AsQueryable();
+            if (allowedRoles != null && allowedRoles.Length > 0)
+            {
+                query = query.Where(u => u.Role != null && allowedRoles.Contains(u.Role.RoleName.Trim()));
+            }
+
+            var users = query.ToList().Select(u => new {
                 UserId = u.UserId,
                 DisplayName = $"{u.FullName} - {TranslateRole(u.Role?.RoleName)}"
             });

@@ -21,6 +21,43 @@ public static class ContractBudgetExtractor
         return await ExtractMoneyWithPatternAsync(contractFile, @"chi\s*phí\s*giai\s*đoạn\s*" + escapedName + @"\s*[^0-9]{0,30}([0-9][0-9\.\,]*)", cancellationToken);
     }
 
+    public static async Task<decimal?> TryExtractMaterialRequestTotalAsync(IFormFile file, CancellationToken cancellationToken = default)
+    {
+        return await ExtractMoneyWithPatternAsync(file, @"tổng\s*chi\s*phí\s*[^0-9]{0,30}([0-9][0-9\.\,]*)", cancellationToken);
+    }
+
+    public static decimal? TryExtractMaterialRequestTotal(byte[] fileBytes)
+    {
+        return ExtractMoneyWithPattern(fileBytes, @"tổng\s*chi\s*phí\s*[^0-9]{0,30}([0-9][0-9\.\,]*)");
+    }
+
+    private static decimal? ExtractMoneyWithPattern(byte[] fileBytes, string pattern)
+    {
+        if (fileBytes is null || fileBytes.Length == 0)
+        {
+            return null;
+        }
+
+        using var stream = new MemoryStream(fileBytes);
+        using var pdf = PdfDocument.Open(stream);
+        var text = string.Join("\n", pdf.GetPages().Select(p => p.Text));
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return null;
+        }
+
+        var match = Regex.Match(text, pattern, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+        if (!match.Success) return null;
+
+        var numberText = match.Groups[1].Value;
+        if (TryParseMoney(numberText, out var money) && money > 0)
+        {
+            return money;
+        }
+
+        return null;
+    }
+
     private static async Task<decimal?> ExtractMoneyWithPatternAsync(IFormFile contractFile, string pattern, CancellationToken cancellationToken = default)
     {
         if (contractFile is null || contractFile.Length == 0)

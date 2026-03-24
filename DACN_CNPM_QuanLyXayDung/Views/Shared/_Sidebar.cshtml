@@ -1,3 +1,5 @@
+@using System.Security.Claims
+@inject DACN_CNPM_QuanLyXayDung.Models.HeThongQlvongDoiDuAnTaiNguyenContext _context
 <aside class="fixed left-0 top-0 h-full w-64 glass-sidebar z-50 flex flex-col">
     <div class="p-6">
         <div class="flex items-center gap-3">
@@ -17,7 +19,10 @@
                 <span class="material-icons text-xl">construction</span>
                 <span class="font-medium">Dự án</span>
             </a>
+        }
 
+        @if (User.IsInRole("Admin") || User.IsInRole("Project Manager") || User.IsInRole("Quản trị viên") || User.IsInRole("Quản lý dự án") || User.IsInRole("Warehouse Keeper") || User.IsInRole("Thủ kho"))
+        {
             <a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="~/Stages">
                 <span class="material-icons text-xl">loop</span>
                 <span class="font-medium">Giai đoạn</span>
@@ -30,6 +35,28 @@
                 <span class="material-icons text-xl">assignment</span>
                 <span class="font-medium">Công việc</span>
             </a>
+        }
+
+        @if (User.IsInRole("Engineer") || User.IsInRole("Kỹ sư"))
+        {
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
+            if (int.TryParse(userIdClaim, out int uid))
+            {
+                var myStages = _context.Stages.Where(s => s.AssignedUserId == uid).ToList();
+                if (myStages.Any())
+                {
+                    <div class="pt-4 mt-4 border-t border-white/10 mb-2">
+                        <div class="px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Giai đoạn của tôi</div>
+                        @foreach(var ms in myStages)
+                        {
+                            <a class="flex items-center gap-3 px-4 py-2 pl-8 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all text-sm w-full" href="~/Stages/Details/@ms.StageId" title="@ms.StageName">
+                                <span class="material-icons text-[10px] text-primary">circle</span>
+                                <span class="font-medium truncate block w-full">@ms.StageName</span>
+                            </a>
+                        }
+                    </div>
+                }
+            }
         }
 
         @if (User.IsInRole("Admin") || User.IsInRole("Warehouse Keeper") || User.IsInRole("Quản trị viên") || User.IsInRole("Thủ kho"))

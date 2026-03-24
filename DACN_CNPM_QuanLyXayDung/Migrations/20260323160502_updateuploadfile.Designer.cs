@@ -4,6 +4,7 @@ using DACN_CNPM_QuanLyXayDung.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DACN_CNPM_QuanLyXayDung.Migrations
 {
     [DbContext(typeof(HeThongQlvongDoiDuAnTaiNguyenContext))]
-    partial class HeThongQlvongDoiDuAnTaiNguyenContextModelSnapshot : ModelSnapshot
+    [Migration("20260323160502_updateuploadfile")]
+    partial class updateuploadfile
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -130,39 +133,6 @@ namespace DACN_CNPM_QuanLyXayDung.Migrations
                     b.HasIndex("ProjectId");
 
                     b.ToTable("MaterialUsage", (string)null);
-                });
-
-            modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.Notification", b =>
-                {
-                    b.Property<int>("NotificationId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("NotificationId"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsRead")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<string>("RelatedUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("NotificationId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.Project", b =>
@@ -351,9 +321,6 @@ namespace DACN_CNPM_QuanLyXayDung.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
-                    b.Property<int?>("WorkerCount")
-                        .HasColumnType("int");
-
                     b.HasKey("TaskId")
                         .HasName("PK__Tasks__7C6949D13E927275");
 
@@ -451,18 +418,6 @@ namespace DACN_CNPM_QuanLyXayDung.Migrations
                     b.Navigation("Material");
 
                     b.Navigation("Project");
-                });
-
-            modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.Notification", b =>
-                {
-                    b.HasOne("DACN_CNPM_QuanLyXayDung.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_Notifications_Users");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.Project", b =>
