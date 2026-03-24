@@ -49,6 +49,7 @@ public partial class HeThongQlvongDoiDuAnTaiNguyenContext : DbContext
                 .HasColumnType("datetime");
             entity.Property(e => e.MaterialId).HasColumnName("MaterialID");
             entity.Property(e => e.ProjectId).HasColumnName("ProjectID");
+            entity.Property(e => e.StageId).HasColumnName("StageID");
             entity.Property(e => e.Type).HasMaxLength(20);
             entity.Property(e => e.WarehouseKeeperId).HasColumnName("WarehouseKeeperID");
 
@@ -64,6 +65,10 @@ public partial class HeThongQlvongDoiDuAnTaiNguyenContext : DbContext
             entity.HasOne(d => d.WarehouseKeeper).WithMany(p => p.InventoryTransactions)
                 .HasForeignKey(d => d.WarehouseKeeperId)
                 .HasConstraintName("FK_Inventory_User");
+                
+            entity.HasOne(d => d.Stage).WithMany(p => p.InventoryTransactions)
+                .HasForeignKey(d => d.StageId)
+                .HasConstraintName("FK_Inventory_Stage");
         });
 
         modelBuilder.Entity<Material>(entity =>

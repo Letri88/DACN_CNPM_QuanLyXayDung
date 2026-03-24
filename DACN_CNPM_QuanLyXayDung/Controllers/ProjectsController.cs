@@ -53,6 +53,13 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
                 return NotFound();
             }
 
+            var usedMaterials = await _context.InventoryTransactions
+                .Where(t => t.ProjectId == project.ProjectId && t.Type == "Xuất kho")
+                .GroupBy(t => t.Material.MaterialName)
+                .ToDictionaryAsync(g => g.Key, g => g.Sum(t => t.Quantity));
+
+            ViewBag.UsedMaterials = usedMaterials;
+
             return View(project);
         }
 

@@ -31,6 +31,16 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             return View(await heThongQlvongDoiDuAnTaiNguyenContext.ToListAsync());
         }
 
+        // GET: InventoryTransactions/Requests
+        public async Task<IActionResult> Requests()
+        {
+            var requests = await _context.Stages
+                .Include(s => s.Project)
+                .Where(s => s.MaterialDeclarationFileName != null && s.MaterialDeclarationFileName.StartsWith("[Đã duyệt]"))
+                .ToListAsync();
+            return View(requests);
+        }
+
         // GET: InventoryTransactions/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -54,13 +64,25 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         }
 
         // GET: InventoryTransactions/Create
-        public IActionResult Create()
+        public IActionResult Create(int? projectId = null, int? stageId = null, string type = null)
         {
             var currentUserId = int.Parse(User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value ?? "0");
             ViewData["MaterialId"] = new SelectList(_context.Materials, "MaterialId", "MaterialName");
-            ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectName");
+            ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectName", projectId);
+            
+            var stages = projectId.HasValue 
+                ? _context.Stages.Where(s => s.ProjectId == projectId.Value) 
+                : Enumerable.Empty<Stage>().AsQueryable();
+            ViewData["StageId"] = new SelectList(stages, "StageId", "StageName", stageId);
+            
             ViewData["WarehouseKeeperId"] = GetUsersWithRoles(currentUserId, new[] { "Warehouse Keeper", "Thủ kho"});
-            return View();
+            
+            var model = new InventoryTransaction();
+            if (!string.IsNullOrEmpty(type)) model.Type = type;
+            if (projectId.HasValue) model.ProjectId = projectId;
+            if (stageId.HasValue) model.StageId = stageId;
+            
+            return View(model);
         }
 
         // POST: InventoryTransactions/Create
@@ -68,10 +90,11 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("TransactionId,MaterialId,ProjectId,WarehouseKeeperId,Quantity,Type,Date")] InventoryTransaction inventoryTransaction)
+        public async Task<IActionResult> Create([Bind("TransactionId,MaterialId,ProjectId,WarehouseKeeperId,Quantity,Type,Date,StageId")] InventoryTransaction inventoryTransaction)
         {
             ModelState.Remove(nameof(inventoryTransaction.Material));
             ModelState.Remove(nameof(inventoryTransaction.Project));
+            ModelState.Remove(nameof(inventoryTransaction.Stage));
             ModelState.Remove(nameof(inventoryTransaction.WarehouseKeeper));
 
             if (ModelState.IsValid)
@@ -82,6 +105,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             }
             ViewData["MaterialId"] = new SelectList(_context.Materials, "MaterialId", "MaterialName", inventoryTransaction.MaterialId);
             ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectName", inventoryTransaction.ProjectId);
+            ViewData["StageId"] = new SelectList(_context.Stages.Where(s => s.ProjectId == inventoryTransaction.ProjectId), "StageId", "StageName", inventoryTransaction.StageId);
             ViewData["WarehouseKeeperId"] = GetUsersWithRoles(inventoryTransaction.WarehouseKeeperId, new[] { "Warehouse Keeper", "Thủ kho", "Admin", "Quản trị viên" });
             return View(inventoryTransaction);
         }
@@ -101,6 +125,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             }
             ViewData["MaterialId"] = new SelectList(_context.Materials, "MaterialId", "MaterialName", inventoryTransaction.MaterialId);
             ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectName", inventoryTransaction.ProjectId);
+            ViewData["StageId"] = new SelectList(_context.Stages.Where(s => s.ProjectId == inventoryTransaction.ProjectId), "StageId", "StageName", inventoryTransaction.StageId);
             ViewData["WarehouseKeeperId"] = GetUsersWithRoles(inventoryTransaction.WarehouseKeeperId, new[] { "Warehouse Keeper", "Thủ kho", "Admin", "Quản trị viên" });
             return View(inventoryTransaction);
         }
@@ -110,7 +135,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("TransactionId,MaterialId,ProjectId,WarehouseKeeperId,Quantity,Type,Date")] InventoryTransaction inventoryTransaction)
+        public async Task<IActionResult> Edit(int id, [Bind("TransactionId,MaterialId,ProjectId,WarehouseKeeperId,Quantity,Type,Date,StageId")] InventoryTransaction inventoryTransaction)
         {
             if (id != inventoryTransaction.TransactionId)
             {
@@ -119,6 +144,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
 
             ModelState.Remove(nameof(inventoryTransaction.Material));
             ModelState.Remove(nameof(inventoryTransaction.Project));
+            ModelState.Remove(nameof(inventoryTransaction.Stage));
             ModelState.Remove(nameof(inventoryTransaction.WarehouseKeeper));
 
             if (ModelState.IsValid)
@@ -143,8 +169,19 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             }
             ViewData["MaterialId"] = new SelectList(_context.Materials, "MaterialId", "MaterialName", inventoryTransaction.MaterialId);
             ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectName", inventoryTransaction.ProjectId);
+            ViewData["StageId"] = new SelectList(_context.Stages.Where(s => s.ProjectId == inventoryTransaction.ProjectId), "StageId", "StageName", inventoryTransaction.StageId);
             ViewData["WarehouseKeeperId"] = GetUsersWithRoles(inventoryTransaction.WarehouseKeeperId, new[] { "Warehouse Keeper", "Thủ kho", "Admin", "Quản trị viên" });
             return View(inventoryTransaction);
+        }
+
+        [HttpGet]
+        public JsonResult GetStagesByProject(int projectId)
+        {
+            var stages = _context.Stages
+                .Where(s => s.ProjectId == projectId)
+                .Select(s => new { s.StageId, s.StageName })
+                .ToList();
+            return Json(stages);
         }
 
         // GET: InventoryTransactions/Delete/5

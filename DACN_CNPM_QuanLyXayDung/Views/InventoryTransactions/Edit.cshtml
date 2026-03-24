@@ -21,26 +21,38 @@
                         <span asp-validation-for="MaterialId" class="text-red-400 text-xs mt-1 block"></span>
                     </div>
                     <div>
+                        <label asp-for="Type" class="text-sm font-medium text-slate-300 mb-1 block">Loại giao dịch</label>
+                        <select asp-for="Type" id="TransactionType" class="bg-[#1a2e2e] border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all appearance-none">
+                            <option value="Nhập kho">Nhập kho (Thêm vào kho)</option>
+                            <option value="Xuất kho">Xuất kho (Đưa vào Giai đoạn/Dự án)</option>
+                        </select>
+                        <span asp-validation-for="Type" class="text-red-400 text-xs mt-1 block"></span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4" id="projectStageContainer">
+                    <div>
                         <label asp-for="ProjectId" class="text-sm font-medium text-slate-300 mb-1 block">Dự án</label>
-                        <select asp-for="ProjectId" class="bg-[#1a2e2e] border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all appearance-none" asp-items="ViewBag.ProjectId">
+                        <select asp-for="ProjectId" id="ProjectId" class="bg-[#1a2e2e] border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all appearance-none" asp-items="ViewBag.ProjectId">
                             <option value="">-- Chọn Dự án --</option>
                         </select>
                         <span asp-validation-for="ProjectId" class="text-red-400 text-xs mt-1 block"></span>
+                    </div>
+                    <div>
+                        <label asp-for="StageId" class="text-sm font-medium text-slate-300 mb-1 block">Giai đoạn</label>
+                        <select asp-for="StageId" id="StageId" class="bg-[#1a2e2e] border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all appearance-none" asp-items="ViewBag.StageId">
+                            <option value="">-- Chọn Giai đoạn --</option>
+                        </select>
+                        <span asp-validation-for="StageId" class="text-red-400 text-xs mt-1 block"></span>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label asp-for="Quantity" class="text-sm font-medium text-slate-300 mb-1 block">Số lượng nhập</label>
+                        <label asp-for="Quantity" class="text-sm font-medium text-slate-300 mb-1 block">Số lượng</label>
                         <input asp-for="Quantity" class="bg-white/5 border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" />
                         <span asp-validation-for="Quantity" class="text-red-400 text-xs mt-1 block"></span>
                     </div>
-                    <div>
-                        <label asp-for="Type" class="text-sm font-medium text-slate-300 mb-1 block">Loại giao dịch</label>
-                        <input asp-for="Type" class="bg-white/5 border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" readonly="readonly" />
-                        <span asp-validation-for="Type" class="text-red-400 text-xs mt-1 block"></span>
-                    </div>
-                </div>
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
@@ -72,4 +84,51 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        (function () {
+            const projectSelect = document.getElementById('ProjectId');
+            const stageSelect = document.getElementById('StageId');
+            const typeSelect = document.getElementById('TransactionType');
+            const projectStageContainer = document.getElementById('projectStageContainer');
+
+            if (!projectSelect || !stageSelect || !typeSelect || !projectStageContainer) return;
+
+            function toggleProjectStage() {
+                if (typeSelect.value === 'Nhập kho') {
+                    projectStageContainer.style.display = 'none';
+                    projectSelect.value = '';
+                    stageSelect.innerHTML = '<option value=\"\">-- Chọn Giai đoạn --</option>';
+                } else {
+                    projectStageContainer.style.display = 'grid'; // Grid is used for grid-cols-2
+                }
+            }
+
+            typeSelect.addEventListener('change', toggleProjectStage);
+            toggleProjectStage(); // Initial run on page load
+
+            projectSelect.addEventListener('change', function () {
+                const projectId = this.value;
+                stageSelect.innerHTML = '<option value=\"\">-- Chọn Giai đoạn --</option>';
+
+                if (!projectId) {
+                    return;
+                }
+
+                fetch(`/InventoryTransactions/GetStagesByProject?projectId=${projectId}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        data.forEach(function (item) {
+                            const opt = document.createElement('option');
+                            opt.value = item.stageId;
+                            opt.textContent = item.stageName;
+                            stageSelect.appendChild(opt);
+                        });
+                    })
+                    .catch(err => {
+                        console.error('Lỗi tải danh sách giai đoạn', err);
+                    });
+            });
+        })();
+    </script>
 }
