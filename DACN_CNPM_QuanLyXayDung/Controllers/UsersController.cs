@@ -21,11 +21,13 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             _context = context;
         }
 
-        // GET: Users
         public async Task<IActionResult> Index()
         {
-            var heThongQlvongDoiDuAnTaiNguyenContext = _context.Users.Include(u => u.Role);
-            return View(await heThongQlvongDoiDuAnTaiNguyenContext.ToListAsync());
+            var users = await _context.Users
+                .Include(u => u.Role)
+                .Where(u => u.Role == null || (u.Role.RoleName != "Admin" && u.Role.RoleName != "Quản trị viên"))
+                .ToListAsync();
+            return View(users);
         }
 
         // GET: Users/Details/5
@@ -59,7 +61,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("UserId,RoleId,FullName,Email,Password,Status")] User user)
+        public async Task<IActionResult> Create([Bind("UserId,RoleId,FullName,Username,Password,Status")] User user)
         {
             ModelState.Remove(nameof(user.Role));
             ModelState.Remove(nameof(user.InventoryTransactions));
@@ -67,6 +69,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
 
             if (ModelState.IsValid)
             {
+                user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
                 _context.Add(user);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -97,7 +100,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("UserId,RoleId,FullName,Email,Password,Status")] User user)
+        public async Task<IActionResult> Edit(int id, [Bind("UserId,RoleId,FullName,Username,Password,Status")] User user)
         {
             if (id != user.UserId)
             {
@@ -112,6 +115,18 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             {
                 try
                 {
+                    // Check if password has changed (assuming it's not a hash starting with $2a$ or $2b$)
+                    if (!user.Password.StartsWith("$2"))
+                    {
+                        user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
+                    }
+                    else
+                    {
+                        // If password field is unchanged from edit form, keep the original hash.
+                        // Ideally we should make it empty and check string.IsNullOrEmpty.
+                        // Setting state to modified handles updates safely.
+                    }
+                    
                     _context.Update(user);
                     await _context.SaveChangesAsync();
                 }
@@ -173,16 +188,18 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
 
         private System.Collections.IEnumerable GetTranslatedRoles()
         {
-            return _context.Roles.ToList().Select(r => new {
-                RoleId = r.RoleId,
-                RoleName = r.RoleName?.Trim().ToLower() switch {
-                    "admin" => "Quản trị viên",
-                    "project manager" => "Quản lý dự án",
-                    "engineer" => "Kỹ sư",
-                    "warehouse keeper" => "Thủ kho",
-                    _ => r.RoleName
-                }
-            });
+            return _context.Roles
+                .Where(r => r.RoleName != "Admin" && r.RoleName != "Quản trị viên")
+                .ToList()
+                .Select(r => new {
+                    RoleId = r.RoleId,
+                    RoleName = r.RoleName?.Trim().ToLower() switch {
+                        "project manager" => "Quản lý dự án",
+                        "engineer" => "Kỹ sư",
+                        "warehouse keeper" => "Thủ kho",
+                        _ => r.RoleName
+                    }
+                });
         }
     }
 }

@@ -38,7 +38,10 @@
                                 <td class="px-6 py-4">@item.Project.ProjectName</td>
                                 <td class="px-6 py-4">
                                     <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Đã duyệt</span>
-                                    <span class="ml-2 text-xs truncate max-w-[200px] inline-block align-bottom" title="@item.MaterialDeclarationFileName">@item.MaterialDeclarationFileName</span>
+                                    <a asp-controller="Stages" asp-action="DownloadMaterialDeclaration" asp-route-id="@item.StageId" class="ml-2 text-xs truncate max-w-[200px] inline-block align-bottom text-emerald-400 hover:text-emerald-300 hover:underline transition-colors cursor-pointer flex items-center gap-1 mt-1" title="Tải về @item.MaterialDeclarationFileName">
+                                        <span class="material-icons text-[14px]">download</span>
+                                        @item.MaterialDeclarationFileName
+                                    </a>
                                 </td>
                                 <td class="px-6 py-4">@(item.MaterialDeclarationUploadedAt?.ToString("dd/MM/yyyy HH:mm") ?? "-")</td>
                                 <td class="px-6 py-4 text-right">

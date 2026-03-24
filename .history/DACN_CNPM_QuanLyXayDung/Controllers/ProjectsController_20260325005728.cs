@@ -119,7 +119,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         public IActionResult Create()
         {
             var currentUserId = int.Parse(User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value ?? "0");
-            ViewData["ManagerId"] = GetUsersWithRoles(currentUserId, new[] { "Project Manager", "Quản lý dự án"});
+            ViewData["ManagerId"] = GetUsersWithRoles(currentUserId, new[] { "Project Manager", "Quản lý dự án", "Admin", "Quản trị viên" });
             return View();
         }
 

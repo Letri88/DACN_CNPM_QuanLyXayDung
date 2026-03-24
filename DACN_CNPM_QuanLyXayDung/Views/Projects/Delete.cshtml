@@ -43,7 +43,8 @@
                 <div class="space-y-6">
                     <div>
                         <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">@Html.DisplayNameFor(model => model.Budget)</p>
-                        <p class="text-lg font-bold text-emerald-400">@Html.DisplayFor(model => model.Budget)</p>
+                        <span class="material-icons text-sm text-emerald-400">payments</span>
+                        <span class="text-emerald-400 font-bold">@((Model.Budget ?? 0).ToString("N0")) đ</span>
                     </div>
                     <div>
                         <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Tiến độ</p>

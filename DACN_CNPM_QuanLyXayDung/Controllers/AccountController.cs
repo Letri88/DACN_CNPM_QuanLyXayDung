@@ -29,18 +29,18 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(string email, string password, string? returnUrl = "/")
+        public async Task<IActionResult> Login(string username, string password, string? returnUrl = "/")
         {
             var user = await _context.Users
                 .Include(u => u.Role)
-                .FirstOrDefaultAsync(u => u.Email == email && u.Password == password && u.Status == "Active");
+                .FirstOrDefaultAsync(u => u.Username == username && u.Status == "Active");
 
-            if (user != null)
+            if (user != null && BCrypt.Net.BCrypt.Verify(password, user.Password))
             {
                 var claims = new List<Claim>
                 {
-                    new Claim(ClaimTypes.Name, user.FullName ?? user.Email ?? ""),
-                    new Claim(ClaimTypes.Email, user.Email ?? ""),
+                    new Claim(ClaimTypes.Name, user.FullName ?? user.Username ?? ""),
+                    new Claim(ClaimTypes.NameIdentifier, user.Username ?? ""),
                     new Claim("UserId", user.UserId.ToString())
                 };
 
@@ -82,9 +82,9 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            ModelState.AddModelError(string.Empty, "Email hoặc mật khẩu không đúng, hoặc tài khoản đã bị khóa.");
+            ModelState.AddModelError(string.Empty, "Username hoặc mật khẩu không đúng, hoặc tài khoản đã bị khóa.");
             ViewData["ReturnUrl"] = returnUrl;
-            ViewData["Email"] = email;
+            ViewData["Username"] = username;
             return View();
         }
 
@@ -93,6 +93,48 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction("Login", "Account");
+        }
+
+        [HttpGet]
+        public IActionResult Register()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register(string username, string fullName, string password)
+        {
+            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(fullName))
+            {
+                ModelState.AddModelError(string.Empty, "Vui lòng nhập đầy đủ thông tin.");
+                return View();
+            }
+
+            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+            if (existingUser != null)
+            {
+                ModelState.AddModelError(string.Empty, "Tên tài khoản (Username) đã tồn tại.");
+                return View();
+            }
+
+            // Find Admin role ID
+            var adminRole = await _context.Roles.FirstOrDefaultAsync(r => r.RoleName == "Admin" || r.RoleName == "Quản trị viên");
+
+            var newUser = new User
+            {
+                Username = username,
+                FullName = fullName,
+                Password = BCrypt.Net.BCrypt.HashPassword(password),
+                RoleId = adminRole?.RoleId ?? 4, // Default Admin RoleId fallback
+                Status = "Active"
+            };
+
+            _context.Users.Add(newUser);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Thêm tài khoản Quản trị viên thành công. Vui lòng đăng nhập.";
             return RedirectToAction("Login", "Account");
         }
 

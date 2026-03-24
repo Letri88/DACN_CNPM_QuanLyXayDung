@@ -189,10 +189,10 @@ public partial class HeThongQlvongDoiDuAnTaiNguyenContext : DbContext
         {
             entity.HasKey(e => e.UserId).HasName("PK__Users__1788CCAC6598EAF8");
 
-            entity.HasIndex(e => e.Email, "UQ__Users__A9D10534D8332783").IsUnique();
+            entity.HasIndex(e => e.Username, "UQ__Users__A9D10534D8332783").IsUnique();
 
             entity.Property(e => e.UserId).HasColumnName("UserID");
-            entity.Property(e => e.Email).HasMaxLength(100);
+            entity.Property(e => e.Username).HasMaxLength(100);
             entity.Property(e => e.FullName).HasMaxLength(100);
             entity.Property(e => e.Password).HasMaxLength(255);
             entity.Property(e => e.RoleId).HasColumnName("RoleID");

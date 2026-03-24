@@ -26,7 +26,7 @@
                 <thead>
                     <tr class="text-slate-500 text-xs uppercase tracking-wider bg-white/5">
                         <th class="px-6 py-4 font-semibold">@Html.DisplayNameFor(model => model.FullName)</th>
-                        <th class="px-6 py-4 font-semibold">@Html.DisplayNameFor(model => model.Email)</th>
+                        <th class="px-6 py-4 font-semibold">@Html.DisplayNameFor(model => model.Username)</th>
                         <th class="px-6 py-4 font-semibold">@Html.DisplayNameFor(model => model.Role)</th>
                         <th class="px-6 py-4 font-semibold">@Html.DisplayNameFor(model => model.Status)</th>
                         <th class="px-6 py-4 font-semibold text-right">Thao tác</th>
@@ -46,7 +46,7 @@
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 text-slate-400">@Html.DisplayFor(modelItem => item.Email)</td>
+                            <td class="px-6 py-4 text-slate-400">@Html.DisplayFor(modelItem => item.Username)</td>
                             <td class="px-6 py-4">
                                 <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-white/5 border border-white/10">
                                     @(item.Role?.RoleName?.Trim().ToLower() switch {

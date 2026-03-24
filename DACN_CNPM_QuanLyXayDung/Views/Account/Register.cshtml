@@ -1,6 +1,6 @@
 @{
     Layout = null;
-    ViewData["Title"] = "Đăng nhập";
+    ViewData["Title"] = "Đăng ký Quản trị viên";
 }
 <!DOCTYPE html>
 <html class="dark" lang="vi">
@@ -38,15 +38,8 @@
     <div class="glass-panel p-8 md:p-12 rounded-2xl w-full max-w-md shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
         <div class="text-center mb-8">
             <h1 class="text-3xl font-bold tracking-tight text-white mb-2">VIbe<span class="text-primary">Construct</span></h1>
-            <p class="text-slate-400">Đăng nhập vào hệ thống quản lý</p>
+            <p class="text-slate-400">Tạo tài khoản Quản trị viên (Admin)</p>
         </div>
-
-        @if (TempData["SuccessMessage"] != null)
-        {
-            <div class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-4 rounded-xl mb-6 text-sm text-center font-medium">
-                @TempData["SuccessMessage"]
-            </div>
-        }
 
         @if (!ViewData.ModelState.IsValid)
         {
@@ -55,25 +48,25 @@
             </div>
         }
 
-        <form asp-action="Login" method="post" class="space-y-6">
-            <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+        <form asp-action="Register" method="post" class="space-y-6">
             <div>
-                <label class="block text-sm font-medium text-slate-300 mb-2" for="username">
-                    Tên tài khoản (Username)
-                </label>
+                <label class="block text-sm font-medium text-slate-300 mb-2" for="fullName">Họ và Tên</label>
                 <div class="relative">
-                    <span class="material-icons absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">
-                        person
-                    </span>
-                    <input class="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-sm focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-white outline-none"
-                           id="username"
-                           name="username"
-                           type="text"
-                           placeholder="Ví dụ: admin123"
-                           required
-                           value="@ViewData["Username"]" />
+                    <span class="material-icons absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">badge</span>
+                    <input class="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-sm focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-white outline-none" 
+                           id="fullName" name="fullName" type="text" placeholder="Nguyễn Văn A" required />
                 </div>
             </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-2" for="username">Tên tài khoản (Username)</label>
+                <div class="relative">
+                    <span class="material-icons absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">person</span>
+                    <input class="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-sm focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-white outline-none" 
+                           id="username" name="username" type="text" placeholder="admin_username" required />
+                </div>
+            </div>
+
             <div>
                 <label class="block text-sm font-medium text-slate-300 mb-2" for="password">Mật khẩu</label>
                 <div class="relative">
@@ -82,23 +75,22 @@
                            id="password" name="password" type="password" placeholder="••••••••" required />
                 </div>
             </div>
-
-            <div class="flex items-center justify-between text-sm">
-                <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" class="rounded border-white/20 bg-white/5 text-primary focus:ring-primary/50 focus:ring-offset-background-dark" />
-                    <span class="text-slate-400 hover:text-white transition-colors">Ghi nhớ đăng nhập</span>
-                </label>
-                <a href="#" class="text-primary hover:text-white transition-colors">Quên mật khẩu?</a>
+            
+            <div class="bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-start gap-3 mt-4">
+                <span class="material-icons text-primary text-lg mt-0.5">info</span>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                    Tài khoản được tạo thông qua trang này sẽ được cấp quyền <strong class="text-white">Admin</strong> mặc định và mật khẩu sẽ được mã hóa bằng thuật toán BCrypt.
+                </p>
             </div>
 
-            <button type="submit" class="w-full bg-primary hover:bg-primary/90 text-background-dark py-3 rounded-xl text-sm font-bold transition-all shadow-[0_4px_15px_rgba(178,255,255,0.2)]">
-                Đăng nhập
+            <button type="submit" class="w-full bg-primary hover:bg-primary/90 text-background-dark py-3 rounded-xl text-sm font-bold transition-all shadow-[0_4px_15px_rgba(178,255,255,0.2)] mt-6">
+                Tạo tài khoản
             </button>
+            
+            <div class="text-center mt-6">
+                <a asp-action="Login" class="text-sm border-b border-white/20 text-slate-400 hover:text-white pb-1 transition-colors">Quay lại Đăng nhập</a>
+            </div>
         </form>
-
-        <div class="mt-8 text-center text-sm text-slate-500">
-            &copy; 2024 StitchConstruct.<br />Bản quyền thuộc về Con Bạc Technology.
-        </div>
     </div>
 
 </body>
