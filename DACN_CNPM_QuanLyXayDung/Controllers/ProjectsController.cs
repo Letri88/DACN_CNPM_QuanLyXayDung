@@ -73,9 +73,9 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
                 return BadRequest(new { message = "Bạn cần chọn file hợp đồng (PDF)." });
             }
 
-            if (!string.Equals(Path.GetExtension(contractFile.FileName), ".pdf", StringComparison.OrdinalIgnoreCase))
+            if (!FileValidationHelper.IsPdfFile(contractFile))
             {
-                return BadRequest(new { message = "Định dạng file phải là PDF." });
+                return BadRequest(new { message = "File tải lên không hợp lệ hoặc không phải là file PDF thực sự (vui lòng không đổi đuôi file)." });
             }
 
             if (contractFile.Length > 15 * 1024 * 1024)
@@ -147,9 +147,13 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
 
             if (contractFile is not null && contractFile.Length > 0)
             {
-                if (contractFile.Length > 15 * 1024 * 1024)
+                if (!FileValidationHelper.IsPdfFile(contractFile))
                 {
-                    ModelState.AddModelError("contractFile", "File hợp đồng quá lớn. Vui lòng chọn file nhỏ hơn 15MB.");
+                    ModelState.AddModelError(string.Empty, "File tải lên không hợp lệ hoặc không phải là file PDF thực sự.");
+                }
+                else if (contractFile.Length > 15 * 1024 * 1024)
+                {
+                    ModelState.AddModelError(string.Empty, "File hợp đồng quá lớn. Vui lòng chọn file nhỏ hơn 15MB.");
                 }
                 else
                 {
@@ -304,52 +308,29 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         [Authorize(Roles = "Admin,Project Manager,Quản trị viên,Quản lý dự án")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var project = await _context.Projects
-                .Include(p => p.Stages)
-                    .ThenInclude(s => s.Tasks)
-                .FirstOrDefaultAsync(p => p.ProjectId == id);
+            var project = await _context.Projects.FirstOrDefaultAsync(p => p.ProjectId == id);
+            if (project == null) return RedirectToAction(nameof(Index));
 
-            if (project != null)
-            {
-                // Xóa toàn bộ task thuộc các stage của dự án
-                var allTasks = project.Stages.SelectMany(s => s.Tasks).ToList();
-                if (allTasks.Any())
-                {
-                    _context.Tasks.RemoveRange(allTasks);
-                }
+            // Dùng ExecuteDeleteAsync để đảm bảo thứ tự xóa trực tiếp dưới DB và chính xác tuyệt đối
+            await _context.InventoryTransactions.Where(it => it.ProjectId == id).ExecuteDeleteAsync();
+            await _context.MaterialUsages.Where(mu => mu.ProjectId == id).ExecuteDeleteAsync();
+            
+            // Xóa Tasks trực tiếp thuộc Project
+            await _context.Tasks.Where(t => t.ProjectId == id).ExecuteDeleteAsync();
 
-                // Xóa các stage của dự án
-                if (project.Stages.Any())
-                {
-                    _context.Stages.RemoveRange(project.Stages);
-                }
+            var stageIds = _context.Stages.Where(s => s.ProjectId == id).Select(s => s.StageId);
+            
+            // Xóa Tasks và Giao dịch kho thuộc các Stage của dự án
+            await _context.Tasks.Where(t => stageIds.Contains(t.StageId)).ExecuteDeleteAsync();
+            await _context.InventoryTransactions.Where(it => it.StageId != null && stageIds.Contains(it.StageId.Value)).ExecuteDeleteAsync();
 
-                // (Tuỳ chọn) Nếu bạn muốn, có thể xóa luôn Tasks gắn thẳng với Project mà không qua Stage
-                var projectLevelTasks = _context.Tasks.Where(t => t.ProjectId == id).ToList();
-                if (projectLevelTasks.Any())
-                {
-                    _context.Tasks.RemoveRange(projectLevelTasks);
-                }
+            // Xóa Stages
+            await _context.Stages.Where(s => s.ProjectId == id).ExecuteDeleteAsync();
 
-                // Xóa các giao dịch kho liên quan đến dự án
-                var inventoryTransactions = _context.InventoryTransactions.Where(it => it.ProjectId == id).ToList();
-                if (inventoryTransactions.Any())
-                {
-                    _context.InventoryTransactions.RemoveRange(inventoryTransactions);
-                }
-                
-                // Xóa các giao dịch sử dụng vật liệu liên quan đến dự án
-                var materialUsages = _context.MaterialUsages.Where(mu => mu.ProjectId == id).ToList();
-                if (materialUsages.Any())
-                {
-                    _context.MaterialUsages.RemoveRange(materialUsages);
-                }
-
-                // Cuối cùng xóa chính dự án
-                _context.Projects.Remove(project);
-            }
-
+            // Cuối cùng xóa dự án (sẽ pass qua không bị kẹt reference constraint nào)
+            _context.Projects.Remove(project);
             await _context.SaveChangesAsync();
+
             return RedirectToAction(nameof(Index));
         }
 
