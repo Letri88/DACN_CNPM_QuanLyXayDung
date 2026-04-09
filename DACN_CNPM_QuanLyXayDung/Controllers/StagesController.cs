@@ -87,7 +87,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         {
             if (string.IsNullOrWhiteSpace(stageName)) return BadRequest(new { message = "Vui lòng nhập tên giai đoạn trước khi tải file lên." });
             if (contractFile is null || contractFile.Length == 0) return BadRequest(new { message = "Bạn cần chọn file hợp đồng (PDF)." });
-            if (!string.Equals(Path.GetExtension(contractFile.FileName), ".pdf", StringComparison.OrdinalIgnoreCase)) return BadRequest(new { message = "Định dạng file phải là PDF." });
+            if (!FileValidationHelper.IsPdfFile(contractFile)) return BadRequest(new { message = "File tải lên không hợp lệ hoặc không phải là file PDF thực sự." });
             if (contractFile.Length > 15 * 1024 * 1024) return BadRequest(new { message = "File hợp đồng quá lớn. Vui lòng chọn file nhỏ hơn 15MB." });
 
             var extractedBudget = await ContractBudgetExtractor.TryExtractStageBudgetAsync(contractFile, stageName);
@@ -122,19 +122,19 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
 
             if (materialDeclarationFile is null || materialDeclarationFile.Length == 0)
             {
-                ModelState.AddModelError("materialDeclarationFile", "Bạn cần chọn file PDF để tải lên.");
+                ModelState.AddModelError(string.Empty, "Bạn cần chọn file PDF để tải lên.");
                 return View("Details", stage);
             }
 
-            if (!string.Equals(Path.GetExtension(materialDeclarationFile.FileName), ".pdf", StringComparison.OrdinalIgnoreCase))
+            if (!FileValidationHelper.IsPdfFile(materialDeclarationFile))
             {
-                ModelState.AddModelError("materialDeclarationFile", "Định dạng file phải là PDF.");
+                ModelState.AddModelError(string.Empty, "File tải lên không hợp lệ hoặc không phải file PDF thực sự.");
                 return View("Details", stage);
             }
 
             if (materialDeclarationFile.Length > 15 * 1024 * 1024)
             {
-                ModelState.AddModelError("materialDeclarationFile", "File quá lớn. Vui lòng chọn file nhỏ hơn 15MB.");
+                ModelState.AddModelError(string.Empty, "File quá lớn. Vui lòng chọn file nhỏ hơn 15MB.");
                 return View("Details", stage);
             }
 
@@ -286,9 +286,13 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
 
             if (contractFile is not null && contractFile.Length > 0)
             {
-                if (contractFile.Length > 15 * 1024 * 1024)
+                if (!FileValidationHelper.IsPdfFile(contractFile))
                 {
-                    ModelState.AddModelError("contractFile", "File hợp đồng quá lớn. Vui lòng chọn file nhỏ hơn 15MB.");
+                    ModelState.AddModelError(string.Empty, "File tải lên không hợp lệ hoặc không phải file PDF thực sự.");
+                }
+                else if (contractFile.Length > 15 * 1024 * 1024)
+                {
+                    ModelState.AddModelError(string.Empty, "File hợp đồng quá lớn. Vui lòng chọn file nhỏ hơn 15MB.");
                 }
                 else
                 {
