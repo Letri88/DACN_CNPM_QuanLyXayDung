@@ -141,41 +141,126 @@
             <div class="glass-panel rounded-2xl p-6 space-y-6">
                 <div class="flex justify-between items-center">
                     <h3 class="text-lg font-bold text-white">Timeline Dự án (Gantt)</h3>
-                    <div class="flex gap-2">
-                        <button class="px-3 py-1 bg-white/5 rounded-lg text-xs text-slate-300 hover:bg-white/10">Tháng</button>
-                        <button class="px-3 py-1 bg-primary/20 rounded-lg text-xs text-primary font-bold">Quý</button>
-                        <button class="px-3 py-1 bg-white/5 rounded-lg text-xs text-slate-300 hover:bg-white/10">Năm</button>
-                    </div>
                 </div>
-                <div class="space-y-4">
-                    <!-- Months Header -->
-                    <div class="grid grid-cols-12 gap-0 border-b border-white/5 pb-2">
-                        <div class="col-span-3"></div>
-                        <div class="col-span-3 text-center text-[10px] font-bold text-slate-500 uppercase">Tháng 05</div>
-                        <div class="col-span-3 text-center text-[10px] font-bold text-slate-500 uppercase border-l border-white/5">Tháng 06</div>
-                        <div class="col-span-3 text-center text-[10px] font-bold text-slate-500 uppercase border-l border-white/5">Tháng 07</div>
-                    </div>
-                    <!-- Projects Timelines -->
-                    <div class="space-y-6 relative pt-2">
-                        <!-- Vertical Grid Lines -->
-                        <div class="absolute inset-y-0 left-1/4 w-px bg-white/5"></div>
-                        <div class="absolute inset-y-0 left-1/2 w-px bg-white/5"></div>
-                        <div class="absolute inset-y-0 left-3/4 w-px bg-white/5"></div>
-                        @foreach (var project in Model.ProjectsTimeline)
+                @{
+                    var ganttProjects = Model.ProjectsTimeline?.Where(p => p.StartDate.HasValue && p.EndDate.HasValue).ToList() ?? new List<Project>();
+                    var hasGantt = ganttProjects.Any();
+                    
+                    DateOnly minDate = DateOnly.FromDateTime(DateTime.Today);
+                    DateOnly maxDate = minDate.AddMonths(1);
+
+                    if (hasGantt)
+                    {
+                        minDate = ganttProjects.Min(p => p.StartDate!.Value);
+                        maxDate = ganttProjects.Max(p => p.EndDate!.Value);
+                        
+                        // Cũng xét các stage để giãn timeline nếu stage bắt đầu sớm/muộn hơn Project
+                        foreach(var p in ganttProjects)
                         {
-                            var statusColor = project.Status == "Completed" || project.Status == "Done" ? "bg-emerald-400/30 border-emerald-400/40" 
-                                            : project.Status == "In Progress" || project.Status == "Active" ? "bg-primary/40 border-primary/40"
-                                            : project.Status == "Pending" || project.Status == "Planned" ? "bg-amber-400/30 border-amber-400/40"
-                                            : "bg-blue-400/30 border-blue-400/40";
-                            <div class="grid grid-cols-12 items-center">
-                                <div class="col-span-3 text-sm font-medium text-slate-300 pr-4 truncate" title="@project.ProjectName">@project.ProjectName</div>
-                                <div class="col-span-9 relative h-6">
-                                    <div class="absolute left-0 top-1 h-4 @statusColor border rounded-full min-w-[10%] w-[50%]" title="@project.Status"></div>
-                                </div>
-                            </div>
+                            if(p.Stages != null && p.Stages.Any())
+                            {
+                                var validStages = p.Stages.Where(s => s.StartDate.HasValue && s.EndDate.HasValue).ToList();
+                                if(validStages.Any())
+                                {
+                                    var pMinStg = validStages.Min(s => s.StartDate!.Value);
+                                    var pMaxStg = validStages.Max(s => s.EndDate!.Value);
+                                    if (pMinStg < minDate) minDate = pMinStg;
+                                    if (pMaxStg > maxDate) maxDate = pMaxStg;
+                                }
+                            }
                         }
+                    }
+                    
+                    if (maxDate <= minDate) { maxDate = minDate.AddDays(30); }
+                    
+                    var totalDays = maxDate.DayNumber - minDate.DayNumber + 10; 
+                    var startDateAxis = minDate.AddDays(-5); 
+                    var endDateAxis = startDateAxis.AddDays(totalDays);
+                }
+
+                @if(hasGantt)
+                {
+                    <div class="space-y-4 overflow-hidden">
+                        <!-- Dates Header -->
+                        <div class="grid grid-cols-12 gap-0 border-b border-white/5 pb-2">
+                            <div class="col-span-3"></div>
+                            <div class="col-span-9 relative h-4">
+                                <div class="absolute left-0 top-0 text-[10px] font-bold text-slate-500 border-l border-white/20 pl-1">@startDateAxis.ToString("dd/MM/yyyy")</div>
+                                <div class="absolute left-1/2 top-0 text-[10px] font-bold text-slate-500 border-l border-white/20 pl-1 -translate-x-1/2">@startDateAxis.AddDays(totalDays/2).ToString("dd/MM/yyyy")</div>
+                                <div class="absolute right-0 top-0 text-[10px] font-bold text-slate-500 pr-1 text-right" style="transform: translateX(0);">@endDateAxis.ToString("dd/MM/yyyy")</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Projects & Stages Timelines -->
+                        <div class="space-y-6 relative pt-2">
+                            <!-- Vertical Grid Lines -->
+                            <div class="absolute inset-y-0 left-[25%] w-px bg-white/5" style="left: 25%;"></div>
+                            <div class="absolute inset-y-0 left-[50%] w-px bg-white/5" style="left: 50%;"></div>
+                            <div class="absolute inset-y-0 left-[75%] w-px bg-white/5" style="left: 75%;"></div>
+
+                            @foreach (var project in ganttProjects)
+                            {
+                                var projStartDelay = project.StartDate!.Value.DayNumber - startDateAxis.DayNumber;
+                                var projDuration = project.EndDate!.Value.DayNumber - project.StartDate.Value.DayNumber + 1;
+                                var projLeftPercent = Math.Max(0, Math.Min(100.0, (projStartDelay * 100.0) / totalDays));
+                                var projWidthPercent = Math.Max(0.5, Math.Min(100.0 - projLeftPercent, (projDuration * 100.0) / totalDays));
+
+                                var statusColor = project.Status == "Completed" || project.Status == "Done" ? "bg-emerald-400" 
+                                                : project.Status == "In Progress" || project.Status == "Active" ? "bg-primary"
+                                                : project.Status == "Pending" || project.Status == "Planned" ? "bg-amber-400"
+                                                : "bg-blue-400";
+                                                
+                                var barColor = project.Status == "Completed" || project.Status == "Done" ? "bg-emerald-400/30 border-emerald-400/40" 
+                                                : project.Status == "In Progress" || project.Status == "Active" ? "bg-primary/40 border-primary/40"
+                                                : project.Status == "Pending" || project.Status == "Planned" ? "bg-amber-400/30 border-amber-400/40"
+                                                : "bg-blue-400/30 border-blue-400/40";
+
+                                <div class="grid grid-cols-12 items-start border-b border-white/5 pb-4">
+                                    <div class="col-span-3 text-sm font-medium text-slate-300 pr-4 mt-1 border-r border-white/10" title="@project.ProjectName">
+                                        <div class="truncate font-bold text-white mb-1">@project.ProjectName</div>
+                                        <div class="text-[10px] text-slate-400">@project.StartDate?.ToString("dd/MM/yy") - @project.EndDate?.ToString("dd/MM/yy")</div>
+                                    </div>
+                                    <div class="col-span-9 relative min-h-[2rem]">
+                                        <!-- Project Main Bar -->
+                                        <div class="absolute top-1 h-6 @barColor border rounded flex items-center justify-center overflow-hidden"
+                                             style="left: @projLeftPercent.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)%; width: @projWidthPercent.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)%; min-width: 4px;"
+                                             title="Dự án: @project.ProjectName&#10;Trạng thái: @project.Status">
+                                             <div class="absolute bottom-0 left-0 h-1 @statusColor w-full opacity-70"></div>
+                                        </div>
+
+                                        <!-- Stages Bars -->
+                                        @if(project.Stages != null && project.Stages.Any(s => s.StartDate.HasValue && s.EndDate.HasValue))
+                                        {
+                                            <div class="mt-8 space-y-1.5 w-full">
+                                                @foreach (var stage in project.Stages.Where(s => s.StartDate.HasValue && s.EndDate.HasValue).OrderBy(s => s.StartDate))
+                                                {
+                                                    var stgStartDelay = stage.StartDate!.Value.DayNumber - startDateAxis.DayNumber;
+                                                    var stgDuration = stage.EndDate!.Value.DayNumber - stage.StartDate.Value.DayNumber + 1;
+                                                    var stgLeft = Math.Max(0, Math.Min(100.0, (stgStartDelay * 100.0) / totalDays));
+                                                    var stgWidth = Math.Max(0.5, Math.Min(100.0 - stgLeft, (stgDuration * 100.0) / totalDays));
+
+                                                    <div class="relative h-5 w-full mt-1" title="GĐ: @stage.StageName&#10;Bắt đầu: @stage.StartDate?.ToString("dd/MM/yyyy")&#10;Kết thúc: @stage.EndDate?.ToString("dd/MM/yyyy")&#10;Trạng thái: @stage.Status">
+                                                        <div class="absolute top-1 h-3 bg-white/20 border border-white/30 rounded shadow hover:bg-white/30 transition-colors"
+                                                             style="left: @stgLeft.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)%; width: @stgWidth.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)%; min-width: 4px;">
+                                                             @{ var putTextLeft = (stgLeft + stgWidth) > 85; }
+                                                             <span class="absolute @(putTextLeft ? "right-full mr-2" : "left-full ml-2") top-1/2 -translate-y-1/2 text-[10px] text-slate-300 whitespace-nowrap">@stage.StageName</span>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
                     </div>
-                </div>
+                }
+                else
+                {
+                    <div class="text-center py-8">
+                        <p class="text-slate-400 text-sm">Chưa có dữ liệu dự án hợp lệ để hiển thị Gantt.</p>
+                    </div>
+                }
             </div>
         </div>
         <!-- Right Column: Resources & Risks -->

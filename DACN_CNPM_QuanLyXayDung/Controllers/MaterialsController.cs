@@ -21,14 +21,21 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         }
 
         // GET: Materials
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString)
         {
-            var materials = await _context.Materials
+            ViewData["CurrentFilter"] = searchString;
+
+            var materials = _context.Materials
                 .Include(m => m.InventoryTransactions)
                 .Include(m => m.MaterialUsages)
-                .ToListAsync();
+                .AsQueryable();
 
-            return View(materials);
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                materials = materials.Where(m => m.MaterialName.Contains(searchString) || m.Unit.Contains(searchString));
+            }
+
+            return View(await materials.ToListAsync());
         }
 
         // GET: Materials/Details/5
