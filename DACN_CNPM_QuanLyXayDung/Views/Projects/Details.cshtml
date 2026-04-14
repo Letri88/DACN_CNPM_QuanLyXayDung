@@ -121,6 +121,103 @@
                 </div>
             </div>
 
+            <!-- Stages List Section -->
+            <div class="mt-8 relative z-10">
+                <div class="flex items-center justify-between mb-4 border-b border-white/10 pb-4">
+                    <h4 class="text-xl font-bold text-white flex items-center gap-2">
+                        <span class="material-icons text-blue-400 rounded-lg bg-blue-400/10 p-1.5">view_timeline</span>
+                        Danh sách Giai đoạn
+                    </h4>
+                    @if (User.IsInRole("Admin") || User.IsInRole("Project Manager") || User.IsInRole("Quản trị viên") || User.IsInRole("Quản lý dự án"))
+                    {
+                        <a asp-controller="Stages" asp-action="Create" class="px-3 py-1.5 bg-primary/20 text-primary hover:bg-primary/30 font-bold rounded-xl transition-colors text-xs flex items-center gap-1">
+                            <span class="material-icons text-xs">add</span> 
+                            Thêm giai đoạn
+                        </a>
+                    }
+                </div>
+                
+                @if (Model.Stages != null && Model.Stages.Any())
+                {
+                    <div class="space-y-4">
+                        @foreach (var stage in Model.Stages)
+                        {
+                            <div class="bg-white/5 rounded-xl border border-white/5 p-5">
+                                <div class="flex justify-between items-start mb-4">
+                                    <div class="flex items-center gap-3">
+                                        <h5 class="text-lg font-bold text-white">@stage.StageName</h5>
+                                        @if(stage.Status == "Planned" || stage.Status == "Pending") {
+                                            <span class="px-2 py-0.5 rounded border border-amber-500/20 text-[10px] uppercase font-bold bg-amber-500/10 text-amber-400">@stage.Status</span>
+                                        } else if (stage.Status == "Active" || stage.Status == "In Progress") {
+                                            <span class="px-2 py-0.5 rounded border border-emerald-500/20 text-[10px] uppercase font-bold bg-emerald-500/10 text-emerald-400">@stage.Status</span>
+                                        } else {
+                                            <span class="px-2 py-0.5 rounded border border-white/20 text-[10px] uppercase font-bold bg-white/10 text-slate-300">@stage.Status</span>
+                                        }
+                                    </div>
+                                    <a asp-controller="Stages" asp-action="Details" asp-route-id="@stage.StageId" class="text-xs text-primary hover:text-primary/80 flex items-center gap-1 bg-primary/10 px-3 py-1.5 rounded-lg transition-colors">
+                                        Chi tiết <span class="material-icons text-[14px]">chevron_right</span>
+                                    </a>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4 mb-4 text-xs">
+                                    <div class="flex items-center gap-2 text-slate-300">
+                                        <span class="material-icons text-[14px] text-slate-500">event</span>
+                                        @(stage.StartDate?.ToString("dd/MM/yyyy") ?? "-") &rarr; @(stage.EndDate?.ToString("dd/MM/yyyy") ?? "-")
+                                    </div>
+                                    <div class="flex items-center gap-2 text-slate-300">
+                                        <span class="material-icons text-[14px] text-slate-500">person</span>
+                                        Người phụ trách: @(stage.AssignedUser?.FullName ?? "Chưa phân công")
+                                    </div>
+                                </div>
+                                
+                                <!-- Tasks -->
+                                @if (stage.Tasks != null && stage.Tasks.Any())
+                                {
+                                    <div class="bg-background-dark/50 rounded-lg p-4 border border-white/5">
+                                        <h6 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Công việc thuộc giai đoạn</h6>
+                                        <ul class="space-y-2">
+                                            @foreach (var task in stage.Tasks)
+                                            {
+                                                <li class="flex items-center justify-between text-sm p-2 hover:bg-white/5 rounded-md transition-colors">
+                                                    <div class="flex items-center gap-2">
+                                                        <span class="material-icons text-[16px] text-slate-500">task_alt</span>
+                                                        <span class="text-slate-200">@task.TaskName</span>
+                                                    </div>
+                                                    <div class="flex items-center gap-4">
+                                                        <span class="text-xs text-slate-500">@(task.StartDate?.ToString("dd/MM/yy") ?? "-") &rarr; @(task.EndDate?.ToString("dd/MM/yy") ?? "-")</span>
+                                                        @if(task.Status == "Planned" || task.Status == "Pending" || task.Status == "Not Started") {
+                                                            <span class="px-2 py-0.5 rounded border border-amber-500/20 text-[10px] uppercase font-bold bg-amber-500/10 text-amber-400">@task.Status</span>
+                                                        } else if (task.Status == "Active" || task.Status == "In Progress") {
+                                                            <span class="px-2 py-0.5 rounded border border-blue-500/20 text-[10px] uppercase font-bold bg-blue-500/10 text-blue-400">@task.Status</span>
+                                                        } else if (task.Status == "Completed" || task.Status == "Done") {
+                                                            <span class="px-2 py-0.5 rounded border border-emerald-500/20 text-[10px] uppercase font-bold bg-emerald-500/10 text-emerald-400">@task.Status</span>
+                                                        } else {
+                                                            <span class="px-2 py-0.5 rounded border border-white/20 text-[10px] uppercase font-bold bg-white/10 text-slate-300">@task.Status</span>
+                                                        }
+                                                    </div>
+                                                </li>
+                                            }
+                                        </ul>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="bg-background-dark/50 rounded-lg p-3 text-center text-xs text-slate-500 border border-white/5">
+                                        Chưa có công việc nào trong giai đoạn này.
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-8 bg-white/5 rounded-xl border border-white/5 border-dashed">
+                        <span class="material-icons text-4xl text-white/10 mb-2">view_timeline</span>
+                        <p class="text-slate-400 text-sm">Dự án này chưa có giai đoạn nào.</p>
+                    </div>
+                }
+            </div>
+
             <div class="pt-6 mt-8 border-t border-white/10 flex items-center justify-between relative z-10">
                 <a asp-action="Index" class="text-slate-400 hover:text-white transition-colors text-sm flex items-center gap-2">
                     <span class="material-icons text-sm">arrow_back</span> Quay lại

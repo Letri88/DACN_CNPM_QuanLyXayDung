@@ -47,6 +47,8 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
                     .ThenInclude(mu => mu.Material)
                 .Include(p => p.Stages)
                     .ThenInclude(s => s.Tasks)
+                .Include(p => p.Stages)
+                    .ThenInclude(s => s.AssignedUser)
                 .FirstOrDefaultAsync(m => m.ProjectId == id);
             if (project == null)
             {
