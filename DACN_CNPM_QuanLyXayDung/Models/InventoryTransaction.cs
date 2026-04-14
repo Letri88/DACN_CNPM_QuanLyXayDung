@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace DACN_CNPM_QuanLyXayDung.Models;
@@ -11,7 +11,7 @@ public partial class InventoryTransaction
 
     public int? ProjectId { get; set; }
 
-    public int? WarehouseKeeperId { get; set; }
+    public string? WarehouseKeeperId { get; set; }
 
     public int Quantity { get; set; }
 
@@ -22,6 +22,10 @@ public partial class InventoryTransaction
     public virtual Material Material { get; set; } = null!;
 
     public virtual Project? Project { get; set; }
+    
+    public int? StageId { get; set; }
+    
+    public virtual Stage? Stage { get; set; }
 
     public virtual User? WarehouseKeeper { get; set; }
 }

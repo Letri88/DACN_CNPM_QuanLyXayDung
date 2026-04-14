@@ -7,8 +7,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DACN_CNPM_QuanLyXayDung.Models;
 
+using Microsoft.AspNetCore.Authorization;
+
 namespace DACN_CNPM_QuanLyXayDung.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class UsersController : Controller
     {
         private readonly HeThongQlvongDoiDuAnTaiNguyenContext _context;
@@ -18,15 +21,17 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             _context = context;
         }
 
-        // GET: Users
         public async Task<IActionResult> Index()
         {
-            var heThongQlvongDoiDuAnTaiNguyenContext = _context.Users.Include(u => u.Role);
-            return View(await heThongQlvongDoiDuAnTaiNguyenContext.ToListAsync());
+            var users = await _context.Users
+                .Include(u => u.Role)
+                .Where(u => u.Role == null || (u.Role.RoleName != "Admin" && u.Role.RoleName != "Quản trị viên"))
+                .ToListAsync();
+            return View(users);
         }
 
         // GET: Users/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(string? id)
         {
             if (id == null)
             {
@@ -56,10 +61,32 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("UserId,RoleId,FullName,Email,Password,Status")] User user)
+        public async Task<IActionResult> Create([Bind("RoleId,FullName,Username,Password,Status")] User user)
         {
+            ModelState.Remove(nameof(user.UserId));
+            ModelState.Remove(nameof(user.Role));
+            ModelState.Remove(nameof(user.InventoryTransactions));
+            ModelState.Remove(nameof(user.Projects));
+
             if (ModelState.IsValid)
             {
+                var role = await _context.Roles.FindAsync(user.RoleId);
+                string prefix = "User";
+                if (role != null)
+                {
+                    prefix = role.RoleName?.Trim().ToLower() switch
+                    {
+                        "admin" or "quản trị viên" => "Admin",
+                        "project manager" or "quản lý dự án" => "PM",
+                        "engineer" or "kỹ sư" => "KS",
+                        "warehouse keeper" or "thủ kho" => "TK",
+                        _ => "User"
+                    };
+                }
+                var count = await _context.Users.CountAsync(u => u.UserId.StartsWith(prefix));
+                user.UserId = prefix + (count + 1).ToString("D3");
+
+                user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
                 _context.Add(user);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -69,7 +96,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         }
 
         // GET: Users/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(string? id)
         {
             if (id == null)
             {
@@ -90,17 +117,33 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("UserId,RoleId,FullName,Email,Password,Status")] User user)
+        public async Task<IActionResult> Edit(string id, [Bind("UserId,RoleId,FullName,Username,Password,Status")] User user)
         {
             if (id != user.UserId)
             {
                 return NotFound();
             }
 
+            ModelState.Remove(nameof(user.Role));
+            ModelState.Remove(nameof(user.InventoryTransactions));
+            ModelState.Remove(nameof(user.Projects));
+
             if (ModelState.IsValid)
             {
                 try
                 {
+                    // Check if password has changed (assuming it's not a hash starting with $2a$ or $2b$)
+                    if (!user.Password.StartsWith("$2"))
+                    {
+                        user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
+                    }
+                    else
+                    {
+                        // If password field is unchanged from edit form, keep the original hash.
+                        // Ideally we should make it empty and check string.IsNullOrEmpty.
+                        // Setting state to modified handles updates safely.
+                    }
+                    
                     _context.Update(user);
                     await _context.SaveChangesAsync();
                 }
@@ -122,7 +165,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         }
 
         // GET: Users/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(string? id)
         {
             if (id == null)
             {
@@ -143,7 +186,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         // POST: Users/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(string id)
         {
             var user = await _context.Users.FindAsync(id);
             if (user != null)
@@ -155,23 +198,25 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private bool UserExists(int id)
+        private bool UserExists(string id)
         {
             return _context.Users.Any(e => e.UserId == id);
         }
 
         private System.Collections.IEnumerable GetTranslatedRoles()
         {
-            return _context.Roles.ToList().Select(r => new {
-                RoleId = r.RoleId,
-                RoleName = r.RoleName?.Trim().ToLower() switch {
-                    "admin" => "Quản trị viên",
-                    "project manager" => "Quản lý dự án",
-                    "engineer" => "Kỹ sư",
-                    "warehouse keeper" => "Thủ kho",
-                    _ => r.RoleName
-                }
-            });
+            return _context.Roles
+                .Where(r => r.RoleName != "Admin" && r.RoleName != "Quản trị viên")
+                .ToList()
+                .Select(r => new {
+                    RoleId = r.RoleId,
+                    RoleName = r.RoleName?.Trim().ToLower() switch {
+                        "project manager" => "Quản lý dự án",
+                        "engineer" => "Kỹ sư",
+                        "warehouse keeper" => "Thủ kho",
+                        _ => r.RoleName
+                    }
+                });
         }
     }
 }

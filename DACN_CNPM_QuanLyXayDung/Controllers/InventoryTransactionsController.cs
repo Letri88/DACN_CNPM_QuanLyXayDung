@@ -1,0 +1,255 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using DACN_CNPM_QuanLyXayDung.Models;
+using Microsoft.AspNetCore.Authorization;
+
+namespace DACN_CNPM_QuanLyXayDung.Controllers
+{
+    [Authorize(Roles = "Admin, Warehouse Keeper, Quản trị viên, Thủ kho")]
+    public class InventoryTransactionsController : Controller
+    {
+        private readonly HeThongQlvongDoiDuAnTaiNguyenContext _context;
+
+        public InventoryTransactionsController(HeThongQlvongDoiDuAnTaiNguyenContext context)
+        {
+            _context = context;
+        }
+
+        // GET: InventoryTransactions
+        public async Task<IActionResult> Index()
+        {
+            var heThongQlvongDoiDuAnTaiNguyenContext = _context.InventoryTransactions
+                .Include(i => i.Material)
+                .Include(i => i.Project)
+                .Include(i => i.WarehouseKeeper)
+                    .ThenInclude(u => u.Role);
+            return View(await heThongQlvongDoiDuAnTaiNguyenContext.ToListAsync());
+        }
+
+        // GET: InventoryTransactions/Requests
+        public async Task<IActionResult> Requests()
+        {
+            var requests = await _context.Stages
+                .Include(s => s.Project)
+                .Where(s => s.MaterialDeclarationFileName != null && s.MaterialDeclarationFileName.StartsWith("[Đã duyệt]"))
+                .ToListAsync();
+            return View(requests);
+        }
+
+        // GET: InventoryTransactions/Details/5
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var inventoryTransaction = await _context.InventoryTransactions
+                .Include(i => i.Material)
+                .Include(i => i.Project)
+                .Include(i => i.WarehouseKeeper)
+                    .ThenInclude(u => u.Role)
+                .FirstOrDefaultAsync(m => m.TransactionId == id);
+            if (inventoryTransaction == null)
+            {
+                return NotFound();
+            }
+
+            return View(inventoryTransaction);
+        }
+
+        // GET: InventoryTransactions/Create
+        public IActionResult Create(int? projectId = null, int? stageId = null, string type = null)
+        {
+            var currentUserId = User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
+            ViewData["MaterialId"] = new SelectList(_context.Materials, "MaterialId", "MaterialName");
+            ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectName", projectId);
+            
+            var stages = projectId.HasValue 
+                ? _context.Stages.Where(s => s.ProjectId == projectId.Value) 
+                : Enumerable.Empty<Stage>().AsQueryable();
+            ViewData["StageId"] = new SelectList(stages, "StageId", "StageName", stageId);
+            
+            ViewData["WarehouseKeeperId"] = GetUsersWithRoles(currentUserId, new[] { "Warehouse Keeper", "Thủ kho"});
+            
+            var model = new InventoryTransaction();
+            if (!string.IsNullOrEmpty(type)) model.Type = type;
+            if (projectId.HasValue) model.ProjectId = projectId;
+            if (stageId.HasValue) model.StageId = stageId;
+            
+            return View(model);
+        }
+
+        // POST: InventoryTransactions/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("TransactionId,MaterialId,ProjectId,WarehouseKeeperId,Quantity,Type,Date,StageId")] InventoryTransaction inventoryTransaction)
+        {
+            ModelState.Remove(nameof(inventoryTransaction.Material));
+            ModelState.Remove(nameof(inventoryTransaction.Project));
+            ModelState.Remove(nameof(inventoryTransaction.Stage));
+            ModelState.Remove(nameof(inventoryTransaction.WarehouseKeeper));
+
+            if (ModelState.IsValid)
+            {
+                _context.Add(inventoryTransaction);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            ViewData["MaterialId"] = new SelectList(_context.Materials, "MaterialId", "MaterialName", inventoryTransaction.MaterialId);
+            ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectName", inventoryTransaction.ProjectId);
+            ViewData["StageId"] = new SelectList(_context.Stages.Where(s => s.ProjectId == inventoryTransaction.ProjectId), "StageId", "StageName", inventoryTransaction.StageId);
+            ViewData["WarehouseKeeperId"] = GetUsersWithRoles(inventoryTransaction.WarehouseKeeperId, new[] { "Warehouse Keeper", "Thủ kho", "Admin", "Quản trị viên" });
+            return View(inventoryTransaction);
+        }
+
+        // GET: InventoryTransactions/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var inventoryTransaction = await _context.InventoryTransactions.FindAsync(id);
+            if (inventoryTransaction == null)
+            {
+                return NotFound();
+            }
+            ViewData["MaterialId"] = new SelectList(_context.Materials, "MaterialId", "MaterialName", inventoryTransaction.MaterialId);
+            ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectName", inventoryTransaction.ProjectId);
+            ViewData["StageId"] = new SelectList(_context.Stages.Where(s => s.ProjectId == inventoryTransaction.ProjectId), "StageId", "StageName", inventoryTransaction.StageId);
+            ViewData["WarehouseKeeperId"] = GetUsersWithRoles(inventoryTransaction.WarehouseKeeperId, new[] { "Warehouse Keeper", "Thủ kho", "Admin", "Quản trị viên" });
+            return View(inventoryTransaction);
+        }
+
+        // POST: InventoryTransactions/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("TransactionId,MaterialId,ProjectId,WarehouseKeeperId,Quantity,Type,Date,StageId")] InventoryTransaction inventoryTransaction)
+        {
+            if (id != inventoryTransaction.TransactionId)
+            {
+                return NotFound();
+            }
+
+            ModelState.Remove(nameof(inventoryTransaction.Material));
+            ModelState.Remove(nameof(inventoryTransaction.Project));
+            ModelState.Remove(nameof(inventoryTransaction.Stage));
+            ModelState.Remove(nameof(inventoryTransaction.WarehouseKeeper));
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(inventoryTransaction);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!InventoryTransactionExists(inventoryTransaction.TransactionId))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            ViewData["MaterialId"] = new SelectList(_context.Materials, "MaterialId", "MaterialName", inventoryTransaction.MaterialId);
+            ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectName", inventoryTransaction.ProjectId);
+            ViewData["StageId"] = new SelectList(_context.Stages.Where(s => s.ProjectId == inventoryTransaction.ProjectId), "StageId", "StageName", inventoryTransaction.StageId);
+            ViewData["WarehouseKeeperId"] = GetUsersWithRoles(inventoryTransaction.WarehouseKeeperId, new[] { "Warehouse Keeper", "Thủ kho", "Admin", "Quản trị viên" });
+            return View(inventoryTransaction);
+        }
+
+        [HttpGet]
+        public JsonResult GetStagesByProject(int projectId)
+        {
+            var stages = _context.Stages
+                .Where(s => s.ProjectId == projectId)
+                .Select(s => new { s.StageId, s.StageName })
+                .ToList();
+            return Json(stages);
+        }
+
+        // GET: InventoryTransactions/Delete/5
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var inventoryTransaction = await _context.InventoryTransactions
+                .Include(i => i.Material)
+                .Include(i => i.Project)
+                .Include(i => i.WarehouseKeeper)
+                .FirstOrDefaultAsync(m => m.TransactionId == id);
+            if (inventoryTransaction == null)
+            {
+                return NotFound();
+            }
+
+            return View(inventoryTransaction);
+        }
+
+        // POST: InventoryTransactions/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var inventoryTransaction = await _context.InventoryTransactions.FindAsync(id);
+            if (inventoryTransaction != null)
+            {
+                _context.InventoryTransactions.Remove(inventoryTransaction);
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        private bool InventoryTransactionExists(int id)
+        {
+            return _context.InventoryTransactions.Any(e => e.TransactionId == id);
+        }
+
+        private string TranslateRole(string? roleName)
+        {
+            if (string.IsNullOrWhiteSpace(roleName)) return "";
+            return roleName.Trim().ToLower() switch {
+                "admin" => "Quản trị viên",
+                "project manager" => "Quản lý dự án",
+                "engineer" => "Kỹ sư",
+                "warehouse keeper" => "Thủ kho",
+                _ => roleName
+            };
+        }
+
+        private SelectList GetUsersWithRoles(string? selectedId = null, string[]? allowedRoles = null)
+        {
+            var query = _context.Users.Include(u => u.Role).AsQueryable();
+            if (allowedRoles != null && allowedRoles.Length > 0)
+            {
+                query = query.Where(u => u.Role != null && allowedRoles.Contains(u.Role.RoleName.Trim()));
+            }
+
+            var users = query.ToList().Select(u => new {
+                UserId = u.UserId,
+                DisplayName = $"{u.FullName} - {TranslateRole(u.Role?.RoleName)}"
+            });
+            return new SelectList(users, "UserId", "DisplayName", selectedId);
+        }
+    }
+}

@@ -43,10 +43,24 @@
                     <div>
                         <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">@Html.DisplayNameFor(model => model.Manager)</p>
                         <div class="flex items-center gap-3 mt-2">
-                            <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-white border-2 border-background-dark" title="ID: @Html.DisplayFor(model => model.Manager.UserId)">
+                            <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-white border-2 border-background-dark" title="ID: @(Model.Manager?.UserId.ToString() ?? "?")">
                                 @(Model.Manager != null && !string.IsNullOrEmpty(Model.Manager.FullName) ? Model.Manager.FullName.Substring(0, 1).ToUpper() : "?")
                             </div>
-                            <p class="text-white font-medium text-sm">@(Model.Manager?.FullName ?? "Chưa chỉ định")</p>
+                            <div>
+                                <p class="text-white font-medium text-sm">@(Model.Manager?.FullName ?? "Chưa chỉ định")</p>
+                                @{
+                                    var roleNameDetail = Model.Manager?.Role?.RoleName?.Trim().ToLower() switch {
+                                        "admin" => "Quản trị viên",
+                                        "project manager" => "Quản lý dự án",
+                                        "engineer" => "Kỹ sư",
+                                        "warehouse keeper" => "Thủ kho",
+                                        _ => Model.Manager?.Role?.RoleName
+                                    };
+                                }
+                                @if(!string.IsNullOrEmpty(roleNameDetail)) {
+                                    <p class="text-[10px] text-slate-400">@roleNameDetail</p>
+                                }
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -54,8 +68,40 @@
                 <div class="space-y-6 bg-white/5 p-5 rounded-xl border border-white/5">
                     <div>
                         <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">@Html.DisplayNameFor(model => model.Budget)</p>
-                        <p class="text-xl font-bold text-emerald-400">@Html.DisplayFor(model => model.Budget)</p>
+                        <span class="material-icons text-sm text-emerald-400">payments</span>
+                         <span class="text-emerald-400 font-bold">@((Model.Budget ?? 0).ToString("N0")) đ</span>
+                        @if (Model.BudgetLocked)
+                        {
+                            <div class="text-[12px] text-emerald-400 mt-2">
+                                Budget đã được khóa theo hợp đồng.
+                            </div>
+                        }
                     </div>
+
+                    @if (Model.ContractFileContent != null && Model.ContractFileContent.Length > 0)
+                    {
+                        <div class="mt-4">
+                            <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                                Hợp đồng đã upload
+                            </p>
+                            <div class="flex items-center justify-between gap-3">
+                                <div class="text-slate-300 text-sm truncate">
+                                    @Model.ContractFileName
+                                </div>
+                                <a asp-action="DownloadContract"
+                                   asp-route-id="@Model.ProjectId"
+                                   class="text-sm bg-primary/20 hover:bg-primary/30 text-primary px-4 py-2 rounded-lg transition-colors border border-primary/20">
+                                    Xem/Tải PDF
+                                </a>
+                            </div>
+                            @if (Model.ContractUploadedAt != null)
+                            {
+                                <div class="text-xs text-slate-400 mt-2">
+                                    Lúc: @Model.ContractUploadedAt?.ToString("dd/MM/yyyy HH:mm")
+                                </div>
+                            }
+                        </div>
+                    }
                     <div class="grid grid-cols-2 gap-6 pt-4 border-t border-white/5">
                         <div>
                             <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">@Html.DisplayNameFor(model => model.StartDate)</p>
@@ -83,6 +129,50 @@
                     <span class="material-icons text-sm">edit</span> Chỉnh sửa
                 </a>
             </div>
+
+            <!-- Used Materials Table Section (From Warehouse Exports) -->
+            @{
+                var usedMaterials = ViewBag.UsedMaterials as Dictionary<string, int>;
+            }
+            @if (usedMaterials != null && usedMaterials.Any())
+            {
+                <div class="mt-8 relative z-10">
+                    <div class="flex items-center justify-between mb-4 border-b border-white/10 pb-4">
+                        <h4 class="text-xl font-bold text-white flex items-center gap-2">
+                            <span class="material-icons text-emerald-400 rounded-lg bg-emerald-400/10 p-1.5">warehouse</span>
+                            Tổng vật tư được xuất từ kho (Gom nhóm theo Dự án)
+                        </h4>
+                    </div>
+                    <div class="bg-white/5 rounded-xl border border-white/5 overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm">
+                                <thead>
+                                    <tr class="text-slate-500 text-xs uppercase tracking-wider bg-white/5 border-b border-white/5">
+                                        <th class="px-4 py-3 font-semibold">Tên vật tư</th>
+                                        <th class="px-4 py-3 font-semibold text-right">Tổng số lượng đã xuất</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-white/5 text-slate-300">
+                                    @foreach (var item in usedMaterials)
+                                    {
+                                        <tr class="hover:bg-white/5 transition-colors">
+                                            <td class="px-4 py-3 font-medium text-white flex items-center gap-2">
+                                                <span class="w-2 h-2 rounded-full bg-emerald-400"></span> @item.Key
+                                            </td>
+                                            <td class="px-4 py-3 text-right font-bold text-emerald-400">
+                                                @item.Value.ToString("N0")
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+
+
+
         </div>
     </div>
 </div>

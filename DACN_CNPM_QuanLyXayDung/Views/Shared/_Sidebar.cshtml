@@ -1,9 +1,8 @@
+@using System.Security.Claims
+@inject DACN_CNPM_QuanLyXayDung.Models.HeThongQlvongDoiDuAnTaiNguyenContext _context
 <aside class="fixed left-0 top-0 h-full w-64 glass-sidebar z-50 flex flex-col">
     <div class="p-6">
         <div class="flex items-center gap-3">
-            <div class="logo pull-left">
-                <a href="index.html"><img src="images//a.jpg" alt="" /></a>
-            </div>
             <h1 class="text-xl font-bold tracking-tight text-white">VIbe<span class="text-primary">Construct</span></h1>
         </div>
     </div>
@@ -14,42 +13,81 @@
             <span class="font-medium">Tổng quan</span>
         </a>
 
-        <a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="~/Projects">
-            <span class="material-icons text-xl">construction</span>
-            <span class="font-medium">Dự án</span>
-        </a>
+        @if (User.IsInRole("Admin") || User.IsInRole("Project Manager") || User.IsInRole("Quản trị viên") || User.IsInRole("Quản lý dự án"))
+        {
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="~/Projects">
+                <span class="material-icons text-xl">construction</span>
+                <span class="font-medium">Dự án</span>
+            </a>
+        }
 
-        <a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="~/Stages">
-            <span class="material-icons text-xl">loop</span>
-            <span class="font-medium">Vòng đời</span>
-        </a>
+        @if (User.IsInRole("Admin") || User.IsInRole("Project Manager") || User.IsInRole("Quản trị viên") || User.IsInRole("Quản lý dự án") || User.IsInRole("Warehouse Keeper") || User.IsInRole("Thủ kho"))
+        {
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="~/Stages">
+                <span class="material-icons text-xl">loop</span>
+                <span class="font-medium">Giai đoạn</span>
+            </a>
+        }
 
-        <a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="~/Tasks">
-            <span class="material-icons text-xl">assignment</span>
-            <span class="font-medium">Công việc</span>
-        </a>
+        @if (User.IsInRole("Admin") || User.IsInRole("Project Manager") || User.IsInRole("Engineer") || User.IsInRole("Quản trị viên") || User.IsInRole("Quản lý dự án") || User.IsInRole("Kỹ sư"))
+        {
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="~/Tasks">
+                <span class="material-icons text-xl">assignment</span>
+                <span class="font-medium">Công việc</span>
+            </a>
+        }
 
-        <a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="~/Materials">
-            <span class="material-icons text-xl">inventory_2</span>
-            <span class="font-medium">Tài nguyên</span>
-        </a>
+        @if (User.IsInRole("Engineer") || User.IsInRole("Kỹ sư"))
+        {
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
+            if (!string.IsNullOrEmpty(userIdClaim))
+            {
+                var myStages = _context.Stages.Where(s => s.AssignedUserId == userIdClaim).ToList();
+                if (myStages.Any())
+                {
+                    <div class="pt-4 mt-4 border-t border-white/10 mb-2">
+                        <div class="px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Giai đoạn của tôi</div>
+                        @foreach(var ms in myStages)
+                        {
+                            <a class="flex items-center gap-3 px-4 py-2 pl-8 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all text-sm w-full" href="~/Stages/Details/@ms.StageId" title="@ms.StageName">
+                                <span class="material-icons text-[10px] text-primary">circle</span>
+                                <span class="font-medium truncate block w-full">@ms.StageName</span>
+                            </a>
+                        }
+                    </div>
+                }
+            }
+        }
 
-        <a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="~/Users">
-            <span class="material-icons text-xl">groups</span>
-            <span class="font-medium">Nhân sự</span>
-        </a>
+        @if (User.IsInRole("Admin") || User.IsInRole("Warehouse Keeper") || User.IsInRole("Quản trị viên") || User.IsInRole("Thủ kho"))
+        {
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="~/Materials">
+                <span class="material-icons text-xl">inventory_2</span>
+                <span class="font-medium">Tài nguyên</span>
+            </a>
+
+            <a class="flex items-center gap-3 px-4 py-3 pl-8 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all text-sm" href="~/InventoryTransactions/Requests">
+                <span class="material-icons text-lg">add_shopping_cart</span>
+                <span class="font-medium">Nhập/Xuất kho</span>
+            </a>
+
+            <a class="flex items-center gap-3 px-4 py-3 pl-8 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all text-sm" href="~/InventoryTransactions">
+                <span class="material-icons text-lg">history</span>
+                <span class="font-medium">Lịch sử xuất nhập kho</span>
+            </a>
+        }
+
+        @if (User.IsInRole("Admin") || User.IsInRole("Quản trị viên"))
+        {
+            <a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="~/Users">
+                <span class="material-icons text-xl">groups</span>
+                <span class="font-medium">Nhân sự</span>
+            </a>
+        }
+        
         <a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="#">
             <span class="material-icons text-xl">bar_chart</span>
             <span class="font-medium">Báo cáo</span>
         </a>
     </nav>
-    <div class="p-6 border-t border-white/5">
-        <div class="flex items-center gap-3 glass-panel p-3 rounded-xl">
-            <img class="w-10 h-10 rounded-lg object-cover" data-alt="Chân dung quản lý nam chuyên nghiệp" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAmk8Y27i5yHvKfEcnFdbL2w-kHPSClp2hf2erRuw33bsl2FeKQMtqt1hAXVCrNH_9_V7yp2NBaNf80MF3ZBxYyew5vKzNtDF9y16ywSIBhLMUp9O330gUv0_Rw9S99GN_P3BZiwHnlr2O8VWj1M9wy-7LUiY8Bj4vE7lLae6czyYZ3uyAFiSENVIh-xmeNTJhycKsM4NV-nU_tiO9R2FkONfGefbmjy_yRU4kh4752vdQ57WCdmN30I9cdNKvSkS4bjffvCTEwvKw" />
-            <div class="overflow-hidden">
-                <p class="text-sm font-semibold text-white truncate">Phan Anh Tuấn</p>
-                <p class="text-xs text-slate-400 truncate">Quản lý cấp cao</p>
-            </div>
-        </div>
-    </div>
 </aside>

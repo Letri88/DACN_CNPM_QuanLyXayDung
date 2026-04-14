@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace DACN_CNPM_QuanLyXayDung.Models;
@@ -15,9 +15,29 @@ public partial class Stage
 
     public DateOnly? EndDate { get; set; }
 
+    public string? AssignedUserId { get; set; }
+
     public string? Status { get; set; }
+
+    public decimal? Budget { get; set; }
+
+    public bool BudgetLocked { get; set; } = false;
+
+    public byte[]? MaterialDeclarationFileContent { get; set; }
+
+    public string? MaterialDeclarationFileName { get; set; }
+
+    public string? MaterialDeclarationContentType { get; set; }
+
+    public DateTime? MaterialDeclarationUploadedAt { get; set; }
+
+    public int? PercentComplete => Tasks != null && Tasks.Any() ? (int)Math.Round((double)Tasks.Count(t => t.Status == "Done" || t.Status == "Completed") / Tasks.Count * 100) : 0;
+
+    public virtual User? AssignedUser { get; set; }
 
     public virtual Project Project { get; set; } = null!;
 
     public virtual ICollection<Task> Tasks { get; set; } = new List<Task>();
+
+    public virtual ICollection<InventoryTransaction> InventoryTransactions { get; set; } = new List<InventoryTransaction>();
 }

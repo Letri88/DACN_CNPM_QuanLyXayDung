@@ -1,0 +1,59 @@
+@model DACN_CNPM_QuanLyXayDung.Models.MaterialUsage
+
+@{
+    ViewData["Title"] = "Ghi nhận Sử dụng Vật tư";
+}
+
+<div class="p-8 space-y-8">
+    <div class="max-w-2xl mx-auto">
+        <div class="glass-panel rounded-2xl p-6">
+            <h3 class="text-xl font-bold text-white mb-6">Ghi nhận Sử dụng Vật tư</h3>
+            <form asp-action="Create" class="space-y-4">
+                <div asp-validation-summary="ModelOnly" class="text-red-400 text-sm mb-4"></div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label asp-for="ProjectId" class="text-sm font-medium text-slate-300 mb-1 block">Dự án</label>
+                        <select asp-for="ProjectId" class="bg-[#1a2e2e] border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all appearance-none" asp-items="ViewBag.ProjectId">
+                            <option value="">-- Chọn Dự án --</option>
+                        </select>
+                        <span asp-validation-for="ProjectId" class="text-red-400 text-xs mt-1 block"></span>
+                    </div>
+                    <div>
+                        <label asp-for="MaterialId" class="text-sm font-medium text-slate-300 mb-1 block">Vật liệu</label>
+                        <select asp-for="MaterialId" class="bg-[#1a2e2e] border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all appearance-none" asp-items="ViewBag.MaterialId">
+                            <option value="">-- Chọn Vật liệu --</option>
+                        </select>
+                        <span asp-validation-for="MaterialId" class="text-red-400 text-sm mt-1 block font-bold"></span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label asp-for="QuantityUsage" class="text-sm font-medium text-slate-300 mb-1 block">Số lượng sử dụng</label>
+                        <input asp-for="QuantityUsage" class="bg-white/5 border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" />
+                        <span asp-validation-for="QuantityUsage" class="text-red-400 text-sm mt-1 block font-bold"></span>
+                    </div>
+                    <div>
+                        <label asp-for="Date" class="text-sm font-medium text-slate-300 mb-1 block">Ngày ghi nhận</label>
+                        <input asp-for="Date" type="date" class="bg-white/5 border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all [color-scheme:dark]" />
+                        <span asp-validation-for="Date" class="text-red-400 text-xs mt-1 block"></span>
+                    </div>
+                </div>
+
+                <div class="pt-4 flex items-center justify-between border-t border-white/10 mt-6">
+                    <a asp-action="Index" class="text-slate-400 hover:text-white transition-colors text-sm flex items-center gap-2">
+                        <span class="material-icons text-sm">arrow_back</span> Quay lại
+                    </a>
+                    <button type="submit" class="bg-amber-500/20 text-amber-500 hover:bg-amber-500/30 font-bold py-2.5 px-6 rounded-xl transition-colors flex items-center gap-2">
+                        <span class="material-icons text-sm">save</span> Lưu Xuất kho
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

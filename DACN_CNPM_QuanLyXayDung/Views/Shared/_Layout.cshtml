@@ -86,7 +86,29 @@
         @await Html.PartialAsync("_Header")
 
         <!-- Body -->
-        <div class="p-8 space-y-8 flex-1">
+        <div class="p-8 space-y-8 flex-1 relative">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 px-6 py-3 rounded-xl shadow-lg shadow-emerald-500/10 flex items-center gap-3 animate-fade-in-down" id="global-success-toast">
+                    <span class="material-icons">check_circle</span>
+                    <span class="font-medium text-sm">@TempData["SuccessMessage"]</span>
+                    <button onclick="document.getElementById('global-success-toast').remove()" class="ml-4 hover:text-emerald-300 transition-colors">
+                        <span class="material-icons text-sm">close</span>
+                    </button>
+                </div>
+            }
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-red-500/20 border border-red-500/50 text-red-400 px-6 py-3 rounded-xl shadow-lg shadow-red-500/10 flex items-center gap-3 animate-fade-in-down" id="global-error-toast">
+                    <span class="material-icons">error</span>
+                    <span class="font-medium text-sm">@TempData["ErrorMessage"]</span>
+                    <button onclick="document.getElementById('global-error-toast').remove()" class="ml-4 hover:text-red-300 transition-colors">
+                        <span class="material-icons text-sm">close</span>
+                    </button>
+                </div>
+            }
+
             @RenderBody()
         </div>
 

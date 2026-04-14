@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DACN_CNPM_QuanLyXayDung.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DACN_CNPM_QuanLyXayDung.Controllers
 {
+    [Authorize(Roles = "Admin, Warehouse Keeper, Quản trị viên, Thủ kho")]
     public class MaterialsController : Controller
     {
         private readonly HeThongQlvongDoiDuAnTaiNguyenContext _context;
@@ -21,7 +23,12 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         // GET: Materials
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Materials.ToListAsync());
+            var materials = await _context.Materials
+                .Include(m => m.InventoryTransactions)
+                .Include(m => m.MaterialUsages)
+                .ToListAsync();
+
+            return View(materials);
         }
 
         // GET: Materials/Details/5
@@ -55,6 +62,14 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("MaterialId,MaterialName,Unit,MinStockLevel")] Material material)
         {
+            ModelState.Remove(nameof(material.InventoryTransactions));
+            ModelState.Remove(nameof(material.MaterialUsages));
+
+            if (_context.Materials.Any(m => m.MaterialName.Trim().ToLower() == material.MaterialName.Trim().ToLower()))
+            {
+                ModelState.AddModelError(nameof(material.MaterialName), "Tên vật liệu đã tồn tại.");
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(material);
@@ -90,6 +105,14 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             if (id != material.MaterialId)
             {
                 return NotFound();
+            }
+
+            ModelState.Remove(nameof(material.InventoryTransactions));
+            ModelState.Remove(nameof(material.MaterialUsages));
+
+            if (_context.Materials.Any(m => m.MaterialId != id && m.MaterialName.Trim().ToLower() == material.MaterialName.Trim().ToLower()))
+            {
+                ModelState.AddModelError(nameof(material.MaterialName), "Tên vật liệu đã tồn tại.");
             }
 
             if (ModelState.IsValid)

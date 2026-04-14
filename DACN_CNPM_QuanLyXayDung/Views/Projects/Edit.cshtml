@@ -27,8 +27,16 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label asp-for="Budget" class="text-sm font-medium text-slate-300 mb-1 block"></label>
-                        <input asp-for="Budget" class="bg-white/5 border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" />
+                        <input asp-for="Budget"
+                               disabled="@(Model.BudgetLocked ? "disabled" : null)"
+                               class="bg-white/5 border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" />
                         <span asp-validation-for="Budget" class="text-red-400 text-xs mt-1 block"></span>
+                        @if (Model.BudgetLocked)
+                        {
+                            <div class="text-[12px] text-emerald-400 mt-2">
+                                Budget đã được khóa theo hợp đồng.
+                            </div>
+                        }
                     </div>
                     <div>
                         <label asp-for="ManagerId" class="text-sm font-medium text-slate-300 mb-1 block"></label>

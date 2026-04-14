@@ -16,4 +16,9 @@ public partial class Material
     public virtual ICollection<InventoryTransaction> InventoryTransactions { get; set; } = new List<InventoryTransaction>();
 
     public virtual ICollection<MaterialUsage> MaterialUsages { get; set; } = new List<MaterialUsage>();
+    public int TotalImported => InventoryTransactions?.Sum(x => x.Quantity) ?? 0;
+
+    public int TotalUsed => MaterialUsages?.Sum(x => x.QuantityUsage) ?? 0;
+
+    public int CurrentStock => TotalImported - TotalUsed;
 }

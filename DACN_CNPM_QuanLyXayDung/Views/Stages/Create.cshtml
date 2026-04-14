@@ -8,14 +8,15 @@
     <div class="max-w-2xl mx-auto">
         <div class="glass-panel rounded-2xl p-6">
             <h3 class="text-xl font-bold text-white mb-6">Thêm Giai đoạn mới</h3>
-            <form asp-action="Create" class="space-y-4">
+            <form asp-action="Create" enctype="multipart/form-data" class="space-y-4">
                 <div asp-validation-summary="ModelOnly" class="text-red-400 text-sm mb-4"></div>
                 
                 <div>
-                    <label asp-for="StageName" class="text-sm font-medium text-slate-300 mb-1 block"></label>
+                    <label asp-for="StageName" class="text-sm font-medium text-slate-300 mb-1 block">Tên giai đoạn</label>
                     <input asp-for="StageName" class="bg-white/5 border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" />
                     <span asp-validation-for="StageName" class="text-red-400 text-xs mt-1 block"></span>
                 </div>
+
                 
                 <div>
                     <label asp-for="ProjectId" class="text-sm font-medium text-slate-300 mb-1 block"></label>
@@ -23,6 +24,29 @@
                         <option value="">-- Chọn Dự án --</option>
                     </select>
                     <span asp-validation-for="ProjectId" class="text-red-400 text-xs mt-1 block"></span>
+                </div>
+
+                <div>
+                    <label asp-for="AssignedUserId" class="text-sm font-medium text-slate-300 mb-1 block">Người phụ trách</label>
+                    <select asp-for="AssignedUserId" class="bg-[#1a2e2e] border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all appearance-none" asp-items="ViewBag.AssignedUserId">
+                        <option value="">-- Chọn người phụ trách --</option>
+                    </select>
+                    <span asp-validation-for="AssignedUserId" class="text-red-400 text-xs mt-1 block"></span>
+                </div>
+
+                <div>
+                    <label class="text-sm font-medium text-slate-300 mb-1 block" for="contractFile">
+                        Hợp đồng / Bản kê khai (PDF)
+                    </label>
+                    <input id="contractFile" name="contractFile" type="file" accept="application/pdf"
+                           class="bg-white/5 border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" />
+                    <div id="ContractBudgetError" class="text-red-400 text-xs mt-2"></div>
+                </div>
+
+                <div>
+                    <label asp-for="Budget" class="text-sm font-medium text-slate-300 mb-1 block"></label>
+                    <input asp-for="Budget" id="Budget" class="bg-white/5 border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" />
+                    <span asp-validation-for="Budget" class="text-red-400 text-xs mt-1 block"></span>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
@@ -53,4 +77,77 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        (function () {
+            const stageNameInput = document.getElementById('StageName');
+            const contractInput = document.getElementById('contractFile');
+            const budgetInput = document.getElementById('Budget');
+            const submitBtn = document.querySelector('button[type="submit"]');
+            const errorBox = document.getElementById('ContractBudgetError');
+
+            async function extractBudgetFromContractFile() {
+                if (!contractInput || !budgetInput || !stageNameInput) return;
+
+                const stageName = stageNameInput.value.trim();
+                const files = contractInput.files;
+
+                if (!files || files.length === 0) {
+                    budgetInput.disabled = false;
+                    if (submitBtn) submitBtn.disabled = false;
+                    return;
+                }
+
+                if (!stageName) {
+                    if (errorBox) errorBox.textContent = 'Vui lòng nhập tên giai đoạn trước khi chọn file.';
+                    contractInput.value = ''; // clear file
+                    return;
+                }
+
+                const file = files[0];
+                const formData = new FormData();
+                formData.append('contractFile', file);
+                formData.append('stageName', stageName);
+
+                const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+                if (tokenInput && tokenInput.value) {
+                    formData.append('__RequestVerificationToken', tokenInput.value);
+                }
+
+                if (errorBox) errorBox.textContent = '';
+                if (submitBtn) submitBtn.disabled = true;
+
+                try {
+                    const response = await fetch('@Url.Action("ExtractStageBudget", "Stages")', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        let msg = 'Không thể trích xuất chi phí từ hợp đồng.';
+                        try {
+                            const data = await response.json();
+                            msg = data && data.message ? data.message : msg;
+                        } catch { }
+                        if (errorBox) errorBox.textContent = msg;
+                        if (submitBtn) submitBtn.disabled = false;
+                        return;
+                    }
+
+                    const data = await response.json();
+                    if (data && data.budget != null) {
+                        budgetInput.value = Number(data.budget).toFixed(2);
+                        budgetInput.disabled = true;
+                        if (submitBtn) submitBtn.disabled = false;
+                    }
+                } catch (e) {
+                    if (errorBox) errorBox.textContent = 'Lỗi kết nối. Vui lòng thử lại.';
+                    if (submitBtn) submitBtn.disabled = false;
+                }
+            }
+
+            if (contractInput) {
+                contractInput.addEventListener('change', extractBudgetFromContractFile);
+            }
+        })();
+    </script>
 }

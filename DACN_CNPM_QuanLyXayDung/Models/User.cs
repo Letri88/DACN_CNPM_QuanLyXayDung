@@ -1,17 +1,17 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace DACN_CNPM_QuanLyXayDung.Models;
 
 public partial class User
 {
-    public int UserId { get; set; }
+    public string UserId { get; set; } = null!;
 
     public int? RoleId { get; set; }
 
     public string FullName { get; set; } = null!;
 
-    public string? Email { get; set; }
+    public string? Username { get; set; }
 
     public string Password { get; set; } = null!;
 
@@ -23,5 +23,5 @@ public partial class User
 
     public virtual Role? Role { get; set; }
 
-    public virtual ICollection<Task> Tasks { get; set; } = new List<Task>();
+    public virtual ICollection<Stage> Stages { get; set; } = new List<Stage>();
 }

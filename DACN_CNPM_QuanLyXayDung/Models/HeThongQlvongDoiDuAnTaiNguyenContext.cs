@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,6 +31,8 @@ public partial class HeThongQlvongDoiDuAnTaiNguyenContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
+    public virtual DbSet<Notification> Notifications { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseSqlServer("Data Source=DESKTOP-BM4KF1J\\SQLEXPRESS;Initial Catalog=HeThongQLVongDoiDuAnTaiNguyen;Integrated Security=True;Trust Server Certificate=True");
@@ -47,6 +49,7 @@ public partial class HeThongQlvongDoiDuAnTaiNguyenContext : DbContext
                 .HasColumnType("datetime");
             entity.Property(e => e.MaterialId).HasColumnName("MaterialID");
             entity.Property(e => e.ProjectId).HasColumnName("ProjectID");
+            entity.Property(e => e.StageId).HasColumnName("StageID");
             entity.Property(e => e.Type).HasMaxLength(20);
             entity.Property(e => e.WarehouseKeeperId).HasColumnName("WarehouseKeeperID");
 
@@ -62,6 +65,10 @@ public partial class HeThongQlvongDoiDuAnTaiNguyenContext : DbContext
             entity.HasOne(d => d.WarehouseKeeper).WithMany(p => p.InventoryTransactions)
                 .HasForeignKey(d => d.WarehouseKeeperId)
                 .HasConstraintName("FK_Inventory_User");
+                
+            entity.HasOne(d => d.Stage).WithMany(p => p.InventoryTransactions)
+                .HasForeignKey(d => d.StageId)
+                .HasConstraintName("FK_Inventory_Stage");
         });
 
         modelBuilder.Entity<Material>(entity =>
@@ -104,6 +111,11 @@ public partial class HeThongQlvongDoiDuAnTaiNguyenContext : DbContext
 
             entity.Property(e => e.ProjectId).HasColumnName("ProjectID");
             entity.Property(e => e.Budget).HasColumnType("decimal(15, 2)");
+            entity.Property(e => e.BudgetLocked).HasDefaultValue(false);
+            entity.Property(e => e.ContractFileContent).HasColumnType("varbinary(max)");
+            entity.Property(e => e.ContractFileName).HasMaxLength(255);
+            entity.Property(e => e.ContractFileContentType).HasMaxLength(100);
+            entity.Property(e => e.ContractUploadedAt).HasColumnType("datetime2");
             entity.Property(e => e.ManagerId).HasColumnName("ManagerID");
             entity.Property(e => e.ProjectName).HasMaxLength(150);
             entity.Property(e => e.Status)
@@ -129,7 +141,14 @@ public partial class HeThongQlvongDoiDuAnTaiNguyenContext : DbContext
 
             entity.Property(e => e.StageId).HasColumnName("StageID");
             entity.Property(e => e.ProjectId).HasColumnName("ProjectID");
+            entity.Property(e => e.AssignedUserId).HasColumnName("AssignedUserID");
             entity.Property(e => e.StageName).HasMaxLength(150);
+            entity.Property(e => e.Budget).HasColumnType("decimal(15, 2)");
+            entity.Property(e => e.BudgetLocked).HasDefaultValue(false);
+            entity.Property(e => e.MaterialDeclarationFileContent).HasColumnType("varbinary(max)");
+            entity.Property(e => e.MaterialDeclarationFileName).HasMaxLength(255);
+            entity.Property(e => e.MaterialDeclarationContentType).HasMaxLength(100);
+            entity.Property(e => e.MaterialDeclarationUploadedAt).HasColumnType("datetime2");
             entity.Property(e => e.Status)
                 .HasMaxLength(20)
                 .HasDefaultValue("Planned");
@@ -138,6 +157,10 @@ public partial class HeThongQlvongDoiDuAnTaiNguyenContext : DbContext
                 .HasForeignKey(d => d.ProjectId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Stages_Project");
+
+            entity.HasOne(d => d.AssignedUser).WithMany(p => p.Stages)
+                .HasForeignKey(d => d.AssignedUserId)
+                .HasConstraintName("FK_Stages_User");
         });
 
         modelBuilder.Entity<Task>(entity =>
@@ -145,18 +168,12 @@ public partial class HeThongQlvongDoiDuAnTaiNguyenContext : DbContext
             entity.HasKey(e => e.TaskId).HasName("PK__Tasks__7C6949D13E927275");
 
             entity.Property(e => e.TaskId).HasColumnName("TaskID");
-            entity.Property(e => e.AssignedUserId).HasColumnName("AssignedUserID");
-            entity.Property(e => e.PercentComplete).HasDefaultValue(0);
             entity.Property(e => e.ProjectId).HasColumnName("ProjectID");
             entity.Property(e => e.StageId).HasColumnName("StageID");
             entity.Property(e => e.Status)
                 .HasMaxLength(20)
                 .HasDefaultValue("Pending");
             entity.Property(e => e.TaskName).HasMaxLength(150);
-
-            entity.HasOne(d => d.AssignedUser).WithMany(p => p.Tasks)
-                .HasForeignKey(d => d.AssignedUserId)
-                .HasConstraintName("FK_Tasks_User");
 
             entity.HasOne(d => d.Project).WithMany(p => p.Tasks)
                 .HasForeignKey(d => d.ProjectId)
@@ -172,10 +189,10 @@ public partial class HeThongQlvongDoiDuAnTaiNguyenContext : DbContext
         {
             entity.HasKey(e => e.UserId).HasName("PK__Users__1788CCAC6598EAF8");
 
-            entity.HasIndex(e => e.Email, "UQ__Users__A9D10534D8332783").IsUnique();
+            entity.HasIndex(e => e.Username, "UQ__Users__A9D10534D8332783").IsUnique();
 
             entity.Property(e => e.UserId).HasColumnName("UserID");
-            entity.Property(e => e.Email).HasMaxLength(100);
+            entity.Property(e => e.Username).HasMaxLength(100);
             entity.Property(e => e.FullName).HasMaxLength(100);
             entity.Property(e => e.Password).HasMaxLength(255);
             entity.Property(e => e.RoleId).HasColumnName("RoleID");
@@ -186,6 +203,17 @@ public partial class HeThongQlvongDoiDuAnTaiNguyenContext : DbContext
             entity.HasOne(d => d.Role).WithMany(p => p.Users)
                 .HasForeignKey(d => d.RoleId)
                 .HasConstraintName("FK__Users__RoleID__571DF1D5");
+        });
+
+        modelBuilder.Entity<Notification>(entity =>
+        {
+            entity.HasKey(e => e.NotificationId);
+
+            entity.HasOne(d => d.User)
+                .WithMany()
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_Notifications_Users");
         });
 
         OnModelCreatingPartial(modelBuilder);
