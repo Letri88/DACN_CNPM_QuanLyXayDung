@@ -164,5 +164,89 @@ public static class ContractBudgetExtractor
 
         return decimal.TryParse(s, NumberStyles.Number, CultureInfo.InvariantCulture, out value);
     }
+
+    public static async Task<List<ExtractedStageDto>> ExtractStagesAsync(IFormFile contractFile, CancellationToken cancellationToken = default)
+    {
+        var stages = new List<ExtractedStageDto>();
+
+        if (contractFile is null || contractFile.Length == 0)
+        {
+            return stages;
+        }
+
+        var extension = Path.GetExtension(contractFile.FileName)?.ToLowerInvariant();
+        if (extension != ".pdf")
+        {
+            return stages;
+        }
+
+        await using var stream = contractFile.OpenReadStream();
+
+        using var pdf = PdfDocument.Open(stream);
+        var text = string.Join("\n", pdf.GetPages().Select(p => p.Text));
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return stages;
+        }
+
+        var projectIdMatch = Regex.Match(text, @"Mã\s*dự\s*án\s*:\s*(\d+)", RegexOptions.IgnoreCase);
+        int? projectId = null;
+        if (projectIdMatch.Success && int.TryParse(projectIdMatch.Groups[1].Value, out var pid))
+        {
+            projectId = pid;
+        }
+
+        // Split text by "Tên giai đoạn:" to get each stage block
+        // Refined regex to stop at known headers or newlines
+        string pattern = @"Tên\s*giai\s*đoạn\s*:\s*([^\r\n\|]+?)(?=\s*(?:Mã\s*nhân\s*viên|Chi\s*phí|Bắt\s*đầu|Kết\s*thúc)|[\r\n|]|$)";
+        var matches = Regex.Matches(text, pattern, RegexOptions.IgnoreCase);
+
+        // We will process the text block from the start of current match to the start of the next one
+        for (int i = 0; i < matches.Count; i++)
+        {
+            var match = matches[i];
+            var nextIndex = i + 1 < matches.Count ? matches[i + 1].Index : text.Length;
+            var block = text.Substring(match.Index, nextIndex - match.Index);
+
+            var stage = new ExtractedStageDto { ProjectId = projectId };
+
+            stage.StageName = match.Groups[1].Value.Trim();
+
+            var userIdMatch = Regex.Match(block, @"Mã\s*nhân\s*viên\s*:\s*(\d+)", RegexOptions.IgnoreCase);
+            if (userIdMatch.Success && int.TryParse(userIdMatch.Groups[1].Value, out var uid))
+            {
+                stage.AssignedUserId = uid;
+            }
+
+            var budgetMatch = Regex.Match(block, @"Chi\s*phí\s*(?:giai\s*đoạn)?\s*:\s*([0-9][0-9\.\,]*)", RegexOptions.IgnoreCase);
+            if (budgetMatch.Success)
+            {
+                if (TryParseMoney(budgetMatch.Groups[1].Value, out var money))
+                {
+                    stage.Budget = money;
+                }
+            }
+
+            var startMatch = Regex.Match(block, @"Bắt\s*đầu\s*:\s*(\d{1,2}/\d{1,2}/\d{4})", RegexOptions.IgnoreCase);
+            if (startMatch.Success && DateOnly.TryParseExact(startMatch.Groups[1].Value, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out var start))
+            {
+                stage.StartDate = start;
+            }
+
+            var endMatch = Regex.Match(block, @"Kết\s*thúc\s*:\s*(\d{1,2}/\d{1,2}/\d{4})", RegexOptions.IgnoreCase);
+            if (endMatch.Success && DateOnly.TryParseExact(endMatch.Groups[1].Value, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out var end))
+            {
+                stage.EndDate = end;
+            }
+
+            if (!string.IsNullOrWhiteSpace(stage.StageName))
+            {
+                stages.Add(stage);
+            }
+        }
+
+
+        return stages;
+    }
 }
 

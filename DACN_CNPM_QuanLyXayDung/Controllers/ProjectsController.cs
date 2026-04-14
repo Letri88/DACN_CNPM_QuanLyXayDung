@@ -175,6 +175,37 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
                         project.ContractFileName = contractFile.FileName;
                         project.ContractFileContentType = contractFile.ContentType;
                         project.ContractUploadedAt = DateTime.UtcNow;
+
+                        var extractedStages = await ContractBudgetExtractor.ExtractStagesAsync(contractFile);
+                        if (extractedStages != null && extractedStages.Any())
+                        {
+                            project.Stages = new List<Stage>();
+                            foreach (var dto in extractedStages)
+                            {
+                                var stageName = dto.StageName;
+                                if (stageName.Length > 150) stageName = stageName.Substring(0, 150);
+
+                                var newStage = new Stage
+                                {
+                                    StageName = stageName,
+                                    StartDate = dto.StartDate,
+                                    EndDate = dto.EndDate,
+                                    Budget = dto.Budget,
+                                    BudgetLocked = dto.Budget.HasValue,
+                                    Status = "Not Started"
+                                };
+
+                                if (dto.AssignedUserId.HasValue)
+                                {
+                                    var userExists = await _context.Users.AnyAsync(u => u.UserId == dto.AssignedUserId.Value);
+                                    if (userExists)
+                                    {
+                                        newStage.AssignedUserId = dto.AssignedUserId.Value;
+                                    }
+                                }
+                                project.Stages.Add(newStage);
+                            }
+                        }
                     }
                     else
                     {
