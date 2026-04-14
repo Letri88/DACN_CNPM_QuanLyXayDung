@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DACN_CNPM_QuanLyXayDung.Migrations
 {
     [DbContext(typeof(HeThongQlvongDoiDuAnTaiNguyenContext))]
-    [Migration("20260324171747_RenameEmailToUsername")]
-    partial class RenameEmailToUsername
+    [Migration("20260414153807_InitialCreateRoleBasedIDs")]
+    partial class InitialCreateRoleBasedIDs
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -59,8 +59,8 @@ namespace DACN_CNPM_QuanLyXayDung.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<int?>("WarehouseKeeperId")
-                        .HasColumnType("int")
+                    b.Property<string>("WarehouseKeeperId")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("WarehouseKeeperID");
 
                     b.HasKey("TransactionId")
@@ -164,8 +164,9 @@ namespace DACN_CNPM_QuanLyXayDung.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("NotificationId");
 
@@ -211,8 +212,8 @@ namespace DACN_CNPM_QuanLyXayDung.Migrations
                     b.Property<DateOnly?>("EndDate")
                         .HasColumnType("date");
 
-                    b.Property<int?>("ManagerId")
-                        .HasColumnType("int")
+                    b.Property<string>("ManagerId")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("ManagerID");
 
                     b.Property<string>("ProjectName")
@@ -266,8 +267,8 @@ namespace DACN_CNPM_QuanLyXayDung.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StageId"));
 
-                    b.Property<int?>("AssignedUserId")
-                        .HasColumnType("int")
+                    b.Property<string>("AssignedUserId")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("AssignedUserID");
 
                     b.Property<decimal?>("Budget")
@@ -375,12 +376,10 @@ namespace DACN_CNPM_QuanLyXayDung.Migrations
 
             modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.User", b =>
                 {
-                    b.Property<int>("UserId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                    b.Property<string>("UserId")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("UserID");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
 
                     b.Property<string>("FullName")
                         .IsRequired()

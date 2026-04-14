@@ -15,7 +15,7 @@ public partial class Stage
 
     public DateOnly? EndDate { get; set; }
 
-    public int? AssignedUserId { get; set; }
+    public string? AssignedUserId { get; set; }
 
     public string? Status { get; set; }
 

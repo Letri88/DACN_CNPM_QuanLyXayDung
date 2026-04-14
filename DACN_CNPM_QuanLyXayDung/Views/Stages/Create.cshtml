@@ -144,6 +144,20 @@
                     if (data && data.budget != null) {
                         budgetInput.value = Number(data.budget).toFixed(2);
                         budgetInput.disabled = true;
+
+                        // Tự động chọn người phụ trách nếu trích xuất được từ PDF
+                        if (data.assignedUserId) {
+                            const userSelect = document.getElementById('AssignedUserId');
+                            if (userSelect) {
+                                for (let i = 0; i < userSelect.options.length; i++) {
+                                    if (userSelect.options[i].value.toLowerCase() === data.assignedUserId.toLowerCase()) {
+                                        userSelect.selectedIndex = i;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
                         if (submitBtn) submitBtn.disabled = false;
                     }
                 } catch (e) {

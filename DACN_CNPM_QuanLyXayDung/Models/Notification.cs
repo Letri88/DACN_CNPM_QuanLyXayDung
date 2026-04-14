@@ -9,7 +9,7 @@ namespace DACN_CNPM_QuanLyXayDung.Models
         [Key]
         public int NotificationId { get; set; }
 
-        public int UserId { get; set; }
+        public string UserId { get; set; } = null!;
 
         [Required]
         [StringLength(255)]

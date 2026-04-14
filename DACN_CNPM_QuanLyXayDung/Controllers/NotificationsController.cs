@@ -19,8 +19,8 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         // GET: /Notifications
         public async Task<IActionResult> Index()
         {
-            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
-            if (int.TryParse(userIdClaim, out int userId))
+            var userId = User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
+            if (!string.IsNullOrEmpty(userId))
             {
                 var notifications = await _context.Notifications
                     .Where(n => n.UserId == userId)
@@ -37,8 +37,8 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             var notification = await _context.Notifications.FindAsync(id);
             if (notification != null)
             {
-                var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
-                if (int.TryParse(userIdClaim, out int userId) && notification.UserId == userId)
+                var userId = User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
+                if (!string.IsNullOrEmpty(userId) && notification.UserId == userId)
                 {
                     notification.IsRead = true;
                     await _context.SaveChangesAsync();

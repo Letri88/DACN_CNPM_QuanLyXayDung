@@ -4,6 +4,7 @@ using DACN_CNPM_QuanLyXayDung.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DACN_CNPM_QuanLyXayDung.Migrations
 {
     [DbContext(typeof(HeThongQlvongDoiDuAnTaiNguyenContext))]
-    partial class HeThongQlvongDoiDuAnTaiNguyenContextModelSnapshot : ModelSnapshot
+    [Migration("20260324123842_Notifications")]
+    partial class Notifications
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -47,17 +50,13 @@ namespace DACN_CNPM_QuanLyXayDung.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<int?>("StageId")
-                        .HasColumnType("int")
-                        .HasColumnName("StageID");
-
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<string>("WarehouseKeeperId")
-                        .HasColumnType("nvarchar(50)")
+                    b.Property<int?>("WarehouseKeeperId")
+                        .HasColumnType("int")
                         .HasColumnName("WarehouseKeeperID");
 
                     b.HasKey("TransactionId")
@@ -66,8 +65,6 @@ namespace DACN_CNPM_QuanLyXayDung.Migrations
                     b.HasIndex("MaterialId");
 
                     b.HasIndex("ProjectId");
-
-                    b.HasIndex("StageId");
 
                     b.HasIndex("WarehouseKeeperId");
 
@@ -161,9 +158,8 @@ namespace DACN_CNPM_QuanLyXayDung.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(50)");
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
 
                     b.HasKey("NotificationId");
 
@@ -209,8 +205,8 @@ namespace DACN_CNPM_QuanLyXayDung.Migrations
                     b.Property<DateOnly?>("EndDate")
                         .HasColumnType("date");
 
-                    b.Property<string>("ManagerId")
-                        .HasColumnType("nvarchar(50)")
+                    b.Property<int?>("ManagerId")
+                        .HasColumnType("int")
                         .HasColumnName("ManagerID");
 
                     b.Property<string>("ProjectName")
@@ -264,8 +260,8 @@ namespace DACN_CNPM_QuanLyXayDung.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StageId"));
 
-                    b.Property<string>("AssignedUserId")
-                        .HasColumnType("nvarchar(50)")
+                    b.Property<int?>("AssignedUserId")
+                        .HasColumnType("int")
                         .HasColumnName("AssignedUserID");
 
                     b.Property<decimal?>("Budget")
@@ -373,10 +369,16 @@ namespace DACN_CNPM_QuanLyXayDung.Migrations
 
             modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.User", b =>
                 {
-                    b.Property<string>("UserId")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
+                    b.Property<int>("UserId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
                         .HasColumnName("UserID");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("FullName")
                         .IsRequired()
@@ -398,18 +400,14 @@ namespace DACN_CNPM_QuanLyXayDung.Migrations
                         .HasColumnType("nvarchar(20)")
                         .HasDefaultValue("Active");
 
-                    b.Property<string>("Username")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
                     b.HasKey("UserId")
                         .HasName("PK__Users__1788CCAC6598EAF8");
 
                     b.HasIndex("RoleId");
 
-                    b.HasIndex(new[] { "Username" }, "UQ__Users__A9D10534D8332783")
+                    b.HasIndex(new[] { "Email" }, "UQ__Users__A9D10534D8332783")
                         .IsUnique()
-                        .HasFilter("[Username] IS NOT NULL");
+                        .HasFilter("[Email] IS NOT NULL");
 
                     b.ToTable("Users");
                 });
@@ -427,11 +425,6 @@ namespace DACN_CNPM_QuanLyXayDung.Migrations
                         .HasForeignKey("ProjectId")
                         .HasConstraintName("FK_Inventory_Project");
 
-                    b.HasOne("DACN_CNPM_QuanLyXayDung.Models.Stage", "Stage")
-                        .WithMany("InventoryTransactions")
-                        .HasForeignKey("StageId")
-                        .HasConstraintName("FK_Inventory_Stage");
-
                     b.HasOne("DACN_CNPM_QuanLyXayDung.Models.User", "WarehouseKeeper")
                         .WithMany("InventoryTransactions")
                         .HasForeignKey("WarehouseKeeperId")
@@ -440,8 +433,6 @@ namespace DACN_CNPM_QuanLyXayDung.Migrations
                     b.Navigation("Material");
 
                     b.Navigation("Project");
-
-                    b.Navigation("Stage");
 
                     b.Navigation("WarehouseKeeper");
                 });
@@ -558,8 +549,6 @@ namespace DACN_CNPM_QuanLyXayDung.Migrations
 
             modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.Stage", b =>
                 {
-                    b.Navigation("InventoryTransactions");
-
                     b.Navigation("Tasks");
                 });
 

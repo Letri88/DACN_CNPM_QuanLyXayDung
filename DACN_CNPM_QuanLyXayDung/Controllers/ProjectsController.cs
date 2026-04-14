@@ -120,7 +120,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         [Authorize(Roles = "Admin,Project Manager,Quản trị viên,Quản lý dự án")]
         public IActionResult Create()
         {
-            var currentUserId = int.Parse(User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value ?? "0");
+            var currentUserId = User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
             ViewData["ManagerId"] = GetUsersWithRoles(currentUserId, new[] { "Project Manager", "Quản lý dự án"});
             return View();
         }
@@ -175,6 +175,37 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
                         project.ContractFileName = contractFile.FileName;
                         project.ContractFileContentType = contractFile.ContentType;
                         project.ContractUploadedAt = DateTime.UtcNow;
+
+                        var extractedStages = await ContractBudgetExtractor.ExtractStagesAsync(contractFile);
+                        if (extractedStages != null && extractedStages.Any())
+                        {
+                            project.Stages = new List<Stage>();
+                            foreach (var dto in extractedStages)
+                            {
+                                var stageName = dto.StageName;
+                                if (stageName.Length > 150) stageName = stageName.Substring(0, 150);
+
+                                var newStage = new Stage
+                                {
+                                    StageName = stageName,
+                                    StartDate = dto.StartDate,
+                                    EndDate = dto.EndDate,
+                                    Budget = dto.Budget,
+                                    BudgetLocked = dto.Budget.HasValue,
+                                    Status = "Not Started"
+                                };
+
+                                if (!string.IsNullOrEmpty(dto.AssignedUserId))
+                                {
+                                    var matchedUser = await _context.Users.FirstOrDefaultAsync(u => u.UserId.ToLower() == dto.AssignedUserId.ToLower());
+                                    if (matchedUser != null)
+                                    {
+                                        newStage.AssignedUserId = matchedUser.UserId;
+                                    }
+                                }
+                                project.Stages.Add(newStage);
+                            }
+                        }
                     }
                     else
                     {
@@ -353,15 +384,22 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             };
         }
 
-        private SelectList GetUsersWithRoles(int? selectedId = null, string[]? allowedRoles = null)
+        private SelectList GetUsersWithRoles(string? selectedId = null, string[]? allowedRoles = null)
         {
-            var query = _context.Users.Include(u => u.Role).AsQueryable();
+            var usersList = _context.Users.Include(u => u.Role).ToList();
+
             if (allowedRoles != null && allowedRoles.Length > 0)
             {
-                query = query.Where(u => u.Role != null && allowedRoles.Contains(u.Role.RoleName.Trim()));
+                var allowedSet = allowedRoles.Select(r => r.Trim().ToLower()).ToHashSet();
+                usersList = usersList.Where(u => u.Role != null && allowedSet.Contains(u.Role.RoleName.Trim().ToLower())).ToList();
             }
 
-            var users = query.ToList().Select(u => new {
+            // Exclude Admin from project management as well if requested, but typically Admin can manage projects.
+            // Following the user's preference for role separation.
+            usersList = usersList.Where(u => u.Role == null || 
+                (u.Role.RoleName.Trim().ToLower() != "admin" && u.Role.RoleName.Trim().ToLower() != "quản trị viên")).ToList();
+
+            var users = usersList.Select(u => new {
                 UserId = u.UserId,
                 DisplayName = $"{u.FullName} - {TranslateRole(u.Role?.RoleName)}"
             });

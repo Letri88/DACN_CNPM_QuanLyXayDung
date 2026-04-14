@@ -5,7 +5,7 @@ namespace DACN_CNPM_QuanLyXayDung.Models;
 
 public partial class User
 {
-    public int UserId { get; set; }
+    public string UserId { get; set; } = null!;
 
     public int? RoleId { get; set; }
 

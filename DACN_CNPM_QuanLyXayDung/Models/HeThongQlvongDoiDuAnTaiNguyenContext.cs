@@ -35,7 +35,7 @@ public partial class HeThongQlvongDoiDuAnTaiNguyenContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=thaipro113\\SQLEXPRESS;Initial Catalog=HeThongQLVongDoiDuAnTaiNguyen;Integrated Security=True;Trust Server Certificate=True");
+        => optionsBuilder.UseSqlServer("Data Source=LAPTOP-KFJT09DH\\SQLEXPRESS;Initial Catalog=HeThongQLVongDoiDuAnTaiNguyen;Integrated Security=True;Trust Server Certificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -133,6 +133,13 @@ public partial class HeThongQlvongDoiDuAnTaiNguyenContext : DbContext
 
             entity.Property(e => e.RoleId).HasColumnName("RoleID");
             entity.Property(e => e.RoleName).HasMaxLength(50);
+
+            entity.HasData(
+                new Role { RoleId = 1, RoleName = "Admin" },
+                new Role { RoleId = 2, RoleName = "Warehouse keeper" },
+                new Role { RoleId = 3, RoleName = "Engineer" },
+                new Role { RoleId = 4, RoleName = "Project Manager" }
+            );
         });
 
         modelBuilder.Entity<Stage>(entity =>
@@ -191,7 +198,10 @@ public partial class HeThongQlvongDoiDuAnTaiNguyenContext : DbContext
 
             entity.HasIndex(e => e.Username, "UQ__Users__A9D10534D8332783").IsUnique();
 
-            entity.Property(e => e.UserId).HasColumnName("UserID");
+            entity.Property(e => e.UserId)
+                .HasColumnName("UserID")
+                .HasMaxLength(50)
+                .ValueGeneratedNever();
             entity.Property(e => e.Username).HasMaxLength(100);
             entity.Property(e => e.FullName).HasMaxLength(100);
             entity.Property(e => e.Password).HasMaxLength(255);
