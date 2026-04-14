@@ -63,13 +63,13 @@
                             </td>
                             <td class="px-6 py-4">@(item.StartDate?.ToString("dd/MM/yyyy") ?? "-")</td>
                             <td class="px-6 py-4">@(item.EndDate?.ToString("dd/MM/yyyy") ?? "-")</td>
-                            <td class="px-6 py-4">
+                            <td class="px-6 py-4 whitespace-nowrap">
                                 @if(item.Status == "Planned" || item.Status == "Pending") {
-                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-amber-500/10 text-amber-400 border border-amber-500/20">@item.Status</span>
+                                    <span class="inline-block px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-amber-500/10 text-amber-400 border border-amber-500/20 whitespace-nowrap">@item.Status</span>
                                 } else if (item.Status == "Active" || item.Status == "In Progress") {
-                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">@item.Status</span>
+                                    <span class="inline-block px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 whitespace-nowrap">@item.Status</span>
                                 } else {
-                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-white/10 text-slate-300 border border-white/20">@item.Status</span>
+                                    <span class="inline-block px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-white/10 text-slate-300 border border-white/20 whitespace-nowrap">@item.Status</span>
                                 }
                             </td>
                             <td class="px-6 py-4 text-right flex justify-end gap-2">
