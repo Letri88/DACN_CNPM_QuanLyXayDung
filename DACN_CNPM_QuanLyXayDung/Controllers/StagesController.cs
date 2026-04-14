@@ -90,10 +90,15 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             if (!FileValidationHelper.IsPdfFile(contractFile)) return BadRequest(new { message = "File tải lên không hợp lệ hoặc không phải là file PDF thực sự." });
             if (contractFile.Length > 15 * 1024 * 1024) return BadRequest(new { message = "File hợp đồng quá lớn. Vui lòng chọn file nhỏ hơn 15MB." });
 
-            var extractedBudget = await ContractBudgetExtractor.TryExtractStageBudgetAsync(contractFile, stageName);
-            if (extractedBudget is null) return BadRequest(new { message = $"Không thể trích xuất chi phí cho giai đoạn '{stageName}' từ hợp đồng. Vui lòng kiểm tra file." });
+            var details = await ContractBudgetExtractor.TryExtractStageDetailsAsync(contractFile, stageName);
+            if (details is null || details.Budget is null) 
+                return BadRequest(new { message = $"Không thể trích xuất thông tin cho giai đoạn '{stageName}' từ hợp đồng. Vui lòng kiểm tra file." });
 
-            return Ok(new { budget = extractedBudget.Value, budgetLocked = true });
+            return Ok(new { 
+                budget = details.Budget.Value, 
+                budgetLocked = true,
+                assignedUserId = details.AssignedUserId 
+            });
         }
 
         // POST: Stages/UploadMaterialDeclaration
@@ -157,7 +162,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             {
                 var notification = new Notification
                 {
-                    UserId = stage.Project.ManagerId.Value,
+                    UserId = stage.Project.ManagerId,
                     Message = $"Kỹ sư đã gửi yêu cầu vật tư cho giai đoạn '{stage.StageName}'. Vui lòng kiểm tra và duyệt.",
                     CreatedAt = DateTime.Now,
                     IsRead = false,
@@ -296,17 +301,25 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
                 }
                 else
                 {
-                    var extractedBudget = await ContractBudgetExtractor.TryExtractStageBudgetAsync(contractFile, stage.StageName);
-                    if (extractedBudget is not null)
+                    var details = await ContractBudgetExtractor.TryExtractStageDetailsAsync(contractFile, stage.StageName);
+                    if (details is not null && details.Budget is not null)
                     {
-                        stage.Budget = extractedBudget.Value;
+                        stage.Budget = details.Budget.Value;
                         stage.BudgetLocked = true;
-                        // Note: We deliberately do NOT save this Contract File into the MaterialDeclaration fields
-                        // so that the Engineer can later upload their own Material Request PDF.
+                        
+                        // Cập nhật người phụ trách nếu tìm thấy trong PDF
+                        if (!string.IsNullOrEmpty(details.AssignedUserId))
+                        {
+                            var matchedUser = await _context.Users.FirstOrDefaultAsync(u => u.UserId.ToLower() == details.AssignedUserId.ToLower());
+                            if (matchedUser != null)
+                            {
+                                stage.AssignedUserId = matchedUser.UserId;
+                            }
+                        }
                     }
                     else
                     {
-                        ModelState.AddModelError("contractFile", "Không thể trích xuất chi phí từ hợp đồng. Hãy kiểm tra lại file (nhớ nhập đúng Tên giai đoạn).");
+                        ModelState.AddModelError("contractFile", "Không thể trích xuất thông tin giai đoạn từ hợp đồng. Hãy kiểm tra lại file (nhớ nhập đúng Tên giai đoạn).");
                     }
                 }
             }
@@ -316,11 +329,11 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
                 _context.Add(stage);
                 await _context.SaveChangesAsync();
 
-                if (stage.AssignedUserId.HasValue)
+                if (!string.IsNullOrEmpty(stage.AssignedUserId))
                 {
                     var notification = new Notification
                     {
-                        UserId = stage.AssignedUserId.Value,
+                        UserId = stage.AssignedUserId,
                         Message = $"Bạn đã được phân công vào giai đoạn '{stage.StageName}'",
                         CreatedAt = DateTime.Now,
                         IsRead = false,
@@ -406,11 +419,11 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
                     _context.Update(stage);
                     await _context.SaveChangesAsync();
 
-                    if (assigneeChanged && stage.AssignedUserId.HasValue)
+                    if (assigneeChanged && !string.IsNullOrEmpty(stage.AssignedUserId))
                     {
                         var notification = new Notification
                         {
-                            UserId = stage.AssignedUserId.Value,
+                            UserId = stage.AssignedUserId,
                             Message = $"Bạn đã được phân công vào giai đoạn '{stage.StageName}'",
                             CreatedAt = DateTime.Now,
                             IsRead = false,
@@ -498,15 +511,21 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             };
         }
 
-        private SelectList GetUsersWithRoles(int? selectedId = null, string[]? allowedRoles = null)
+        private SelectList GetUsersWithRoles(string? selectedId = null, string[]? allowedRoles = null)
         {
-            var query = _context.Users.Include(u => u.Role).AsQueryable();
+            var usersList = _context.Users.Include(u => u.Role).ToList();
+
             if (allowedRoles != null && allowedRoles.Length > 0)
             {
-                query = query.Where(u => u.Role != null && allowedRoles.Contains(u.Role.RoleName.Trim()));
+                var allowedSet = allowedRoles.Select(r => r.Trim().ToLower()).ToHashSet();
+                usersList = usersList.Where(u => u.Role != null && allowedSet.Contains(u.Role.RoleName.Trim().ToLower())).ToList();
             }
 
-            var users = query.ToList().Select(u => new {
+            // Always exclude Admin/Quản trị viên from stage assignment as per user request
+            usersList = usersList.Where(u => u.Role == null || 
+                (u.Role.RoleName.Trim().ToLower() != "admin" && u.Role.RoleName.Trim().ToLower() != "quản trị viên")).ToList();
+
+            var users = usersList.Select(u => new {
                 UserId = u.UserId,
                 DisplayName = $"{u.FullName} - {TranslateRole(u.Role?.RoleName)}"
             });

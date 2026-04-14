@@ -8,7 +8,7 @@ namespace DACN_CNPM_QuanLyXayDung.Models
         public DateOnly? StartDate { get; set; }
         public DateOnly? EndDate { get; set; }
         public decimal? Budget { get; set; }
-        public int? AssignedUserId { get; set; }
+        public string? AssignedUserId { get; set; }
         public int? ProjectId { get; set; }
     }
 }

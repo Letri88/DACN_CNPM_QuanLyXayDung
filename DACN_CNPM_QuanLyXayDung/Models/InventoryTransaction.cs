@@ -11,7 +11,7 @@ public partial class InventoryTransaction
 
     public int? ProjectId { get; set; }
 
-    public int? WarehouseKeeperId { get; set; }
+    public string? WarehouseKeeperId { get; set; }
 
     public int Quantity { get; set; }
 

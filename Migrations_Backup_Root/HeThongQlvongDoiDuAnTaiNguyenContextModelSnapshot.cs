@@ -71,7 +71,7 @@ namespace DACN_CNPM_QuanLyXayDung.Migrations
 
                     b.HasIndex("WarehouseKeeperId");
 
-                    b.ToTable("InventoryTransactions");
+                    b.ToTable("InventoryTransactions", (string)null);
                 });
 
             modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.Material", b =>
@@ -100,7 +100,7 @@ namespace DACN_CNPM_QuanLyXayDung.Migrations
                     b.HasKey("MaterialId")
                         .HasName("PK__Material__C506131779539DC7");
 
-                    b.ToTable("Materials");
+                    b.ToTable("Materials", (string)null);
                 });
 
             modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.MaterialUsage", b =>
@@ -169,7 +169,7 @@ namespace DACN_CNPM_QuanLyXayDung.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Notifications");
+                    b.ToTable("Notifications", (string)null);
                 });
 
             modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.Project", b =>
@@ -232,7 +232,7 @@ namespace DACN_CNPM_QuanLyXayDung.Migrations
 
                     b.HasIndex("ManagerId");
 
-                    b.ToTable("Projects");
+                    b.ToTable("Projects", (string)null);
                 });
 
             modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.Role", b =>
@@ -252,7 +252,7 @@ namespace DACN_CNPM_QuanLyXayDung.Migrations
                     b.HasKey("RoleId")
                         .HasName("PK__Roles__8AFACE3AB04EA8A4");
 
-                    b.ToTable("Roles");
+                    b.ToTable("Roles", (string)null);
                 });
 
             modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.Stage", b =>
@@ -318,7 +318,7 @@ namespace DACN_CNPM_QuanLyXayDung.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("Stages");
+                    b.ToTable("Stages", (string)null);
                 });
 
             modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.Task", b =>
@@ -368,7 +368,7 @@ namespace DACN_CNPM_QuanLyXayDung.Migrations
 
                     b.HasIndex("StageId");
 
-                    b.ToTable("Tasks");
+                    b.ToTable("Tasks", (string)null);
                 });
 
             modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.User", b =>
@@ -411,7 +411,7 @@ namespace DACN_CNPM_QuanLyXayDung.Migrations
                         .IsUnique()
                         .HasFilter("[Username] IS NOT NULL");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.InventoryTransaction", b =>

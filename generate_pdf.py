@@ -28,19 +28,19 @@ def create_pdf():
         "CHI TIẾT CÁC GIAI ĐOẠN:",
         "--------------------------------",
         "Tên giai đoạn: Thiết kế và San lấp",
-        "Mã nhân viên: 13",
+        "Mã nhân viên: EN001",
         "Chi phí giai đoạn: 50.000.000 VNĐ",
         "Bắt đầu: 15/04/2026",
         "Kết thúc: 17/04/2026",
         "",
         "Tên giai đoạn: Thi công móng",
-        "Mã nhân viên: 13",
+        "Mã nhân viên: EN001",
         "Chi phí: 150.000.000 VNĐ",
         "Bắt đầu: 17/04/2026",
         "Kết thúc: 20/04/2026",
         "",
         "Tên giai đoạn: Hoàn thiện",
-        "Mã nhân viên: 13",
+        "Mã nhân viên: EN001",
         "Chi phí giai đoạn: 100.000.000 VNĐ",
         "Bắt đầu: 20/04/2026",
         "Kết thúc: 30/04/2026",
@@ -52,7 +52,7 @@ def create_pdf():
     for line in content:
         pdf.cell(0, 10, line, new_x="LMARGIN", new_y="NEXT")
         
-    output_path = r"E:\DACN_CNPM_QuanLyXayDung\HopDongMau_CoDau_Test.pdf"
+    output_path = r"E:\DACN_CNPM_QuanLyXayDung\HopDongMau_Test.pdf"
     pdf.output(output_path)
     print(f"Đã tạo file PDF có dấu tại: {os.path.abspath(output_path)}")
 

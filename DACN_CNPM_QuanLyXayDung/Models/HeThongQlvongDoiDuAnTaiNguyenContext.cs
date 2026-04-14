@@ -133,6 +133,13 @@ public partial class HeThongQlvongDoiDuAnTaiNguyenContext : DbContext
 
             entity.Property(e => e.RoleId).HasColumnName("RoleID");
             entity.Property(e => e.RoleName).HasMaxLength(50);
+
+            entity.HasData(
+                new Role { RoleId = 1, RoleName = "Admin" },
+                new Role { RoleId = 2, RoleName = "Warehouse keeper" },
+                new Role { RoleId = 3, RoleName = "Engineer" },
+                new Role { RoleId = 4, RoleName = "Project Manager" }
+            );
         });
 
         modelBuilder.Entity<Stage>(entity =>
@@ -191,7 +198,10 @@ public partial class HeThongQlvongDoiDuAnTaiNguyenContext : DbContext
 
             entity.HasIndex(e => e.Username, "UQ__Users__A9D10534D8332783").IsUnique();
 
-            entity.Property(e => e.UserId).HasColumnName("UserID");
+            entity.Property(e => e.UserId)
+                .HasColumnName("UserID")
+                .HasMaxLength(50)
+                .ValueGeneratedNever();
             entity.Property(e => e.Username).HasMaxLength(100);
             entity.Property(e => e.FullName).HasMaxLength(100);
             entity.Property(e => e.Password).HasMaxLength(255);

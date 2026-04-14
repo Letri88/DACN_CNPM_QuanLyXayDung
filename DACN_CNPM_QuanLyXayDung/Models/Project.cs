@@ -7,7 +7,7 @@ public partial class Project
 {
     public int ProjectId { get; set; }
 
-    public int? ManagerId { get; set; }
+    public string? ManagerId { get; set; }
 
     public string ProjectName { get; set; } = null!;
 

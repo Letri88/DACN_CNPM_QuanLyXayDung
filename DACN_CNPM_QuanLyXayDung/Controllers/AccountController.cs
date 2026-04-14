@@ -41,7 +41,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
                 {
                     new Claim(ClaimTypes.Name, user.FullName ?? user.Username ?? ""),
                     new Claim(ClaimTypes.NameIdentifier, user.Username ?? ""),
-                    new Claim("UserId", user.UserId.ToString())
+                    new Claim("UserId", user.UserId)
                 };
 
                 if (user.Role != null && !string.IsNullOrEmpty(user.Role.RoleName))
@@ -119,15 +119,33 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
                 return View();
             }
 
-            // Find Admin role ID
+            // Find Admin role prefix
             var adminRole = await _context.Roles.FirstOrDefaultAsync(r => r.RoleName == "Admin" || r.RoleName == "Quản trị viên");
+            string prefix = "Admin";
+
+            var lastUser = await _context.Users
+                .Where(u => u.UserId.StartsWith(prefix))
+                .OrderByDescending(u => u.UserId)
+                .FirstOrDefaultAsync();
+
+            int nextId = 1;
+            if (lastUser != null)
+            {
+                string numericPart = lastUser.UserId.Replace(prefix, "");
+                if (int.TryParse(numericPart, out int lastId))
+                {
+                    nextId = lastId + 1;
+                }
+            }
+            string newUserId = prefix + nextId.ToString("D3");
 
             var newUser = new User
             {
+                UserId = newUserId,
                 Username = username,
                 FullName = fullName,
                 Password = BCrypt.Net.BCrypt.HashPassword(password),
-                RoleId = adminRole?.RoleId ?? 4, // Default Admin RoleId fallback
+                RoleId = adminRole?.RoleId ?? 4,
                 Status = "Active"
             };
 

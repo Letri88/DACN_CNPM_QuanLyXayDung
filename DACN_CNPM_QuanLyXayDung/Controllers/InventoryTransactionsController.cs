@@ -66,7 +66,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         // GET: InventoryTransactions/Create
         public IActionResult Create(int? projectId = null, int? stageId = null, string type = null)
         {
-            var currentUserId = int.Parse(User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value ?? "0");
+            var currentUserId = User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
             ViewData["MaterialId"] = new SelectList(_context.Materials, "MaterialId", "MaterialName");
             ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectName", projectId);
             
@@ -237,7 +237,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             };
         }
 
-        private SelectList GetUsersWithRoles(int? selectedId = null, string[]? allowedRoles = null)
+        private SelectList GetUsersWithRoles(string? selectedId = null, string[]? allowedRoles = null)
         {
             var query = _context.Users.Include(u => u.Role).AsQueryable();
             if (allowedRoles != null && allowedRoles.Length > 0)
