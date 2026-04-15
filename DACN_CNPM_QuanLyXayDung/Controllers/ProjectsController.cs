@@ -245,6 +245,45 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             {
                 _context.Add(project);
                 await _context.SaveChangesAsync();
+
+                var notifications = new List<Notification>();
+
+                if (project.ManagerId != null)
+                {
+                    notifications.Add(new Notification
+                    {
+                        UserId = project.ManagerId,
+                        Message = $"Bạn đã được chọn làm Quản lý dự án cho dự án '{project.ProjectName}'.",
+                        CreatedAt = DateTime.Now,
+                        IsRead = false,
+                        RelatedUrl = $"/Projects/Details/{project.ProjectId}"
+                    });
+                }
+
+                if (project.Stages != null && project.Stages.Any())
+                {
+                    foreach (var stage in project.Stages)
+                    {
+                        if (!string.IsNullOrEmpty(stage.AssignedUserId))
+                        {
+                            notifications.Add(new Notification
+                            {
+                                UserId = stage.AssignedUserId,
+                                Message = $"Bạn đã được phân công quản lý giai đoạn '{stage.StageName}' trong dự án '{project.ProjectName}'.",
+                                CreatedAt = DateTime.Now,
+                                IsRead = false,
+                                RelatedUrl = $"/Stages/Details/{stage.StageId}"
+                            });
+                        }
+                    }
+                }
+
+                if (notifications.Any())
+                {
+                    _context.Notifications.AddRange(notifications);
+                    await _context.SaveChangesAsync();
+                }
+
                 return RedirectToAction(nameof(Index));
             }
             ViewData["ManagerId"] = GetUsersWithRoles(project.ManagerId, new[] { "Project Manager", "Quản lý dự án", "Admin", "Quản trị viên" });
