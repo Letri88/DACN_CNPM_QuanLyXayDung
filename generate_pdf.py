@@ -22,6 +22,11 @@ def create_pdf():
     pdf.add_page()
     
     content = [
+        "Tên dự án: Khu dân cư phức hợp Sunrise",
+        "Mô tả: Xây dựng khu dân cư phức hợp bao gồm nhà ở thương mại và các tiện ích nội khu.",
+        "Mã Quản lý dự án: PM001",
+        "Bắt đầu: 15/04/2026",
+        "Kết thúc: 30/04/2026",
         "Tổng chi phí dự án: 500.000.000 VNĐ",
         "Mã dự án: 101",
         "",
@@ -54,7 +59,7 @@ def create_pdf():
         
     output_path = r"E:\DACN_CNPM_QuanLyXayDung\HopDongMau_Test.pdf"
     pdf.output(output_path)
-    print(f"Đã tạo file PDF có dấu tại: {os.path.abspath(output_path)}")
+    print(f"Created PDF successfully at: {os.path.abspath(output_path)}")
 
 if __name__ == "__main__":
     create_pdf()

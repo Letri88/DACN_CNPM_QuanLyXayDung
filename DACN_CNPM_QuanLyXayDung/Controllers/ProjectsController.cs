@@ -66,7 +66,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         }
 
         // POST: Projects/ExtractContractBudget
-        // Dùng AJAX để trích tổng chi phí từ PDF hợp đồng -> trả về budget cho UI.
+        // Dùng AJAX để trích dữ liệu từ PDF hợp đồng -> trả về data cho UI.
         [HttpPost]
         public async Task<IActionResult> ExtractContractBudget(IFormFile? contractFile)
         {
@@ -85,13 +85,40 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
                 return BadRequest(new { message = "File hợp đồng quá lớn. Vui lòng chọn file nhỏ hơn 15MB." });
             }
 
-            var extractedBudget = await ContractBudgetExtractor.TryExtractProjectBudgetAsync(contractFile);
-            if (extractedBudget is null)
+            var extractedData = await ContractBudgetExtractor.TryExtractProjectDetailsAsync(contractFile);
+            if (extractedData is null)
             {
-                return BadRequest(new { message = "Không thể trích xuất tổng chi phí từ hợp đồng." });
+                return BadRequest(new { message = "Không thể đọc dữ liệu từ hợp đồng." });
             }
 
-            return Ok(new { budget = extractedBudget.Value, budgetLocked = true });
+            string? managerId = null;
+            if (!string.IsNullOrWhiteSpace(extractedData.ManagerId))
+            {
+                // Try to find matching user by UserId and confirm they have the correct role
+                var user = await _context.Users
+                    .Include(u => u.Role)
+                    .FirstOrDefaultAsync(u => u.UserId.ToLower() == extractedData.ManagerId.ToLower().Trim());
+                    
+                if (user != null && user.Role != null)
+                {
+                    var roleName = user.Role.RoleName.Trim().ToLower();
+                    if (roleName == "project manager" || roleName == "quản lý dự án")
+                    {
+                        managerId = user.UserId;
+                    }
+                }
+            }
+
+            return Ok(new 
+            { 
+                budget = extractedData.Budget, 
+                budgetLocked = extractedData.Budget.HasValue,
+                projectName = extractedData.ProjectName,
+                description = extractedData.Description,
+                managerId = managerId,
+                startDate = extractedData.StartDate?.ToString("yyyy-MM-dd"),
+                endDate = extractedData.EndDate?.ToString("yyyy-MM-dd")
+            });
         }
 
         // GET: Projects/DownloadContract

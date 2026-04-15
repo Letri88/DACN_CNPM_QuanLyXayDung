@@ -10,6 +10,17 @@
             <h3 class="text-xl font-bold text-white mb-6">Thêm Dự án mới</h3>
             <form asp-action="Create" enctype="multipart/form-data" class="space-y-4">
                 <div asp-validation-summary="ModelOnly" class="text-red-400 text-sm mb-4"></div>
+
+                <div class="bg-primary/10 border border-primary/20 rounded-xl p-4 mb-6 relative overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent pointer-events-none"></div>
+                    <label class="text-sm font-bold text-primary mb-2 flex items-center gap-2 relative z-10" for="contractFile">
+                        <span class="material-icons text-lg">auto_awesome</span>
+                        Tải lên Hợp đồng (PDF) để tự động điền thông tin dự án
+                    </label>
+                    <input id="contractFile" name="contractFile" type="file" accept=".pdf,application/pdf"
+                           class="bg-white/5 border border-primary/30 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all relative z-10 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/20 file:text-primary hover:file:bg-primary/30" />
+                    <div id="ContractBudgetError" class="text-red-400 text-xs mt-2 relative z-10"></div>
+                </div>
                 
                 <div>
                     <label asp-for="ProjectName" class="text-sm font-medium text-slate-300 mb-1 block"></label>
@@ -21,17 +32,6 @@
                     <label asp-for="Description" class="text-sm font-medium text-slate-300 mb-1 block"></label>
                     <textarea asp-for="Description" rows="3" class="bg-white/5 border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all"></textarea>
                     <span asp-validation-for="Description" class="text-red-400 text-xs mt-1 block"></span>
-                </div>
-
-                <div>
-                    <label class="text-sm font-medium text-slate-300 mb-1 block" for="contractFile">
-                        Hợp đồng (PDF)
-                    </label>
-                    <input id="contractFile" name="contractFile" type="file" accept=".pdf,application/pdf"
-                           class="bg-white/5 border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" />
-                    <div id="ContractBudgetError" class="text-red-400 text-xs mt-2"></div>
-                    <div class="text-slate-300 text-xs mt-1 block">
-                    </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
@@ -80,16 +80,21 @@
     <script>
         (function () {
             const contractInput = document.getElementById('contractFile');
+            const projectNameInput = document.getElementById('ProjectName');
+            const descriptionInput = document.getElementById('Description');
+            const managerSelect = document.getElementById('ManagerId');
+            const startDateInput = document.getElementById('StartDate');
+            const endDateInput = document.getElementById('EndDate');
             const budgetInput = document.getElementById('Budget');
             const submitBtn = document.querySelector('button[type="submit"]');
             const errorBox = document.getElementById('ContractBudgetError');
 
-            async function extractBudgetFromContractFile() {
-                if (!contractInput || !budgetInput) return;
+            async function extractDataFromContractFile() {
+                if (!contractInput) return;
 
                 const files = contractInput.files;
                 if (!files || files.length === 0) {
-                    budgetInput.disabled = false;
+                    if (budgetInput) budgetInput.disabled = false;
                     if (submitBtn) submitBtn.disabled = false;
                     return;
                 }
@@ -98,7 +103,7 @@
                 if (file.name && !file.name.toLowerCase().endsWith('.pdf')) {
                     alert('Quy định hệ thống: Phải chọn đúng file định dạng PDF (.pdf).');
                     contractInput.value = '';
-                    budgetInput.disabled = false;
+                    if (budgetInput) budgetInput.disabled = false;
                     if (submitBtn) submitBtn.disabled = false;
                     return;
                 }
@@ -106,13 +111,16 @@
                 const formData = new FormData();
                 formData.append('contractFile', file);
 
-                // Antiforgery (nếu action có validate trong tương lai).
                 const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
                 if (tokenInput && tokenInput.value) {
                     formData.append('__RequestVerificationToken', tokenInput.value);
                 }
 
-                if (errorBox) errorBox.textContent = '';
+                if (errorBox) {
+                    errorBox.textContent = 'Đang đọc dữ liệu từ hợp đồng...';
+                    errorBox.classList.remove('text-red-400');
+                    errorBox.classList.add('text-primary');
+                }
                 if (submitBtn) submitBtn.disabled = true;
 
                 try {
@@ -122,34 +130,53 @@
                     });
 
                     if (!response.ok) {
-                        let msg = 'Không thể trích xuất tổng chi phí từ hợp đồng.';
+                        let msg = 'Không thể đọc dữ liệu từ hợp đồng.';
                         try {
                             const data = await response.json();
                             msg = data && data.message ? data.message : msg;
-                        } catch {
-                            // ignore
+                        } catch {}
+                        if (errorBox) {
+                            errorBox.textContent = msg;
+                            errorBox.classList.add('text-red-400');
+                            errorBox.classList.remove('text-primary');
                         }
-                        if (errorBox) errorBox.textContent = msg;
                         if (submitBtn) submitBtn.disabled = false;
                         return;
                     }
 
                     const data = await response.json();
-                    if (data && data.budget != null) {
-                        // 1) điền xong
-                        budgetInput.value = Number(data.budget).toFixed(2);
-                        // 2) rồi mới khóa
-                        budgetInput.disabled = true;
-                        if (submitBtn) submitBtn.disabled = false; // cho phép submit tạo dự án
+                    
+                    if (data) {
+                        if (data.projectName && projectNameInput && !projectNameInput.value) projectNameInput.value = data.projectName;
+                        if (data.description && descriptionInput && !descriptionInput.value) descriptionInput.value = data.description;
+                        if (data.managerId && managerSelect && !managerSelect.value) managerSelect.value = data.managerId;
+                        if (data.startDate && startDateInput && !startDateInput.value) startDateInput.value = data.startDate;
+                        if (data.endDate && endDateInput && !endDateInput.value) endDateInput.value = data.endDate;
+
+                        if (data.budget != null && budgetInput) {
+                            budgetInput.value = Number(data.budget).toFixed(2);
+                            budgetInput.disabled = true;
+                        }
+                        
+                        if (errorBox) {
+                            errorBox.textContent = 'Trích xuất dữ liệu thành công.';
+                            errorBox.classList.remove('text-primary', 'text-red-400');
+                            errorBox.classList.add('text-green-400');
+                        }
                     }
+                    if (submitBtn) submitBtn.disabled = false;
                 } catch (e) {
-                    if (errorBox) errorBox.textContent = 'Lỗi kết nối. Vui lòng thử lại.';
+                    if (errorBox) {
+                        errorBox.textContent = 'Lỗi kết nối. Vui lòng thử lại.';
+                        errorBox.classList.add('text-red-400');
+                        errorBox.classList.remove('text-primary');
+                    }
                     if (submitBtn) submitBtn.disabled = false;
                 }
             }
 
             if (contractInput) {
-                contractInput.addEventListener('change', extractBudgetFromContractFile);
+                contractInput.addEventListener('change', extractDataFromContractFile);
             }
         })();
     </script>
