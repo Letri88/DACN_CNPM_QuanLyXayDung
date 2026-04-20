@@ -66,7 +66,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         }
 
         // POST: Projects/ExtractContractBudget
-        // Dùng AJAX để trích tổng chi phí từ PDF hợp đồng -> trả về budget cho UI.
+        // Dùng AJAX để trích dữ liệu từ PDF hợp đồng -> trả về data cho UI.
         [HttpPost]
         public async Task<IActionResult> ExtractContractBudget(IFormFile? contractFile)
         {
@@ -85,13 +85,40 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
                 return BadRequest(new { message = "File hợp đồng quá lớn. Vui lòng chọn file nhỏ hơn 15MB." });
             }
 
-            var extractedBudget = await ContractBudgetExtractor.TryExtractProjectBudgetAsync(contractFile);
-            if (extractedBudget is null)
+            var extractedData = await ContractBudgetExtractor.TryExtractProjectDetailsAsync(contractFile);
+            if (extractedData is null)
             {
-                return BadRequest(new { message = "Không thể trích xuất tổng chi phí từ hợp đồng." });
+                return BadRequest(new { message = "Không thể đọc dữ liệu từ hợp đồng." });
             }
 
-            return Ok(new { budget = extractedBudget.Value, budgetLocked = true });
+            string? managerId = null;
+            if (!string.IsNullOrWhiteSpace(extractedData.ManagerId))
+            {
+                // Try to find matching user by UserId and confirm they have the correct role
+                var user = await _context.Users
+                    .Include(u => u.Role)
+                    .FirstOrDefaultAsync(u => u.UserId.ToLower() == extractedData.ManagerId.ToLower().Trim());
+                    
+                if (user != null && user.Role != null)
+                {
+                    var roleName = user.Role.RoleName.Trim().ToLower();
+                    if (roleName == "project manager" || roleName == "quản lý dự án")
+                    {
+                        managerId = user.UserId;
+                    }
+                }
+            }
+
+            return Ok(new 
+            { 
+                budget = extractedData.Budget, 
+                budgetLocked = extractedData.Budget.HasValue,
+                projectName = extractedData.ProjectName,
+                description = extractedData.Description,
+                managerId = managerId,
+                startDate = extractedData.StartDate?.ToString("yyyy-MM-dd"),
+                endDate = extractedData.EndDate?.ToString("yyyy-MM-dd")
+            });
         }
 
         // GET: Projects/DownloadContract
@@ -218,6 +245,45 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             {
                 _context.Add(project);
                 await _context.SaveChangesAsync();
+
+                var notifications = new List<Notification>();
+
+                if (project.ManagerId != null)
+                {
+                    notifications.Add(new Notification
+                    {
+                        UserId = project.ManagerId,
+                        Message = $"Bạn đã được chọn làm Quản lý dự án cho dự án '{project.ProjectName}'.",
+                        CreatedAt = DateTime.Now,
+                        IsRead = false,
+                        RelatedUrl = $"/Projects/Details/{project.ProjectId}"
+                    });
+                }
+
+                if (project.Stages != null && project.Stages.Any())
+                {
+                    foreach (var stage in project.Stages)
+                    {
+                        if (!string.IsNullOrEmpty(stage.AssignedUserId))
+                        {
+                            notifications.Add(new Notification
+                            {
+                                UserId = stage.AssignedUserId,
+                                Message = $"Bạn đã được phân công quản lý giai đoạn '{stage.StageName}' trong dự án '{project.ProjectName}'.",
+                                CreatedAt = DateTime.Now,
+                                IsRead = false,
+                                RelatedUrl = $"/Stages/Details/{stage.StageId}"
+                            });
+                        }
+                    }
+                }
+
+                if (notifications.Any())
+                {
+                    _context.Notifications.AddRange(notifications);
+                    await _context.SaveChangesAsync();
+                }
+
                 return RedirectToAction(nameof(Index));
             }
             ViewData["ManagerId"] = GetUsersWithRoles(project.ManagerId, new[] { "Project Manager", "Quản lý dự án", "Admin", "Quản trị viên" });

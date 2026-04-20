@@ -14,6 +14,66 @@ public static class ContractBudgetExtractor
         return await ExtractMoneyWithPatternAsync(contractFile, @"(?:tổng|tổng)\s*(?:chi|kinh)\s*phí\s*(?:dự\s*án)?\s*[:\-]?\s*[^0-9]{0,20}([0-9][0-9\.\,]*)", cancellationToken);
     }
 
+    public static async Task<ExtractedProjectDto?> TryExtractProjectDetailsAsync(IFormFile contractFile, CancellationToken cancellationToken = default)
+    {
+        if (contractFile is null || contractFile.Length == 0) return null;
+
+        var extension = Path.GetExtension(contractFile.FileName)?.ToLowerInvariant();
+        if (extension != ".pdf") return null;
+
+        await using var stream = contractFile.OpenReadStream();
+        using var pdf = PdfDocument.Open(stream);
+        var text = string.Join(" \n ", pdf.GetPages().Select(p => p.Text));
+        if (string.IsNullOrWhiteSpace(text)) return null;
+
+        // Chuẩn hóa văn bản
+        text = Regex.Replace(text, @"(?:Tên|Ten)\s*(?:dự|dự)\s*(?:án|án)", " Tên dự án ", RegexOptions.IgnoreCase);
+        text = Regex.Replace(text, @"(?:Tên|Ten)\s*(?:công|công)\s*(?:trình|trình)", " Tên dự án ", RegexOptions.IgnoreCase);
+        text = Regex.Replace(text, @"(?:Mô|Mô)\s*(?:tả|tả)", " Mô tả ", RegexOptions.IgnoreCase);
+        text = Regex.Replace(text, @"(?:Nội|Nội)\s*(?:dung|dung)", " Mô tả ", RegexOptions.IgnoreCase);
+        text = Regex.Replace(text, @"(?:Quản|Quản)\s*(?:lý|lý)\s*(?:dự|dự)\s*(?:án|án)", " Quản lý dự án ", RegexOptions.IgnoreCase);
+        text = Regex.Replace(text, @"(?:Đại|Đại)\s*(?:diện|diện)", " Quản lý dự án ", RegexOptions.IgnoreCase);
+        text = Regex.Replace(text, @"(?:Bắt|Bắt)\s*(?:đầu|đầu)", " Bắt đầu ", RegexOptions.IgnoreCase);
+        text = Regex.Replace(text, @"(?:Kết|Kết)\s*(?:thúc|thúc)", " Kết thúc ", RegexOptions.IgnoreCase);
+
+        var dto = new ExtractedProjectDto();
+
+        // 1. Tên dự án (Lấy đến khi gặp keyword tiếp theo)
+        var nameMatch = Regex.Match(text, @"Tên dự án\s*[:\-]?\s*(.*?)(?=\s*Mô tả|\s*(?:Mã\s*)?Quản lý dự án|\s*Bắt đầu|\s*Kết thúc|$)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+        if (nameMatch.Success) dto.ProjectName = nameMatch.Groups[1].Value.Trim();
+
+        // 2. Mô tả (Lấy đến khi gặp keyword tiếp theo)
+        var descMatch = Regex.Match(text, @"Mô tả\s*[:\-]?\s*(.*?)(?=\s*(?:Mã\s*)?Quản lý dự án|\s*Bắt đầu|\s*Kết thúc|$)", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+        if (descMatch.Success) dto.Description = descMatch.Groups[1].Value.Trim();
+
+        // 3. Mã Quản lý dự án
+        var managerMatch = Regex.Match(text, @"(?:Mã\s*)?Quản lý dự án\s*[:\-]?\s*([A-Za-z0-9]+)", RegexOptions.IgnoreCase);
+        if (managerMatch.Success) dto.ManagerId = managerMatch.Groups[1].Value.Trim();
+
+        // 4. Ngày bắt đầu
+        var startMatch = Regex.Match(text, @"Bắt đầu\s*[:\-]?\s*(\d{1,2}/\d{1,2}/\d{4})", RegexOptions.IgnoreCase);
+        if (startMatch.Success && DateOnly.TryParseExact(startMatch.Groups[1].Value, "dd/MM/yyyy", null, DateTimeStyles.None, out var startDate))
+        {
+            dto.StartDate = startDate;
+        }
+
+        // 5. Ngày kết thúc
+        var endMatch = Regex.Match(text, @"Kết thúc\s*[:\-]?\s*(\d{1,2}/\d{1,2}/\d{4})", RegexOptions.IgnoreCase);
+        if (endMatch.Success && DateOnly.TryParseExact(endMatch.Groups[1].Value, "dd/MM/yyyy", null, DateTimeStyles.None, out var endDate))
+        {
+            dto.EndDate = endDate;
+        }
+
+        // 6. Tổng chi phí
+        var budgetMatch = Regex.Match(text, @"(?:tổng|tổng)\s*(?:chi|kinh)\s*phí\s*(?:dự\s*án)?\s*[:\-]?\s*[^0-9]{0,20}([0-9][0-9\.\,]*)", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Singleline);
+        if (budgetMatch.Success && TryParseMoney(budgetMatch.Groups[1].Value, out var money) && money > 0)
+        {
+            dto.Budget = money;
+        }
+
+        return dto;
+    }
+
     public static async Task<ExtractedStageDto?> TryExtractStageDetailsAsync(IFormFile contractFile, string stageName, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(stageName)) return null;
