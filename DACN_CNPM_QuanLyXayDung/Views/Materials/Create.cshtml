@@ -23,7 +23,7 @@
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label asp-for="Unit" class="text-sm font-medium text-slate-300 mb-1 block"></label>
+                        <label asp-for="Unit" class="text-sm font-medium text-slate-300 mb-1 block">Đơn vị tính</label>
                         <select asp-for="Unit" class="bg-[#1a2e2e] border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all appearance-none">
                             <option value="">-- Chọn Đơn vị tính --</option>
                             <option value="Cái">Cái</option>
@@ -37,6 +37,11 @@
                             <option value="Thùng">Thùng</option>
                         </select>
                         <span asp-validation-for="Unit" class="text-red-400 text-xs mt-1 block"></span>
+                    </div>
+                    <div>
+                        <label asp-for="UnitPrice" class="text-sm font-medium text-slate-300 mb-1 block">Đơn giá</label>
+                        <input asp-for="UnitPrice" type="number" min="0" step="0.01" class="bg-white/5 border border-white/10 rounded-lg text-white p-2.5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all" placeholder="Nhập đơn giá..." />
+                        <span asp-validation-for="UnitPrice" class="text-red-400 text-xs mt-1 block"></span>
                     </div>
                 </div>
 

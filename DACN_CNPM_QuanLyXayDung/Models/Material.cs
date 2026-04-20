@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace DACN_CNPM_QuanLyXayDung.Models;
@@ -13,6 +13,11 @@ public partial class Material
 
     public int? MinStockLevel { get; set; }
 
+    public decimal UnitPrice { get; set; }
+
+    public int? SupplierId { get; set; }
+    public virtual Supplier? Supplier { get; set; }
+    
     public virtual ICollection<InventoryTransaction> InventoryTransactions { get; set; } = new List<InventoryTransaction>();
 
     public virtual ICollection<MaterialUsage> MaterialUsages { get; set; } = new List<MaterialUsage>();
@@ -21,4 +26,6 @@ public partial class Material
     public int TotalUsed => MaterialUsages?.Sum(x => x.QuantityUsage) ?? 0;
 
     public int CurrentStock => TotalImported - TotalUsed;
+    
+    public decimal TotalValue => CurrentStock * UnitPrice;
 }

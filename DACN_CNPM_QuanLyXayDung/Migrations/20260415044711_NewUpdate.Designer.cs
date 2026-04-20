@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DACN_CNPM_QuanLyXayDung.Migrations
 {
     [DbContext(typeof(HeThongQlvongDoiDuAnTaiNguyenContext))]
-    [Migration("20260414173643_ChangeUserID")]
-    partial class ChangeUserID
+    [Migration("20260415044711_NewUpdate")]
+    partial class NewUpdate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

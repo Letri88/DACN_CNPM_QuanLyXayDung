@@ -33,12 +33,58 @@ public partial class HeThongQlvongDoiDuAnTaiNguyenContext : DbContext
 
     public virtual DbSet<Notification> Notifications { get; set; }
 
+    public virtual DbSet<Supplier> Suppliers { get; set; }
+    public virtual DbSet<MaterialRequest> MaterialRequests { get; set; }
+    public virtual DbSet<MaterialRequestDetail> MaterialRequestDetails { get; set; }
+    public virtual DbSet<PurchaseOrder> PurchaseOrders { get; set; }
+    public virtual DbSet<PurchaseOrderDetail> PurchaseOrderDetails { get; set; }
+    public virtual DbSet<MaterialReceipt> MaterialReceipts { get; set; }
+    public virtual DbSet<MaterialReceiptDetail> MaterialReceiptDetails { get; set; }
+    public virtual DbSet<DocumentAttachment> DocumentAttachments { get; set; }
+    public virtual DbSet<AuditLog> AuditLogs { get; set; }
+
+    public virtual DbSet<ProjectMaterialRequest> ProjectMaterialRequests { get; set; }
+    public virtual DbSet<ProjectMaterialRequestDetail> ProjectMaterialRequestDetails { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=thaipro113\\SQLEXPRESS;Initial Catalog=HeThongQLVongDoiDuAnTaiNguyen;Integrated Security=True;Trust Server Certificate=True");
+        => optionsBuilder.UseSqlServer("Data Source=localhost;Initial Catalog=HeThongQLVongDoiDuAnTaiNguyen;Integrated Security=True;Trust Server Certificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<MaterialRequest>(entity =>
+        {
+            entity.HasOne(d => d.Creator)
+                .WithMany()
+                .HasForeignKey(d => d.CreatorId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("FK_MaterialRequest_Creator");
+
+            entity.HasOne(d => d.Approver)
+                .WithMany()
+                .HasForeignKey(d => d.ApproverId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("FK_MaterialRequest_Approver");
+        });
+
+        modelBuilder.Entity<MaterialReceipt>(entity =>
+        {
+            entity.HasOne(d => d.Receiver)
+                .WithMany()
+                .HasForeignKey(d => d.ReceiverId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("FK_MaterialReceipt_Receiver");
+        });
+
+        modelBuilder.Entity<AuditLog>(entity =>
+        {
+            entity.HasOne(d => d.User)
+                .WithMany()
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("FK_AuditLog_User");
+        });
+
         modelBuilder.Entity<InventoryTransaction>(entity =>
         {
             entity.HasKey(e => e.TransactionId).HasName("PK__Inventor__55433A4B41C394E1");

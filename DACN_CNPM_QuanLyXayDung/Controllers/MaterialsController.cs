@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace DACN_CNPM_QuanLyXayDung.Controllers
 {
-    [Authorize(Roles = "Admin, Warehouse Keeper, Quản trị viên, Thủ kho")]
+    [Authorize(Roles = "Admin, Warehouse Keeper, Warehouse keeper, Quản trị viên, Thủ kho")]
     public class MaterialsController : Controller
     {
         private readonly HeThongQlvongDoiDuAnTaiNguyenContext _context;
@@ -67,7 +67,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("MaterialId,MaterialName,Unit,MinStockLevel")] Material material)
+        public async Task<IActionResult> Create([Bind("MaterialId,MaterialName,Unit,MinStockLevel,UnitPrice")] Material material)
         {
             ModelState.Remove(nameof(material.InventoryTransactions));
             ModelState.Remove(nameof(material.MaterialUsages));
@@ -107,7 +107,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("MaterialId,MaterialName,Unit,MinStockLevel")] Material material)
+        public async Task<IActionResult> Edit(int id, [Bind("MaterialId,MaterialName,Unit,MinStockLevel,UnitPrice")] Material material)
         {
             if (id != material.MaterialId)
             {

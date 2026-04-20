@@ -54,8 +54,10 @@
                     <tr class="text-slate-500 text-xs uppercase tracking-wider bg-white/5">
                         <th class="px-6 py-4 font-semibold">Tên vật liệu</th>
                         <th class="px-6 py-4 font-semibold">Đơn vị</th>
+                        <th class="px-6 py-4 font-semibold">Đơn giá</th>
                         <th class="px-6 py-4 font-semibold">Tồn kho</th>
-                        <th class="px-6 py-4 font-semibold">Mức tồn kho tối thiểu</th>
+                        <th class="px-6 py-4 font-semibold">Tổng tiền tồn</th>
+                        <th class="px-6 py-4 font-semibold">Tồn kho tối thiểu</th>
                         <th class="px-6 py-4 font-semibold text-right">Thao tác</th>
                     </tr>
                 </thead>
@@ -76,10 +78,16 @@
                             <td class="px-6 py-4">
                                 <span class="px-2.5 py-1 rounded bg-white/5 border border-white/10 text-xs font-medium">@Html.DisplayFor(modelItem => item.Unit)</span>
                             </td>
+                            <td class="px-6 py-4 font-medium text-slate-300">
+                                @item.UnitPrice.ToString("N0") đ
+                            </td>
                             <td class="px-6 py-4">
                                 <span class="font-bold text-emerald-400">
                                     @item.CurrentStock @item.Unit
                                 </span>
+                            </td>
+                            <td class="px-6 py-4 font-bold text-amber-400">
+                                @item.TotalValue.ToString("N0") đ
                             </td>
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-2">

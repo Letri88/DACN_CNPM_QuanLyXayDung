@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DACN_CNPM_QuanLyXayDung.Migrations
 {
     [DbContext(typeof(HeThongQlvongDoiDuAnTaiNguyenContext))]
-    [Migration("20260414153807_InitialCreateRoleBasedIDs")]
-    partial class InitialCreateRoleBasedIDs
+    [Migration("20260415162943_AddMaterialImportWorkflow")]
+    partial class AddMaterialImportWorkflow
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,80 @@ namespace DACN_CNPM_QuanLyXayDung.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.AuditLog", b =>
+                {
+                    b.Property<int>("LogId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("LogId"));
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Details")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<int>("EntityId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("EntityName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("LogId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AuditLogs");
+                });
+
+            modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.DocumentAttachment", b =>
+                {
+                    b.Property<int>("DocId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DocId"));
+
+                    b.Property<int>("EntityId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("EntityType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("UploadedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("DocId");
+
+                    b.ToTable("DocumentAttachments");
+                });
 
             modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.InventoryTransaction", b =>
                 {
@@ -104,6 +178,176 @@ namespace DACN_CNPM_QuanLyXayDung.Migrations
                         .HasName("PK__Material__C506131779539DC7");
 
                     b.ToTable("Materials");
+                });
+
+            modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.MaterialReceipt", b =>
+                {
+                    b.Property<int>("ReceiptId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ReceiptId"));
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int?>("POId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("PurchaseOrderPOId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ReceiptCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("ReceivedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ReceiverId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("ReceiptId");
+
+                    b.HasIndex("PurchaseOrderPOId");
+
+                    b.HasIndex("ReceiverId");
+
+                    b.ToTable("MaterialReceipts");
+                });
+
+            modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.MaterialReceiptDetail", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ActualQuantity")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("DamagedQuantity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MaterialId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MaterialReceiptReceiptId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("ReceiptId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("RequestedQuantity")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MaterialId");
+
+                    b.HasIndex("MaterialReceiptReceiptId");
+
+                    b.ToTable("MaterialReceiptDetails");
+                });
+
+            modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.MaterialRequest", b =>
+                {
+                    b.Property<int>("RequestId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RequestId"));
+
+                    b.Property<string>("ApprovalNote")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ApproverId")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatorId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("ExpectedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("RequestCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("RequestId");
+
+                    b.HasIndex("ApproverId");
+
+                    b.HasIndex("CreatorId");
+
+                    b.ToTable("MaterialRequests");
+                });
+
+            modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.MaterialRequestDetail", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("MaterialId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MaterialRequestRequestId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("QuantityRequested")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RequestId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MaterialId");
+
+                    b.HasIndex("MaterialRequestRequestId");
+
+                    b.ToTable("MaterialRequestDetails");
                 });
 
             modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.MaterialUsage", b =>
@@ -238,6 +482,88 @@ namespace DACN_CNPM_QuanLyXayDung.Migrations
                     b.ToTable("Projects");
                 });
 
+            modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.PurchaseOrder", b =>
+                {
+                    b.Property<int>("POId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("POId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeliveryTerms")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("POCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("RequestId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ShippingAddress")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("SupplierId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("POId");
+
+                    b.HasIndex("RequestId");
+
+                    b.HasIndex("SupplierId");
+
+                    b.ToTable("PurchaseOrders");
+                });
+
+            modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.PurchaseOrderDetail", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("MaterialId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("POId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PurchaseOrderPOId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Total")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MaterialId");
+
+                    b.HasIndex("PurchaseOrderPOId");
+
+                    b.ToTable("PurchaseOrderDetails");
+                });
+
             modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.Role", b =>
                 {
                     b.Property<int>("RoleId")
@@ -256,6 +582,28 @@ namespace DACN_CNPM_QuanLyXayDung.Migrations
                         .HasName("PK__Roles__8AFACE3AB04EA8A4");
 
                     b.ToTable("Roles");
+
+                    b.HasData(
+                        new
+                        {
+                            RoleId = 1,
+                            RoleName = "Admin"
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            RoleName = "Warehouse keeper"
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            RoleName = "Engineer"
+                        },
+                        new
+                        {
+                            RoleId = 4,
+                            RoleName = "Project Manager"
+                        });
                 });
 
             modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.Stage", b =>
@@ -322,6 +670,36 @@ namespace DACN_CNPM_QuanLyXayDung.Migrations
                     b.HasIndex("ProjectId");
 
                     b.ToTable("Stages");
+                });
+
+            modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.Supplier", b =>
+                {
+                    b.Property<int>("SupplierId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SupplierId"));
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("SupplierId");
+
+                    b.ToTable("Suppliers");
                 });
 
             modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.Task", b =>
@@ -417,6 +795,18 @@ namespace DACN_CNPM_QuanLyXayDung.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.AuditLog", b =>
+                {
+                    b.HasOne("DACN_CNPM_QuanLyXayDung.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_AuditLog_User");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.InventoryTransaction", b =>
                 {
                     b.HasOne("DACN_CNPM_QuanLyXayDung.Models.Material", "Material")
@@ -447,6 +837,82 @@ namespace DACN_CNPM_QuanLyXayDung.Migrations
                     b.Navigation("Stage");
 
                     b.Navigation("WarehouseKeeper");
+                });
+
+            modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.MaterialReceipt", b =>
+                {
+                    b.HasOne("DACN_CNPM_QuanLyXayDung.Models.PurchaseOrder", "PurchaseOrder")
+                        .WithMany("MaterialReceipts")
+                        .HasForeignKey("PurchaseOrderPOId");
+
+                    b.HasOne("DACN_CNPM_QuanLyXayDung.Models.User", "Receiver")
+                        .WithMany()
+                        .HasForeignKey("ReceiverId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_MaterialReceipt_Receiver");
+
+                    b.Navigation("PurchaseOrder");
+
+                    b.Navigation("Receiver");
+                });
+
+            modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.MaterialReceiptDetail", b =>
+                {
+                    b.HasOne("DACN_CNPM_QuanLyXayDung.Models.Material", "Material")
+                        .WithMany()
+                        .HasForeignKey("MaterialId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DACN_CNPM_QuanLyXayDung.Models.MaterialReceipt", "MaterialReceipt")
+                        .WithMany("Details")
+                        .HasForeignKey("MaterialReceiptReceiptId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Material");
+
+                    b.Navigation("MaterialReceipt");
+                });
+
+            modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.MaterialRequest", b =>
+                {
+                    b.HasOne("DACN_CNPM_QuanLyXayDung.Models.User", "Approver")
+                        .WithMany()
+                        .HasForeignKey("ApproverId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_MaterialRequest_Approver");
+
+                    b.HasOne("DACN_CNPM_QuanLyXayDung.Models.User", "Creator")
+                        .WithMany()
+                        .HasForeignKey("CreatorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_MaterialRequest_Creator");
+
+                    b.Navigation("Approver");
+
+                    b.Navigation("Creator");
+                });
+
+            modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.MaterialRequestDetail", b =>
+                {
+                    b.HasOne("DACN_CNPM_QuanLyXayDung.Models.Material", "Material")
+                        .WithMany()
+                        .HasForeignKey("MaterialId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DACN_CNPM_QuanLyXayDung.Models.MaterialRequest", "MaterialRequest")
+                        .WithMany("Details")
+                        .HasForeignKey("MaterialRequestRequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Material");
+
+                    b.Navigation("MaterialRequest");
                 });
 
             modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.MaterialUsage", b =>
@@ -488,6 +954,44 @@ namespace DACN_CNPM_QuanLyXayDung.Migrations
                         .HasConstraintName("FK_Projects_Manager");
 
                     b.Navigation("Manager");
+                });
+
+            modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.PurchaseOrder", b =>
+                {
+                    b.HasOne("DACN_CNPM_QuanLyXayDung.Models.MaterialRequest", "Request")
+                        .WithMany("PurchaseOrders")
+                        .HasForeignKey("RequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DACN_CNPM_QuanLyXayDung.Models.Supplier", "Supplier")
+                        .WithMany("PurchaseOrders")
+                        .HasForeignKey("SupplierId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Request");
+
+                    b.Navigation("Supplier");
+                });
+
+            modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.PurchaseOrderDetail", b =>
+                {
+                    b.HasOne("DACN_CNPM_QuanLyXayDung.Models.Material", "Material")
+                        .WithMany()
+                        .HasForeignKey("MaterialId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DACN_CNPM_QuanLyXayDung.Models.PurchaseOrder", "PurchaseOrder")
+                        .WithMany("Details")
+                        .HasForeignKey("PurchaseOrderPOId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Material");
+
+                    b.Navigation("PurchaseOrder");
                 });
 
             modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.Stage", b =>
@@ -543,6 +1047,18 @@ namespace DACN_CNPM_QuanLyXayDung.Migrations
                     b.Navigation("MaterialUsages");
                 });
 
+            modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.MaterialReceipt", b =>
+                {
+                    b.Navigation("Details");
+                });
+
+            modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.MaterialRequest", b =>
+                {
+                    b.Navigation("Details");
+
+                    b.Navigation("PurchaseOrders");
+                });
+
             modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.Project", b =>
                 {
                     b.Navigation("InventoryTransactions");
@@ -552,6 +1068,13 @@ namespace DACN_CNPM_QuanLyXayDung.Migrations
                     b.Navigation("Stages");
 
                     b.Navigation("Tasks");
+                });
+
+            modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.PurchaseOrder", b =>
+                {
+                    b.Navigation("Details");
+
+                    b.Navigation("MaterialReceipts");
                 });
 
             modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.Role", b =>
@@ -564,6 +1087,11 @@ namespace DACN_CNPM_QuanLyXayDung.Migrations
                     b.Navigation("InventoryTransactions");
 
                     b.Navigation("Tasks");
+                });
+
+            modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.Supplier", b =>
+                {
+                    b.Navigation("PurchaseOrders");
                 });
 
             modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.User", b =>

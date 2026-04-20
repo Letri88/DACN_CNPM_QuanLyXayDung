@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace DACN_CNPM_QuanLyXayDung.Controllers
 {
-    [Authorize(Roles = "Admin, Warehouse Keeper, Quản trị viên, Thủ kho")]
+    [Authorize(Roles = "Admin, Warehouse Keeper, Warehouse keeper, Quản trị viên, Thủ kho")]
     public class MaterialUsagesController : Controller
     {
         private readonly HeThongQlvongDoiDuAnTaiNguyenContext _context;

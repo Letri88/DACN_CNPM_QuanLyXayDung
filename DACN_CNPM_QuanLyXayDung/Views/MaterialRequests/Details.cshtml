@@ -1,0 +1,114 @@
+@model DACN_CNPM_QuanLyXayDung.Models.MaterialRequest
+
+@{
+    ViewData["Title"] = "Chi tiết Phiếu Yêu cầu";
+}
+
+<div class="flex justify-between items-start mb-6">
+    <div>
+        <div class="flex items-center gap-3">
+            <h1 class="text-2xl font-bold text-white tracking-tight">Phiếu Yêu cầu: @Model.RequestCode</h1>
+            @if (Model.Status == "Pending")
+            {
+                <span class="px-3 py-1 rounded-full text-xs font-medium bg-amber-500/20 text-amber-400 border border-amber-500/30">Chờ duyệt</span>
+            }
+            else if (Model.Status == "Approved")
+            {
+                <span class="px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Đã duyệt</span>
+            }
+            else
+            {
+                <span class="px-3 py-1 rounded-full text-xs font-medium bg-rose-500/20 text-rose-400 border border-rose-500/30">Từ chối</span>
+            }
+        </div>
+        <p class="text-slate-400 mt-1">Tạo vào lúc @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+    </div>
+    
+    <a asp-action="Index" class="px-4 py-2 bg-white/5 text-white font-medium rounded-xl hover:bg-white/10 transition-colors flex items-center gap-2">
+        <span class="material-icons text-sm">arrow_back</span> Quay lại
+    </a>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+    <div class="lg:col-span-2 space-y-6">
+        <div class="glass-card rounded-2xl border border-white/5 p-6">
+            <h2 class="text-lg font-semibold text-white border-b border-white/10 pb-3 mb-4">Chi tiết hàng hóa yêu cầu</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="text-slate-400 text-xs uppercase tracking-wider border-b border-white/10">
+                            <th class="pb-3">Tên vật tư</th>
+                            <th class="pb-3 text-right">Số lượng yêu cầu</th>
+                            <th class="pb-3 pl-6">Ghi chú</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/5">
+                        @foreach (var detail in Model.Details)
+                        {
+                            <tr class="text-slate-200">
+                                <td class="py-3 font-medium">@detail.Material.MaterialName</td>
+                                <td class="py-3 text-right">@detail.QuantityRequested</td>
+                                <td class="py-3 pl-6 text-slate-400">@(string.IsNullOrEmpty(detail.Note) ? "-" : detail.Note)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="space-y-6">
+        <div class="glass-card rounded-2xl border border-white/5 p-6">
+            <h2 class="text-lg font-semibold text-white border-b border-white/10 pb-3 mb-4">Thông tin xử lý</h2>
+            <div class="space-y-4 text-sm">
+                <div>
+                    <p class="text-slate-500 mb-1">Người yêu cầu</p>
+                    <p class="font-medium text-slate-200">@(Model.Creator?.FullName ?? Model.CreatorId)</p>
+                </div>
+                <div>
+                    <p class="text-slate-500 mb-1">Lý do yêu cầu</p>
+                    <p class="text-slate-300 italic">"@Model.Reason"</p>
+                </div>
+                <div>
+                    <p class="text-slate-500 mb-1">Ngày mong muốn nhận</p>
+                    <p class="font-medium text-primary">@(Model.ExpectedDate?.ToString("dd/MM/yyyy") ?? "Không có")</p>
+                </div>
+                
+                @if(Model.Status != "Pending") {
+                    <div class="pt-4 mt-4 border-t border-white/5">
+                        <p class="text-slate-500 mb-1">Người Duyệt</p>
+                        <p class="font-medium text-slate-200">@(Model.Approver?.FullName ?? Model.ApproverId)</p>
+                        <p class="text-xs text-slate-400">@Model.ApprovedAt?.ToString("dd/MM/yyyy HH:mm")</p>
+                        <p class="text-slate-300 italic mt-2 bg-black/20 p-2 rounded">"Ghi chú: @Model.ApprovalNote"</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        @if (Model.Status == "Pending" && (User.IsInRole("Admin") || User.IsInRole("Project Manager") || User.IsInRole("Quản lý dự án") || User.IsInRole("Quản trị viên")))
+        {
+            <div class="glass-panel p-1 rounded-2xl bg-gradient-to-r from-emerald-500/20 to-teal-500/20">
+                <div class="bg-background-dark/80 rounded-xl p-5">
+                    <h3 class="text-white font-semibold mb-3 flex items-center gap-2">
+                        <span class="material-icons text-primary">gavel</span> Phê duyệt Yêu cầu
+                    </h3>
+                    <form asp-action="Approve" method="post" class="space-y-4">
+                        <input type="hidden" name="id" value="@Model.RequestId" />
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">Ý kiến người duyệt (Bắt buộc):</label>
+                            <textarea name="approvalNote" class="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary" rows="2" placeholder="Ví dụ: Đồng ý nhập kho..." required></textarea>
+                        </div>
+                        <div class="flex gap-3">
+                            <button type="submit" name="status" value="Approved" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-medium py-2 rounded-lg transition-colors text-sm">
+                                Chấp thuận
+                            </button>
+                            <button type="submit" name="status" value="Rejected" class="flex-1 bg-rose-500/20 hover:bg-rose-500 text-rose-200 hover:text-white font-medium py-2 rounded-lg transition-colors border border-rose-500/30 text-sm">
+                                Từ chối
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        }
+    </div>
+</div>

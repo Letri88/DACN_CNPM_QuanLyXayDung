@@ -44,6 +44,16 @@
                             </div>
                         </div>
                     </div>
+                    <div class="grid grid-cols-2 gap-6 mt-6">
+                        <div>
+                            <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Đơn giá</p>
+                            <span class="px-3 py-1 rounded bg-white/10 border border-white/20 text-white text-sm font-medium">@Model.UnitPrice.ToString("N0") đ</span>
+                        </div>
+                        <div>
+                            <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Tổng tiền tồn</p>
+                            <span class="px-3 py-1 rounded bg-white/10 border border-white/20 text-white text-sm font-medium">@Model.TotalValue.ToString("N0") đ</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 

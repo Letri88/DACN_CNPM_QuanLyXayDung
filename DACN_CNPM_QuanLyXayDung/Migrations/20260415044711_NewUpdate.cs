@@ -3,10 +3,12 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace DACN_CNPM_QuanLyXayDung.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreateRoleBasedIDs : Migration
+    public partial class NewUpdate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -239,6 +241,17 @@ namespace DACN_CNPM_QuanLyXayDung.Migrations
                         column: x => x.StageID,
                         principalTable: "Stages",
                         principalColumn: "StageID");
+                });
+
+            migrationBuilder.InsertData(
+                table: "Roles",
+                columns: new[] { "RoleID", "RoleName" },
+                values: new object[,]
+                {
+                    { 1, "Admin" },
+                    { 2, "Warehouse keeper" },
+                    { 3, "Engineer" },
+                    { 4, "Project Manager" }
                 });
 
             migrationBuilder.CreateIndex(

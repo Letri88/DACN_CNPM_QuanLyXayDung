@@ -1,0 +1,121 @@
+@model DACN_CNPM_QuanLyXayDung.Models.PurchaseOrder
+
+@{
+    ViewData["Title"] = "Chi Tiết PO";
+}
+
+<div class="flex justify-between items-start mb-6">
+    <div>
+        <h1 class="text-2xl font-bold text-white tracking-tight flex items-center gap-3">
+            Đơn Đặt Hàng: @Model.POCode
+            @if (Model.Status == "Draft") {
+                <span class="px-3 py-1 rounded-full text-[11px] font-medium bg-slate-500/20 text-slate-400 border border-slate-500/30 uppercase tracking-wider">Bản Nháp (Soạn giá)</span>
+            } else {
+                <span class="px-3 py-1 rounded-full text-[11px] font-medium bg-primary/20 text-primary border border-primary/30 uppercase tracking-wider">@Model.Status</span>
+            }
+        </h1>
+        <p class="text-slate-400 mt-1">Từ Phiếu Yêu Cầu: <span class="text-white">@Model.Request?.RequestCode</span> | Ngày lập: <span class="text-white">@Model.CreatedAt.ToString("dd/MM/yyyy")</span></p>
+    </div>
+    
+    <a asp-action="Index" class="px-4 py-2 bg-white/5 text-white font-medium rounded-xl hover:bg-white/10 transition-colors flex items-center gap-2">
+        <span class="material-icons text-sm">arrow_back</span> Quay lại
+    </a>
+</div>
+
+<div class="glass-card rounded-2xl border border-white/5 p-6 mb-6">
+    <div class="flex items-center justify-between mb-4 pb-4 border-b border-white/10">
+        <h2 class="text-lg font-semibold text-white">Nhà Cung Cấp Xác Định</h2>
+        <span class="px-3 py-1 bg-white/5 rounded-lg text-sm text-slate-300">@(Model.Supplier?.Name ?? "Chưa cấu hình tự động NCC")</span>
+    </div>
+
+    @if (Model.Status == "Draft")
+    {
+        <div class="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 mb-4 text-amber-200 text-sm flex items-start gap-3">
+            <span class="material-icons text-amber-500 mt-0.5">info</span>
+            <div>
+                <strong class="block text-amber-400 mb-1">Cần Cập Nhật Giá Nhập</strong>
+                Kế toán hoặc Thủ kho cần đàm phán giá với nhà cung cấp và nhập đơn giá vào bảng dưới đây trước khi chốt PO (Chuyển sang Đã Gửi).
+            </div>
+        </div>
+
+        <form asp-action="UpdatePrices" method="post">
+            <input type="hidden" name="POId" value="@Model.POId" />
+            
+            <div class="overflow-x-auto rounded-xl border border-white/10 mb-6">
+                <table class="w-full text-left bg-black/20">
+                    <thead class="bg-white/5 text-slate-400 text-xs uppercase">
+                        <tr>
+                            <th class="p-4">Tên Vật Tư</th>
+                            <th class="p-4 text-center">SL Thực đặt</th>
+                            <th class="p-4 w-48">Đơn Giá VNĐ</th>
+                            <th class="p-4 text-right">Tổng Tiền Cột</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/5 pointer-events-auto">
+                        @foreach (var detail in Model.Details)
+                        {
+                            <tr>
+                                <td class="p-4 text-slate-200">@detail.Material?.MaterialName</td>
+                                <td class="p-4 text-center font-bold text-white">@detail.Quantity</td>
+                                <td class="p-4">
+                                    <input type="hidden" name="DetailIds" value="@detail.Id" />
+                                    <input type="number" name="UnitPrices" class="w-full bg-background-dark border border-white/20 rounded-lg px-3 py-2 text-white focus:border-primary focus:ring-1 focus:ring-primary" value="@detail.UnitPrice" min="0" step="1000" placeholder="VD: 50000" />
+                                </td>
+                                <td class="p-4 text-right text-slate-400 italic">Sẽ tính tự động</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="flex justify-end pr-4">
+                <button type="submit" class="px-6 py-2.5 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-xl transition-all shadow-lg shadow-blue-500/20 flex items-center gap-2">
+                    <span class="material-icons text-sm">save</span> Lưu Giá & Chốt Gửi Supplier
+                </button>
+            </div>
+        </form>
+    }
+    else
+    {
+        <div class="overflow-x-auto rounded-xl border border-white/10 mb-6">
+            <table class="w-full text-left bg-black/20">
+                <thead class="bg-white/5 text-slate-400 text-xs uppercase">
+                    <tr>
+                        <th class="p-4">Tên Vật Tư</th>
+                        <th class="p-4 text-center">Số Lượng</th>
+                        <th class="p-4 text-right">Đơn Giá</th>
+                        <th class="p-4 text-right">Thành Tiền</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5">
+                    @foreach (var detail in Model.Details)
+                    {
+                        <tr>
+                            <td class="p-4 text-slate-200">@detail.Material?.MaterialName</td>
+                            <td class="p-4 text-center font-bold text-white">@detail.Quantity</td>
+                            <td class="p-4 text-right text-slate-300">@detail.UnitPrice.ToString("N0") đ</td>
+                            <td class="p-4 text-right text-white font-medium">@detail.Total.ToString("N0") đ</td>
+                        </tr>
+                    }
+                    <tr class="bg-primary/5">
+                        <td colspan="3" class="p-4 text-right text-primary font-semibold">TỔNG CỘNG ĐƠN HÀNG:</td>
+                        <td class="p-4 text-right text-primary font-bold text-lg">@Model.TotalAmount.ToString("N0") VNĐ</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        @if(Model.Status == "Sent")
+        {
+            <div class="flex justify-center p-6 border border-dashed border-emerald-500/30 bg-emerald-500/5 rounded-xl">
+                <div class="text-center">
+                    <p class="text-emerald-200 mb-3 block">Đơn đặt hàng này đã được xác nhận với Supplier. Khi hàng thực tế được giao đến công trường/kho, hãy bấm nút dưới đây để Nhập Kho và ghi nhận số lượng thực tế.</p>
+                    <a asp-controller="MaterialReceipts" asp-action="Create" asp-route-poId="@Model.POId" class="inline-flex px-8 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl transition-all shadow-lg shadow-emerald-500/20 items-center gap-2">
+                        <span class="material-icons text-lg">local_shipping</span> 
+                        Phát sinh phiếu Nhập Kho (Receive)
+                    </a>
+                </div>
+            </div>
+        }
+    }
+</div>

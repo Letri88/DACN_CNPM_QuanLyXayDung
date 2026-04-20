@@ -1,0 +1,76 @@
+@model DACN_CNPM_QuanLyXayDung.Models.ProjectMaterialRequest
+
+@{
+    ViewData["Title"] = "Thủ Kho: Thực hiện Lệnh Xuất";
+}
+
+<div class="flex justify-between items-start mb-6">
+    <div>
+        <h1 class="text-2xl font-bold text-emerald-400 tracking-tight flex items-center gap-3">
+            <span class="material-icons">exit_to_app</span> Xác nhận Phiếu Xuất Cho Dự Án
+        </h1>
+        <p class="text-slate-400 mt-1">Từ phiếu yêu cầu: <span class="text-white">@Model.RequestCode</span> | Dự án: <span class="text-white font-medium">@(Model.Project?.ProjectName ?? "N/A")</span></p>
+    </div>
+    
+    <a asp-action="Index" class="px-4 py-2 bg-white/5 text-white font-medium rounded-xl hover:bg-white/10 transition-colors flex items-center gap-2">
+        Quay lại
+    </a>
+</div>
+
+<form asp-action="Export" method="post" class="space-y-6">
+    <input type="hidden" name="id" value="@Model.RequestId" />
+
+    <div class="glass-card rounded-2xl border border-white/5 p-6">
+        <h2 class="text-lg font-semibold text-white border-b border-white/10 pb-3 mb-4 flex items-center gap-2">
+             Mục Vật Tư Cần Xuất Kho
+        </h2>
+
+        <div class="overflow-x-auto rounded-xl border border-white/10">
+            <table class="w-full text-left bg-black/20">
+                <thead class="bg-white/5 text-slate-400 text-xs uppercase tracking-wider">
+                    <tr>
+                        <th class="p-4 w-1/4">Tên Vật Tư</th>
+                        <th class="p-4 text-center">Ghi chú xin cấp</th>
+                        <th class="p-4 text-center">Kỹ sư yêu cầu xin</th>
+                        <th class="p-4 text-center text-emerald-400">Số lượng thủ kho sẽ xuất</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5 pointer-events-auto">
+                    @foreach (var detail in Model.Details)
+                    {
+                        <tr>
+                            <td class="p-4 text-slate-200">
+                                @detail.Material?.MaterialName
+                            </td>
+                            <td class="p-4 text-center text-slate-500 italic text-sm">@(string.IsNullOrEmpty(detail.Note) ? "-" : detail.Note)</td>
+                            <td class="p-4 text-center font-bold text-slate-300 text-lg">@detail.QuantityRequested</td>
+                            <td class="p-4">
+                                <input type="hidden" name="DetailIds" value="@detail.Id" />
+                                <input type="number" name="QuantityExported" class="w-full bg-emerald-500/10 border border-emerald-500/30 rounded-lg px-3 py-2 text-emerald-200 font-bold focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 text-center" value="@detail.QuantityRequested" min="1" required />
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="bg-blue-500/10 border border-blue-500/20 p-4 rounded-xl text-blue-200 text-sm flex gap-3">
+        <span class="material-icons mt-0.5">info</span>
+        <div>Bấm xuất kho đồng nghĩa bạn đã tiến hành giao hàng cho Kỹ sư xong. Việc này sẽ:
+            <ul class="list-disc pl-5 mt-1 border-l border-blue-500/30">
+                <li>Truy xuất tồn kho (Trừ đi trong kho)</li>
+                <li>Đưa những vật tư này vào Cột <strong>Chi Phí Tiêu Hao Của Dự Án</strong>.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="flex gap-4">
+        <button type="submit" class="px-8 py-3 bg-emerald-500 text-white font-bold rounded-xl hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-2">
+            Xác nhận Cấp Phát Vật Tư
+        </button>
+        <a asp-action="Details" asp-route-id="@Model.RequestId" class="px-8 py-3 bg-white/5 text-white font-medium rounded-xl hover:bg-white/10 transition-colors">
+            Hủy Bỏ
+        </a>
+    </div>
+</form>

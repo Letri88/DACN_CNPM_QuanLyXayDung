@@ -1,0 +1,85 @@
+@model DACN_CNPM_QuanLyXayDung.Models.MaterialReceipt
+
+@{
+    ViewData["Title"] = "Nhập Kho Thực Tế";
+}
+
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-white tracking-tight flex items-center gap-2">
+        <span class="material-icons text-primary">inventory_2</span>
+        Ghi Nhận Thực Tế Nhập Kho
+    </h1>
+    <p class="text-slate-400 mt-1">Từ Đơn đặt hàng (PO): <span class="text-white font-medium">@Model.PurchaseOrder?.POCode</span></p>
+</div>
+
+<form asp-action="Create" class="space-y-6">
+    <input type="hidden" asp-for="POId" />
+
+    <div class="glass-card rounded-2xl border border-white/5 p-6">
+        <h2 class="text-lg font-semibold text-white border-b border-white/10 pb-3 mb-4 flex items-center gap-2">
+            <span class="material-icons text-sm mb-0.5">summarize</span> Đối Chiếu Số Lượng Hàng Giao
+        </h2>
+
+        <div class="overflow-x-auto rounded-xl border border-white/10">
+            <table class="w-full text-left bg-black/20">
+                <thead class="bg-white/5 text-slate-400 text-xs uppercase tracking-wider">
+                    <tr>
+                        <th class="p-4 w-1/4">Tên Vật Tư</th>
+                        <th class="p-4 text-center">Yêu cầu (PO)</th>
+                        <th class="p-4 text-center text-emerald-400">Thực Nhận (Kho)</th>
+                        <th class="p-4 text-center text-rose-400">Hư Hỏng / Thiếu thốn</th>
+                        <th class="p-4">Biên bản / Ghi chú lệch</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5 pointer-events-auto">
+                    @{ int i = 0; }
+                    @foreach (var detail in Model.Details)
+                    {
+                        <tr>
+                            <td class="p-4 text-slate-200">
+                                @detail.Material?.MaterialName
+                                <input type="hidden" name="MaterialId" value="@detail.MaterialId" />
+                                <input type="hidden" name="RequestedQuantity" value="@detail.RequestedQuantity" />
+                            </td>
+                            <td class="p-4 text-center font-bold text-slate-400 text-lg">@detail.RequestedQuantity</td>
+                            <td class="p-4">
+                                <input type="number" name="ActualQuantity" class="w-full bg-emerald-500/10 border border-emerald-500/30 rounded-lg px-3 py-2 text-emerald-200 font-bold focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 text-center" value="@detail.RequestedQuantity" min="0" required />
+                            </td>
+                            <td class="p-4">
+                                <input type="number" name="DamagedQuantity" class="w-full bg-background-dark border border-white/10 rounded-lg px-3 py-2 text-rose-300 focus:outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400 text-center" value="0" min="0" />
+                            </td>
+                            <td class="p-4">
+                                <input type="text" name="Note" class="w-full bg-background-dark border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-primary" placeholder="Bắt buộc nếu bị lệch số lượng..." />
+                            </td>
+                        </tr>
+                        i++;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="glass-card rounded-2xl border border-white/5 p-6">
+        <label asp-for="Note" class="block text-sm font-medium text-slate-300 mb-2">Ghi chú chung cho đợt nhập kho này (Không bắt buộc)</label>
+        <textarea asp-for="Note" class="w-full bg-background-dark/50 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" rows="2" placeholder="Ghi nhận biên bản bàn giao chung hoặc điều kiện thời tiết lúc nhập..."></textarea>
+    </div>
+
+    <div class="border border-dashed border-primary/30 bg-primary/5 rounded-2xl p-6 text-center">
+        <span class="material-icons text-3xl text-primary/50 mb-2 block">cloud_upload</span>
+        <h3 class="text-white font-medium">Đính kèm chứng từ (Hóa đơn GTGT, Vận đơn)</h3>
+        <p class="text-sm text-slate-400 mt-1">Tính năng kéo thả upload file sẽ được cập nhật ở phiên bản tới. Hiện tại hệ thống sẽ kết dính logic trước.</p>
+    </div>
+
+    <div class="flex gap-4 pt-2">
+        <button type="submit" class="px-8 py-3 bg-emerald-500 text-white font-bold rounded-xl hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-2">
+            <span class="material-icons text-sm">done_all</span> Xác nhận Nhập Kho & Tăng Tồn Kho
+        </button>
+        <a asp-controller="PurchaseOrders" asp-action="Index" class="px-8 py-3 bg-white/5 text-white font-medium rounded-xl hover:bg-white/10 transition-colors">
+            Hủy Bỏ / Quay về
+        </a>
+    </div>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

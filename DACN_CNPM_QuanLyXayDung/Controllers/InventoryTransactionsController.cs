@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace DACN_CNPM_QuanLyXayDung.Controllers
 {
-    [Authorize(Roles = "Admin, Warehouse Keeper, Quản trị viên, Thủ kho")]
+    [Authorize(Roles = "Admin, Warehouse Keeper, Warehouse keeper, Quản trị viên, Thủ kho")]
     public class InventoryTransactionsController : Controller
     {
         private readonly HeThongQlvongDoiDuAnTaiNguyenContext _context;
@@ -75,7 +75,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
                 : Enumerable.Empty<Stage>().AsQueryable();
             ViewData["StageId"] = new SelectList(stages, "StageId", "StageName", stageId);
             
-            ViewData["WarehouseKeeperId"] = GetUsersWithRoles(currentUserId, new[] { "Warehouse Keeper", "Thủ kho"});
+            ViewData["WarehouseKeeperId"] = GetUsersWithRoles(currentUserId, new[] { "Warehouse Keeper", "Warehouse keeper", "Thủ kho"});
             
             var model = new InventoryTransaction();
             if (!string.IsNullOrEmpty(type)) model.Type = type;
@@ -106,7 +106,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             ViewData["MaterialId"] = new SelectList(_context.Materials, "MaterialId", "MaterialName", inventoryTransaction.MaterialId);
             ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectName", inventoryTransaction.ProjectId);
             ViewData["StageId"] = new SelectList(_context.Stages.Where(s => s.ProjectId == inventoryTransaction.ProjectId), "StageId", "StageName", inventoryTransaction.StageId);
-            ViewData["WarehouseKeeperId"] = GetUsersWithRoles(inventoryTransaction.WarehouseKeeperId, new[] { "Warehouse Keeper", "Thủ kho", "Admin", "Quản trị viên" });
+            ViewData["WarehouseKeeperId"] = GetUsersWithRoles(inventoryTransaction.WarehouseKeeperId, new[] { "Warehouse Keeper", "Warehouse keeper", "Thủ kho", "Admin", "Quản trị viên" });
             return View(inventoryTransaction);
         }
 
@@ -126,7 +126,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             ViewData["MaterialId"] = new SelectList(_context.Materials, "MaterialId", "MaterialName", inventoryTransaction.MaterialId);
             ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectName", inventoryTransaction.ProjectId);
             ViewData["StageId"] = new SelectList(_context.Stages.Where(s => s.ProjectId == inventoryTransaction.ProjectId), "StageId", "StageName", inventoryTransaction.StageId);
-            ViewData["WarehouseKeeperId"] = GetUsersWithRoles(inventoryTransaction.WarehouseKeeperId, new[] { "Warehouse Keeper", "Thủ kho", "Admin", "Quản trị viên" });
+            ViewData["WarehouseKeeperId"] = GetUsersWithRoles(inventoryTransaction.WarehouseKeeperId, new[] { "Warehouse Keeper", "Warehouse keeper", "Thủ kho", "Admin", "Quản trị viên" });
             return View(inventoryTransaction);
         }
 
@@ -170,7 +170,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             ViewData["MaterialId"] = new SelectList(_context.Materials, "MaterialId", "MaterialName", inventoryTransaction.MaterialId);
             ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectName", inventoryTransaction.ProjectId);
             ViewData["StageId"] = new SelectList(_context.Stages.Where(s => s.ProjectId == inventoryTransaction.ProjectId), "StageId", "StageName", inventoryTransaction.StageId);
-            ViewData["WarehouseKeeperId"] = GetUsersWithRoles(inventoryTransaction.WarehouseKeeperId, new[] { "Warehouse Keeper", "Thủ kho", "Admin", "Quản trị viên" });
+            ViewData["WarehouseKeeperId"] = GetUsersWithRoles(inventoryTransaction.WarehouseKeeperId, new[] { "Warehouse Keeper", "Warehouse keeper", "Thủ kho", "Admin", "Quản trị viên" });
             return View(inventoryTransaction);
         }
 

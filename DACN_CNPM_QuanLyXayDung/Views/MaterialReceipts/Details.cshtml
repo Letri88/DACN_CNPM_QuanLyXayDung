@@ -1,0 +1,79 @@
+@model DACN_CNPM_QuanLyXayDung.Models.MaterialReceipt
+
+@{
+    ViewData["Title"] = "Chi Tiết Phiếu Nhập Kho";
+}
+
+<div class="flex justify-between items-start mb-6">
+    <div>
+        <h1 class="text-2xl font-bold text-emerald-400 tracking-tight flex items-center gap-3">
+            <span class="material-icons">inventory</span> Phiếu Nhập Thực Tế: @Model.ReceiptCode
+        </h1>
+        <p class="text-slate-400 mt-1">Thực hiện vào lúc <span class="text-white">@Model.ReceivedAt.ToString("dd/MM/yyyy HH:mm")</span> bởi <span class="text-white font-medium">@(Model.Receiver?.FullName ?? Model.ReceiverId)</span></p>
+    </div>
+    
+    <a asp-action="Index" class="px-4 py-2 bg-white/5 text-white font-medium rounded-xl hover:bg-white/10 transition-colors flex items-center gap-2">
+        <span class="material-icons text-sm">arrow_back</span> Kho & Lịch Sử
+    </a>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+    <div class="glass-card rounded-2xl border border-white/5 p-6 flex items-center gap-4">
+        <div class="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400">
+            <span class="material-icons">check_circle</span>
+        </div>
+        <div>
+            <p class="text-sm border-b border-white/5 mb-1 pb-1">Trạng thái phiếu</p>
+            <p class="font-bold text-white text-lg">HỢP LỆ / THÀNH CÔNG</p>
+        </div>
+    </div>
+    <div class="glass-card rounded-2xl border border-white/5 p-6 flex items-center gap-4">
+        <div class="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">
+            <span class="material-icons">description</span>
+        </div>
+        <div>
+            <p class="text-sm border-b border-white/5 mb-1 pb-1">Đơn hàng tham chiếu</p>
+            <a asp-controller="PurchaseOrders" asp-action="Details" asp-route-id="@Model.POId" class="font-bold text-primary text-lg hover:underline transition-all">@(Model.PurchaseOrder?.POCode ?? "N/A")</a>
+        </div>
+    </div>
+    <div class="glass-card rounded-2xl border border-white/5 p-6">
+        <p class="text-sm text-slate-500 mb-1">Ghi chú chung của Thủ Kho</p>
+        <p class="text-slate-200">@(string.IsNullOrEmpty(Model.Note) ? "Không có đánh giá chung" : Model.Note)</p>
+    </div>
+</div>
+
+<div class="glass-card rounded-2xl border border-white/5 overflow-hidden">
+    <div class="p-4 bg-white/5 border-b border-white/10">
+        <h2 class="text-white font-semibold flex items-center gap-2"><span class="material-icons text-sm">list</span> Vật Tư Tăng Tồn Kho Tương Ứng</h2>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-left">
+            <thead class="bg-black/20 text-slate-400 text-xs uppercase">
+                <tr>
+                    <th class="p-4 w-1/4">Tên Vật Tư</th>
+                    <th class="p-4 text-center">KH Yêu Cầu</th>
+                    <th class="p-4 text-center">Thực Nhận (Kho)</th>
+                    <th class="p-4 text-center">Thiếu/Lỗi/Hỏng</th>
+                    <th class="p-4">Biên Bản (Lý Do Lệch)</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-white/5 text-sm">
+                @foreach (var detail in Model.Details)
+                {
+                    <tr class="hover:bg-white/[0.02]">
+                        <td class="p-4 text-slate-200">@detail.Material?.MaterialName</td>
+                        <td class="p-4 text-center text-slate-500">@detail.RequestedQuantity</td>
+                        <td class="p-4 text-center text-lg font-bold text-emerald-400">
+                            @detail.ActualQuantity
+                            @if(detail.ActualQuantity < detail.RequestedQuantity) {
+                                <span class="material-icons text-xs text-rose-500 absolute ml-2" title="Nhập thiếu">warning</span>
+                            }
+                        </td>
+                        <td class="p-4 text-center text-rose-300 font-medium">@(detail.DamagedQuantity > 0 ? detail.DamagedQuantity.ToString() : "-")</td>
+                        <td class="p-4 text-slate-400 italic">@(string.IsNullOrEmpty(detail.Note) ? "-" : detail.Note)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

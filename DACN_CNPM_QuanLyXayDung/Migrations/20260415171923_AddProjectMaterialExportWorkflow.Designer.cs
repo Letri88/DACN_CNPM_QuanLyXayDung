@@ -4,6 +4,7 @@ using DACN_CNPM_QuanLyXayDung.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DACN_CNPM_QuanLyXayDung.Migrations
 {
     [DbContext(typeof(HeThongQlvongDoiDuAnTaiNguyenContext))]
-    partial class HeThongQlvongDoiDuAnTaiNguyenContextModelSnapshot : ModelSnapshot
+    [Migration("20260415171923_AddProjectMaterialExportWorkflow")]
+    partial class AddProjectMaterialExportWorkflow
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -167,20 +170,12 @@ namespace DACN_CNPM_QuanLyXayDung.Migrations
                         .HasColumnType("int")
                         .HasDefaultValue(0);
 
-                    b.Property<int?>("SupplierId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Unit")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<decimal>("UnitPrice")
-                        .HasColumnType("decimal(18,2)");
-
                     b.HasKey("MaterialId")
                         .HasName("PK__Material__C506131779539DC7");
-
-                    b.HasIndex("SupplierId");
 
                     b.ToTable("Materials");
                 });
@@ -933,15 +928,6 @@ namespace DACN_CNPM_QuanLyXayDung.Migrations
                     b.Navigation("Stage");
 
                     b.Navigation("WarehouseKeeper");
-                });
-
-            modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.Material", b =>
-                {
-                    b.HasOne("DACN_CNPM_QuanLyXayDung.Models.Supplier", "Supplier")
-                        .WithMany()
-                        .HasForeignKey("SupplierId");
-
-                    b.Navigation("Supplier");
                 });
 
             modelBuilder.Entity("DACN_CNPM_QuanLyXayDung.Models.MaterialReceipt", b =>

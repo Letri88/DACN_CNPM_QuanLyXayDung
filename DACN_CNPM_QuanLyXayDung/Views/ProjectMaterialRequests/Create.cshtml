@@ -1,0 +1,92 @@
+@model DACN_CNPM_QuanLyXayDung.Models.ProjectMaterialRequest
+
+@{
+    ViewData["Title"] = "Tạo Yêu cầu Xuất kho Dự án";
+}
+
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-white tracking-tight">Kỹ sư: Đề xuất xuất kho dự án</h1>
+</div>
+
+<form asp-action="Create" class="space-y-6">
+    <div asp-validation-summary="ModelOnly" class="text-rose-400 mb-4 bg-rose-500/10 p-3 rounded-xl border border-rose-500/20"></div>
+
+    <div class="glass-card rounded-2xl border border-white/5 p-6 space-y-6">
+        <h2 class="text-lg font-semibold text-white border-b border-white/10 pb-2">Thông tin Dự án</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-2">Chọn Dự án</label>
+                <select asp-for="ProjectId" class="w-full bg-background-dark border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-primary focus:ring-1 focus:ring-primary" asp-items="ViewBag.ProjectId"></select>
+            </div>
+            <div>
+                <label asp-for="ExpectedDate" class="block text-sm font-medium text-slate-300 mb-2">Ngày mong muốn xuất</label>
+                <input asp-for="ExpectedDate" type="date" class="w-full bg-background-dark border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-primary focus:ring-1 focus:ring-primary" />
+            </div>
+            <div class="md:col-span-2">
+                <label asp-for="Reason" class="block text-sm font-medium text-slate-300 mb-2">Nội dung / Lý do xin xuất (VD: Xin xuất xi măng trộn móng P1)</label>
+                <input asp-for="Reason" class="w-full bg-background-dark border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-primary focus:ring-1 focus:ring-primary" required />
+            </div>
+        </div>
+    </div>
+
+    <div class="glass-card rounded-2xl border border-white/5 p-6">
+        <div class="flex justify-between items-end border-b border-white/10 pb-2 mb-4">
+            <h2 class="text-lg font-semibold text-white">Danh sách vật tư</h2>
+            <button type="button" id="addRow" class="text-sm px-3 py-1.5 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 rounded-lg flex items-center gap-1 transition-colors">
+                <span class="material-icons text-sm">add</span> Thêm
+            </button>
+        </div>
+
+        <table class="w-full text-left" id="materialsTable">
+            <thead>
+                <tr class="text-slate-400 text-xs uppercase tracking-wider">
+                    <th class="pb-3 w-1/3">Loại vật tư</th>
+                    <th class="pb-3 w-1/4">Số lượng yêu cầu</th>
+                    <th class="pb-3">Ghi chú</th>
+                    <th class="pb-3 text-center">Xóa</th>
+                </tr>
+            </thead>
+            <tbody class="space-y-4">
+                <tr class="group">
+                    <td class="pr-3 pb-3">
+                        <select name="MaterialId" class="w-full bg-background-dark border border-white/10 rounded-lg px-3 py-2 text-white" asp-items="ViewBag.MaterialId"></select>
+                    </td>
+                    <td class="pr-3 pb-3">
+                        <input type="number" name="QuantityRequested" class="w-full bg-background-dark border border-white/10 rounded-lg px-3 py-2 text-white" min="1" required />
+                    </td>
+                    <td class="pr-3 pb-3">
+                        <input type="text" name="Note" class="w-full bg-background-dark border border-white/10 rounded-lg px-3 py-2 text-white" />
+                    </td>
+                    <td class="pb-3 text-center">
+                        <button type="button" class="remove-row p-2 text-rose-400 text-sm hover:bg-rose-500/10 rounded-lg transition-colors"><span class="material-icons text-sm">delete</span></button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="flex gap-4 pt-2">
+        <button type="submit" class="px-6 py-2.5 bg-primary text-background-dark font-semibold rounded-xl hover:bg-opacity-90 transition-all">Gửi yêu cầu xuất kho</button>
+        <a asp-action="Index" class="px-6 py-2.5 bg-white/5 text-white font-medium rounded-xl hover:bg-white/10 transition-colors">Hủy</a>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#addRow').click(function () {
+                var firstRow = $('#materialsTable tbody tr:first').clone();
+                firstRow.find('input').val('');
+                $('#materialsTable tbody').append(firstRow);
+            });
+            $(document).on('click', '.remove-row', function () {
+                if ($('#materialsTable tbody tr').length > 1) {
+                    $(this).closest('tr').remove();
+                } else {
+                    alert("Cần yêu cầu ít nhất 1 dòng.");
+                }
+            });
+        });
+    </script>
+}
