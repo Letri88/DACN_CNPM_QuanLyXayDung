@@ -82,18 +82,30 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script>
-        $(document).ready(function () {
-            $('#addRow').click(function () {
-                var firstRow = $('#materialsTable tbody tr:first').clone();
-                firstRow.find('input').val('');
-                $('#materialsTable tbody').append(firstRow);
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('addRow').addEventListener('click', function () {
+                var tbody = document.querySelector('#materialsTable tbody');
+                var firstRow = tbody.querySelector('tr');
+                var newRow = firstRow.cloneNode(true);
+                
+                // Clear input values
+                var inputs = newRow.querySelectorAll('input');
+                inputs.forEach(function(input) {
+                    input.value = '';
+                });
+                
+                tbody.appendChild(newRow);
             });
 
-            $(document).on('click', '.remove-row', function () {
-                if ($('#materialsTable tbody tr').length > 1) {
-                    $(this).closest('tr').remove();
-                } else {
-                    alert("Bạn phải yêu cầu ít nhất một vật tư.");
+            document.addEventListener('click', function (e) {
+                var btn = e.target.closest('.remove-row');
+                if (btn) {
+                    var tbody = document.querySelector('#materialsTable tbody');
+                    if (tbody.querySelectorAll('tr').length > 1) {
+                        btn.closest('tr').remove();
+                    } else {
+                        alert("Bạn phải yêu cầu ít nhất một vật tư.");
+                    }
                 }
             });
         });

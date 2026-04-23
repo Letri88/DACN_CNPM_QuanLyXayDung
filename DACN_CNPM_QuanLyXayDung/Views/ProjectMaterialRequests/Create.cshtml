@@ -74,17 +74,29 @@
 
 @section Scripts {
     <script>
-        $(document).ready(function () {
-            $('#addRow').click(function () {
-                var firstRow = $('#materialsTable tbody tr:first').clone();
-                firstRow.find('input').val('');
-                $('#materialsTable tbody').append(firstRow);
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('addRow').addEventListener('click', function () {
+                var tbody = document.querySelector('#materialsTable tbody');
+                var firstRow = tbody.querySelector('tr');
+                var newRow = firstRow.cloneNode(true);
+                
+                var inputs = newRow.querySelectorAll('input');
+                inputs.forEach(function(input) {
+                    input.value = '';
+                });
+                
+                tbody.appendChild(newRow);
             });
-            $(document).on('click', '.remove-row', function () {
-                if ($('#materialsTable tbody tr').length > 1) {
-                    $(this).closest('tr').remove();
-                } else {
-                    alert("Cần yêu cầu ít nhất 1 dòng.");
+
+            document.addEventListener('click', function (e) {
+                var btn = e.target.closest('.remove-row');
+                if (btn) {
+                    var tbody = document.querySelector('#materialsTable tbody');
+                    if (tbody.querySelectorAll('tr').length > 1) {
+                        btn.closest('tr').remove();
+                    } else {
+                        alert("Cần yêu cầu ít nhất 1 dòng.");
+                    }
                 }
             });
         });
