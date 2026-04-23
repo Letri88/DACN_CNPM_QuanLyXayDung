@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace DACN_CNPM_QuanLyXayDung.Controllers
 {
-    [Authorize(Roles = "Admin,Project Manager,Quản trị viên,Quản lý dự án,Engineer,Kỹ sư,Warehouse Keeper,Thủ kho")]
+    [Authorize(Roles = "Admin,Project Manager,Quản trị viên,Quản lý dự án,Engineer,Kỹ sư,Warehouse Keeper,Thủ kho,Warehouse keeper")]
     public class StagesController : Controller
     {
         private readonly HeThongQlvongDoiDuAnTaiNguyenContext _context;
