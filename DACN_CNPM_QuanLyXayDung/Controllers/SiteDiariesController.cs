@@ -60,8 +60,16 @@ public class SiteDiariesController : Controller
     [Authorize(Roles = "Engineer,Kỹ sư,Admin,Quản trị viên")]
     public IActionResult Create()
     {
-        ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectName");
-        ViewData["StageId"] = new SelectList(_context.Stages, "StageId", "StageName");
+        var userId = User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
+        IQueryable<Project> projectQuery = _context.Projects;
+        
+        if (User.IsInRole("Engineer") || User.IsInRole("Kỹ sư"))
+        {
+            projectQuery = projectQuery.Where(p => _context.Stages.Any(s => s.ProjectId == p.ProjectId && s.AssignedUserId == userId));
+        }
+
+        ViewData["ProjectId"] = new SelectList(projectQuery, "ProjectId", "ProjectName");
+        ViewData["StageId"] = new SelectList(Enumerable.Empty<Stage>(), "StageId", "StageName");
         return View(new SiteDiary { Date = DateTime.Today });
     }
 
@@ -89,8 +97,7 @@ public class SiteDiariesController : Controller
                 if (photoFile.Length > 5 * 1024 * 1024)
                 {
                     ModelState.AddModelError("", "File ảnh không được vượt quá 5MB.");
-                    ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectName", siteDiary.ProjectId);
-                    ViewData["StageId"] = new SelectList(_context.Stages, "StageId", "StageName", siteDiary.StageId);
+                    PopulateDropdowns(siteDiary, userId);
                     return View(siteDiary);
                 }
 
@@ -109,9 +116,26 @@ public class SiteDiariesController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectName", siteDiary.ProjectId);
-        ViewData["StageId"] = new SelectList(_context.Stages, "StageId", "StageName", siteDiary.StageId);
+        PopulateDropdowns(siteDiary, userId);
         return View(siteDiary);
+    }
+
+    private void PopulateDropdowns(SiteDiary siteDiary, string userId)
+    {
+        IQueryable<Project> projectQuery = _context.Projects;
+        if (User.IsInRole("Engineer") || User.IsInRole("Kỹ sư"))
+        {
+            projectQuery = projectQuery.Where(p => _context.Stages.Any(s => s.ProjectId == p.ProjectId && s.AssignedUserId == userId));
+        }
+        
+        ViewData["ProjectId"] = new SelectList(projectQuery, "ProjectId", "ProjectName", siteDiary.ProjectId);
+        
+        IQueryable<Stage> stageQuery = _context.Stages.Where(s => s.ProjectId == siteDiary.ProjectId);
+        if (User.IsInRole("Engineer") || User.IsInRole("Kỹ sư"))
+        {
+            stageQuery = stageQuery.Where(s => s.AssignedUserId == userId);
+        }
+        ViewData["StageId"] = new SelectList(stageQuery, "StageId", "StageName", siteDiary.StageId);
     }
 
     // GET: SiteDiaries/GetPhoto/5
@@ -128,10 +152,15 @@ public class SiteDiariesController : Controller
     [HttpGet]
     public JsonResult GetStagesByProject(int projectId)
     {
-        var stages = _context.Stages
-            .Where(s => s.ProjectId == projectId)
-            .Select(s => new { s.StageId, s.StageName })
-            .ToList();
+        var userId = User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
+        var query = _context.Stages.Where(s => s.ProjectId == projectId);
+
+        if (User.IsInRole("Engineer") || User.IsInRole("Kỹ sư"))
+        {
+            query = query.Where(s => s.AssignedUserId == userId);
+        }
+
+        var stages = query.Select(s => new { s.StageId, s.StageName }).ToList();
         return Json(stages);
     }
 }
