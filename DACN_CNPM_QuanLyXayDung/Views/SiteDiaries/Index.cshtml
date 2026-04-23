@@ -1,0 +1,81 @@
+@model IEnumerable<DACN_CNPM_QuanLyXayDung.Models.SiteDiary>
+
+@{
+    ViewData["Title"] = "Nhật ký thi công điện tử";
+}
+
+<div class="mb-6 flex justify-between items-end">
+    <div>
+        <h1 class="text-2xl font-bold text-white tracking-tight">Nhật ký thi công</h1>
+        <p class="text-slate-400 mt-1">Ghi nhận tiến độ, thời tiết và nhân sự tại công trường mỗi ngày.</p>
+    </div>
+    @if (User.IsInRole("Engineer") || User.IsInRole("Kỹ sư") || User.IsInRole("Admin") || User.IsInRole("Quản trị viên"))
+    {
+        <a asp-action="Create" class="px-5 py-2.5 bg-primary text-background-dark font-bold rounded-xl hover:bg-opacity-90 transition-all flex items-center gap-2 shadow-lg shadow-primary/20">
+            <span class="material-icons text-sm">add</span> Thêm Nhật ký
+        </a>
+    }
+</div>
+
+<div class="glass-card rounded-2xl border border-white/5 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left">
+            <thead class="text-slate-400 text-xs uppercase tracking-wider bg-white/5">
+                <tr>
+                    <th class="px-6 py-4 font-semibold">Ngày</th>
+                    <th class="px-6 py-4 font-semibold">Dự án</th>
+                    <th class="px-6 py-4 font-semibold">Thời tiết</th>
+                    <th class="px-6 py-4 font-semibold">Nhân sự/Máy</th>
+                    <th class="px-6 py-4 font-semibold">Người lập</th>
+                    <th class="px-6 py-4 font-semibold text-right">Chi tiết</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-white/5 text-slate-300 text-sm">
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="px-6 py-8 text-center text-slate-500">
+                            Chưa có nhật ký nào được ghi nhận.
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var item in Model)
+                    {
+                        <tr class="hover:bg-white/5 transition-colors group">
+                            <td class="px-6 py-4 font-medium text-white">@item.Date.ToString("dd/MM/yyyy")</td>
+                            <td class="px-6 py-4">
+                                <div class="font-medium text-white">@item.Project?.ProjectName</div>
+                                @if (item.Stage != null)
+                                {
+                                    <div class="text-xs text-slate-400 mt-1">@item.Stage.StageName</div>
+                                }
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-2">
+                                    <span class="material-icons text-[16px] text-amber-400">
+                                        @(item.Weather?.ToLower().Contains("mưa") == true ? "water_drop" : "light_mode")
+                                    </span>
+                                    <span>@item.Weather - @item.Temperature</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex flex-col gap-1 text-xs">
+                                    <span class="flex items-center gap-1 text-emerald-400"><span class="material-icons text-[14px]">groups</span> @item.WorkerCount công nhân</span>
+                                    <span class="flex items-center gap-1 text-amber-400"><span class="material-icons text-[14px]">precision_manufacturing</span> @item.MachineryCount máy móc</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">@item.Engineer?.FullName</td>
+                            <td class="px-6 py-4 text-right">
+                                <a asp-action="Details" asp-route-id="@item.DiaryId" class="inline-flex items-center gap-1 px-3 py-1.5 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-colors border border-white/5">
+                                    <span class="material-icons text-[14px]">visibility</span> Xem
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

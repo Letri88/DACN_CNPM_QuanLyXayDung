@@ -1,0 +1,127 @@
+@model DACN_CNPM_QuanLyXayDung.Models.SiteDiary
+
+@{
+    ViewData["Title"] = "Thêm Nhật ký thi công";
+}
+
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-white tracking-tight">Thêm mới Nhật ký thi công</h1>
+    <p class="text-slate-400 mt-1">Báo cáo tình hình thực tế tại công trường.</p>
+</div>
+
+<form asp-action="Create" enctype="multipart/form-data" class="space-y-6">
+    <div asp-validation-summary="All" class="text-rose-400 mb-4 text-sm bg-rose-500/10 p-3 rounded-xl border border-rose-500/20"></div>
+
+    <div class="glass-card rounded-2xl border border-white/5 p-6 space-y-6">
+        <h2 class="text-lg font-semibold text-white border-b border-white/10 pb-2">Thông tin Dự án & Thời gian</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+                <label asp-for="ProjectId" class="block text-sm font-medium text-slate-300 mb-2">Dự án <span class="text-rose-400">*</span></label>
+                <select asp-for="ProjectId" class="w-full bg-background-dark/50 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-primary" asp-items="ViewBag.ProjectId" id="ProjectId">
+                    <option value="">-- Chọn dự án --</option>
+                </select>
+                <span asp-validation-for="ProjectId" class="text-rose-400 text-xs mt-1 block"></span>
+            </div>
+            <div>
+                <label asp-for="StageId" class="block text-sm font-medium text-slate-300 mb-2">Giai đoạn (Tùy chọn)</label>
+                <select asp-for="StageId" class="w-full bg-background-dark/50 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-primary" asp-items="ViewBag.StageId" id="StageId">
+                    <option value="">-- Chọn giai đoạn --</option>
+                </select>
+            </div>
+            <div>
+                <label asp-for="Date" class="block text-sm font-medium text-slate-300 mb-2">Ngày báo cáo <span class="text-rose-400">*</span></label>
+                <input asp-for="Date" type="date" class="w-full bg-background-dark/50 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-primary" required />
+                <span asp-validation-for="Date" class="text-rose-400 text-xs mt-1 block"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="glass-card rounded-2xl border border-white/5 p-6 space-y-6">
+        <h2 class="text-lg font-semibold text-white border-b border-white/10 pb-2">Điều kiện Hiện trường</h2>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div>
+                <label asp-for="Weather" class="block text-sm font-medium text-slate-300 mb-2">Thời tiết</label>
+                <select asp-for="Weather" class="w-full bg-background-dark/50 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-primary">
+                    <option value="Nắng">Nắng</option>
+                    <option value="Râm mát">Râm mát</option>
+                    <option value="Mưa rào">Mưa rào</option>
+                    <option value="Mưa bão">Mưa bão</option>
+                    <option value="Âm u">Âm u</option>
+                </select>
+            </div>
+            <div>
+                <label asp-for="Temperature" class="block text-sm font-medium text-slate-300 mb-2">Nhiệt độ (VD: 32°C)</label>
+                <input asp-for="Temperature" class="w-full bg-background-dark/50 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-primary" />
+            </div>
+            <div>
+                <label asp-for="WorkerCount" class="block text-sm font-medium text-slate-300 mb-2">Số lượng Công nhân <span class="text-rose-400">*</span></label>
+                <input asp-for="WorkerCount" type="number" min="0" class="w-full bg-background-dark/50 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-primary" required />
+                <span asp-validation-for="WorkerCount" class="text-rose-400 text-xs mt-1 block"></span>
+            </div>
+            <div>
+                <label asp-for="MachineryCount" class="block text-sm font-medium text-slate-300 mb-2">Số lượng Máy móc <span class="text-rose-400">*</span></label>
+                <input asp-for="MachineryCount" type="number" min="0" class="w-full bg-background-dark/50 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-primary" required />
+                <span asp-validation-for="MachineryCount" class="text-rose-400 text-xs mt-1 block"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="glass-card rounded-2xl border border-white/5 p-6 space-y-6">
+        <h2 class="text-lg font-semibold text-white border-b border-white/10 pb-2">Chi tiết Công việc</h2>
+        
+        <div>
+            <label asp-for="WorkCompleted" class="block text-sm font-medium text-slate-300 mb-2">Nội dung công việc đã hoàn thành <span class="text-rose-400">*</span></label>
+            <textarea asp-for="WorkCompleted" rows="4" class="w-full bg-background-dark/50 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-primary" placeholder="- Đổ bê tông móng trục A-B&#10;- Lắp đặt cốt thép dầm sàn tầng 1..." required></textarea>
+            <span asp-validation-for="WorkCompleted" class="text-rose-400 text-xs mt-1 block"></span>
+        </div>
+
+        <div>
+            <label asp-for="Issues" class="block text-sm font-medium text-slate-300 mb-2">Sự cố / Kiến nghị (Nếu có)</label>
+            <textarea asp-for="Issues" rows="2" class="w-full bg-background-dark/50 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-primary" placeholder="Ghi chú nếu có sự cố chậm tiến độ, tai nạn lao động hoặc thiếu hụt vật tư..."></textarea>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-slate-300 mb-2">Ảnh Hiện trường đính kèm</label>
+            <input type="file" name="photoFile" accept="image/*" class="w-full bg-background-dark/50 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-primary file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20" />
+            <p class="text-xs text-slate-400 mt-2">Dung lượng tối đa 5MB. Chỉ hỗ trợ định dạng ảnh (JPG, PNG).</p>
+        </div>
+    </div>
+
+    <div class="flex gap-4 pt-2">
+        <button type="submit" class="px-6 py-2.5 bg-primary text-background-dark font-bold rounded-xl hover:bg-opacity-90 transition-all shadow-lg shadow-primary/20 flex items-center gap-2">
+            <span class="material-icons text-sm">save</span> Lưu Nhật Ký
+        </button>
+        <a asp-action="Index" class="px-6 py-2.5 bg-white/5 text-white font-medium rounded-xl hover:bg-white/10 transition-colors">
+            Hủy Bỏ
+        </a>
+    </div>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var projectIdSelect = document.getElementById('ProjectId');
+            var stageIdSelect = document.getElementById('StageId');
+
+            projectIdSelect.addEventListener('change', function () {
+                var projectId = this.value;
+                if (projectId) {
+                    fetch('/SiteDiaries/GetStagesByProject?projectId=' + projectId)
+                        .then(response => response.json())
+                        .then(data => {
+                            stageIdSelect.innerHTML = '<option value="">-- Chọn giai đoạn --</option>';
+                            data.forEach(function (stage) {
+                                var option = document.createElement('option');
+                                option.value = stage.stageId;
+                                option.textContent = stage.stageName;
+                                stageIdSelect.appendChild(option);
+                            });
+                        });
+                } else {
+                    stageIdSelect.innerHTML = '<option value="">-- Chọn giai đoạn --</option>';
+                }
+            });
+        });
+    </script>
+}
