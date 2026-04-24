@@ -51,14 +51,14 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         {
             ViewData["EquipmentId"] = new SelectList(_context.Equipments.Where(e => e.Status == "Sẵn sàng"), "EquipmentId", "EquipmentName");
             ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectName");
-            ViewData["StageId"] = new SelectList(_context.Stages, "StageId", "StageName");
+            ViewData["StageId"] = new SelectList(new List<Stage>(), "StageId", "StageName");
             return View();
         }
 
         // POST: EquipmentDispatches/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("DispatchId,EquipmentId,ProjectId,StageId,StartDate,EndDate,OperatorName,Status,Notes")] EquipmentDispatch equipmentDispatch)
+        public async Task<IActionResult> Create([Bind("DispatchId,EquipmentId,ProjectId,StageId,StartDate,EndDate,Status,Notes")] EquipmentDispatch equipmentDispatch)
         {
             if (ModelState.IsValid)
             {
@@ -77,7 +77,10 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             }
             ViewData["EquipmentId"] = new SelectList(_context.Equipments.Where(e => e.Status == "Sẵn sàng"), "EquipmentId", "EquipmentName", equipmentDispatch.EquipmentId);
             ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectName", equipmentDispatch.ProjectId);
-            ViewData["StageId"] = new SelectList(_context.Stages, "StageId", "StageName", equipmentDispatch.StageId);
+            var stages = equipmentDispatch.ProjectId.HasValue 
+                ? await _context.Stages.Where(s => s.ProjectId == equipmentDispatch.ProjectId).ToListAsync()
+                : new List<Stage>();
+            ViewData["StageId"] = new SelectList(stages, "StageId", "StageName", equipmentDispatch.StageId);
             return View(equipmentDispatch);
         }
 
@@ -96,14 +99,17 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             }
             ViewData["EquipmentId"] = new SelectList(_context.Equipments, "EquipmentId", "EquipmentName", equipmentDispatch.EquipmentId);
             ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectName", equipmentDispatch.ProjectId);
-            ViewData["StageId"] = new SelectList(_context.Stages, "StageId", "StageName", equipmentDispatch.StageId);
+            var stages = equipmentDispatch.ProjectId.HasValue 
+                ? await _context.Stages.Where(s => s.ProjectId == equipmentDispatch.ProjectId).ToListAsync()
+                : new List<Stage>();
+            ViewData["StageId"] = new SelectList(stages, "StageId", "StageName", equipmentDispatch.StageId);
             return View(equipmentDispatch);
         }
 
         // POST: EquipmentDispatches/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("DispatchId,EquipmentId,ProjectId,StageId,StartDate,EndDate,OperatorName,Status,Notes")] EquipmentDispatch equipmentDispatch)
+        public async Task<IActionResult> Edit(int id, [Bind("DispatchId,EquipmentId,ProjectId,StageId,StartDate,EndDate,Status,Notes")] EquipmentDispatch equipmentDispatch)
         {
             if (id != equipmentDispatch.DispatchId)
             {
@@ -148,7 +154,10 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             }
             ViewData["EquipmentId"] = new SelectList(_context.Equipments, "EquipmentId", "EquipmentName", equipmentDispatch.EquipmentId);
             ViewData["ProjectId"] = new SelectList(_context.Projects, "ProjectId", "ProjectName", equipmentDispatch.ProjectId);
-            ViewData["StageId"] = new SelectList(_context.Stages, "StageId", "StageName", equipmentDispatch.StageId);
+            var stages = equipmentDispatch.ProjectId.HasValue 
+                ? await _context.Stages.Where(s => s.ProjectId == equipmentDispatch.ProjectId).ToListAsync()
+                : new List<Stage>();
+            ViewData["StageId"] = new SelectList(stages, "StageId", "StageName", equipmentDispatch.StageId);
             return View(equipmentDispatch);
         }
 
@@ -197,6 +206,16 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         private bool EquipmentDispatchExists(int id)
         {
             return _context.EquipmentDispatches.Any(e => e.DispatchId == id);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetStagesByProject(int projectId)
+        {
+            var stages = await _context.Stages
+                .Where(s => s.ProjectId == projectId)
+                .Select(s => new { value = s.StageId, text = s.StageName })
+                .ToListAsync();
+            return Json(stages);
         }
     }
 }

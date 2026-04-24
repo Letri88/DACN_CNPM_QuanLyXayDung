@@ -24,7 +24,6 @@
                 <tr class="bg-white/5 border-b border-white/10">
                     <th class="p-4 text-sm font-semibold text-slate-300">Thiết bị</th>
                     <th class="p-4 text-sm font-semibold text-slate-300">Dự án / Giai đoạn</th>
-                    <th class="p-4 text-sm font-semibold text-slate-300">Người vận hành</th>
                     <th class="p-4 text-sm font-semibold text-slate-300">Thời gian</th>
                     <th class="p-4 text-sm font-semibold text-slate-300">Trạng thái</th>
                     <th class="p-4 text-sm font-semibold text-slate-300 text-center">Thao tác</th>
@@ -41,7 +40,6 @@
                             <div class="text-slate-200">@Html.DisplayFor(modelItem => item.Project.ProjectName)</div>
                             <div class="text-xs text-slate-500">@Html.DisplayFor(modelItem => item.Stage.StageName)</div>
                         </td>
-                        <td class="p-4 text-slate-400">@Html.DisplayFor(modelItem => item.OperatorName)</td>
                         <td class="p-4">
                             <div class="text-sm text-slate-300">@item.StartDate.ToString("dd/MM/yyyy")</div>
                             <div class="text-xs text-slate-500">Đến: @(item.EndDate?.ToString("dd/MM/yyyy") ?? "...")</div>

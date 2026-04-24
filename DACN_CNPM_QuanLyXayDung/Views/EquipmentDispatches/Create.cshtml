@@ -39,11 +39,7 @@
                     </select>
                 </div>
 
-                <div>
-                    <label asp-for="OperatorName" class="block text-sm font-medium text-slate-300 mb-2"></label>
-                    <input asp-for="OperatorName" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" />
-                    <span asp-validation-for="OperatorName" class="text-red-400 text-xs mt-1"></span>
-                </div>
+
 
                 <div>
                     <label asp-for="Status" class="block text-sm font-medium text-slate-300 mb-2"></label>
@@ -83,4 +79,34 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function () {
+            $('#ProjectId').change(function () {
+                var projectId = $(this).val();
+                var stageSelect = $('#StageId');
+                
+                stageSelect.empty();
+                stageSelect.append($('<option/>', {
+                    value: '',
+                    text: '-- Chọn Giai đoạn --'
+                }));
+
+                if (projectId) {
+                    $.ajax({
+                        url: '@Url.Action("GetStagesByProject", "EquipmentDispatches")',
+                        type: 'GET',
+                        data: { projectId: projectId },
+                        success: function (data) {
+                            $.each(data, function (index, item) {
+                                stageSelect.append($('<option/>', {
+                                    value: item.value,
+                                    text: item.text
+                                }));
+                            });
+                        }
+                    });
+                }
+            });
+        });
+    </script>
 }

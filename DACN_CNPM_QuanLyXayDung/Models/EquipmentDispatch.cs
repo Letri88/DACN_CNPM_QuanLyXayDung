@@ -14,17 +14,17 @@ public class EquipmentDispatch
     public int EquipmentId { get; set; }
     
     [ForeignKey("EquipmentId")]
-    public virtual Equipment Equipment { get; set; }
+    public virtual Equipment? Equipment { get; set; }
 
     [Display(Name = "Dự án")]
     public int? ProjectId { get; set; }
     [ForeignKey("ProjectId")]
-    public virtual Project Project { get; set; }
+    public virtual Project? Project { get; set; }
 
     [Display(Name = "Giai đoạn")]
     public int? StageId { get; set; }
     [ForeignKey("StageId")]
-    public virtual Stage Stage { get; set; }
+    public virtual Stage? Stage { get; set; }
 
     [Required(ErrorMessage = "Vui lòng chọn ngày bắt đầu")]
     [DataType(DataType.Date)]
@@ -35,15 +35,11 @@ public class EquipmentDispatch
     [Display(Name = "Ngày kết thúc")]
     public DateTime? EndDate { get; set; }
 
-    [StringLength(100)]
-    [Display(Name = "Người vận hành")]
-    public string OperatorName { get; set; }
-
     [StringLength(50)]
     [Display(Name = "Trạng thái")]
     public string Status { get; set; } = "Đang điều động"; // Đang điều động, Đã hoàn thành
     
     [StringLength(500)]
     [Display(Name = "Ghi chú")]
-    public string Notes { get; set; }
+    public string? Notes { get; set; }
 }
