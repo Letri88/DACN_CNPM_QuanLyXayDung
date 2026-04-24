@@ -40,4 +40,6 @@ public partial class Stage
     public virtual ICollection<Task> Tasks { get; set; } = new List<Task>();
 
     public virtual ICollection<InventoryTransaction> InventoryTransactions { get; set; } = new List<InventoryTransaction>();
+
+    public virtual ICollection<EquipmentDispatch> EquipmentDispatches { get; set; } = new List<EquipmentDispatch>();
 }

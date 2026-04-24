@@ -40,4 +40,6 @@ public partial class Project
     public virtual ICollection<Stage> Stages { get; set; } = new List<Stage>();
 
     public virtual ICollection<Task> Tasks { get; set; } = new List<Task>();
+
+    public virtual ICollection<EquipmentDispatch> EquipmentDispatches { get; set; } = new List<EquipmentDispatch>();
 }

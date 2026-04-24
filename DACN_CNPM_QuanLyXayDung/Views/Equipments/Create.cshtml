@@ -1,0 +1,76 @@
+@model DACN_CNPM_QuanLyXayDung.Models.Equipment
+
+@{
+    ViewData["Title"] = "Thêm mới thiết bị";
+}
+
+<div class="max-w-2xl mx-auto">
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-white tracking-tight">@ViewData["Title"]</h1>
+            <a asp-action="Index" class="text-primary hover:text-white transition-colors flex items-center gap-2 mt-2">
+                <span class="material-icons text-sm">arrow_back</span>
+                <span>Quay lại danh sách</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="glass-card rounded-2xl border border-white/10 p-8">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-red-400 mb-6 text-sm bg-red-500/10 p-4 rounded-xl border border-red-500/20"></div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div class="col-span-2">
+                    <label asp-for="EquipmentName" class="block text-sm font-medium text-slate-300 mb-2"></label>
+                    <input asp-for="EquipmentName" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" />
+                    <span asp-validation-for="EquipmentName" class="text-red-400 text-xs mt-1"></span>
+                </div>
+                
+                <div>
+                    <label asp-for="EquipmentCode" class="block text-sm font-medium text-slate-300 mb-2"></label>
+                    <input asp-for="EquipmentCode" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" />
+                    <span asp-validation-for="EquipmentCode" class="text-red-400 text-xs mt-1"></span>
+                </div>
+
+                <div>
+                    <label asp-for="Type" class="block text-sm font-medium text-slate-300 mb-2"></label>
+                    <select asp-for="Type" class="w-full bg-background-dark border border-white/10 rounded-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all">
+                        <option value="Xe cơ giới">Xe cơ giới (Máy xúc, cẩu...)</option>
+                        <option value="Máy phát điện">Máy phát điện</option>
+                        <option value="Máy trộn bê tông">Máy trộn bê tông</option>
+                        <option value="Máy cầm tay">Máy cầm tay</option>
+                        <option value="Khác">Khác</option>
+                    </select>
+                    <span asp-validation-for="Type" class="text-red-400 text-xs mt-1"></span>
+                </div>
+
+                <div>
+                    <label asp-for="Status" class="block text-sm font-medium text-slate-300 mb-2"></label>
+                    <select asp-for="Status" class="w-full bg-background-dark border border-white/10 rounded-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all">
+                        <option value="Sẵn sàng">Sẵn sàng</option>
+                        <option value="Đang hoạt động">Đang hoạt động</option>
+                        <option value="Đang bảo trì">Đang bảo trì</option>
+                        <option value="Hỏng">Hỏng</option>
+                    </select>
+                    <span asp-validation-for="Status" class="text-red-400 text-xs mt-1"></span>
+                </div>
+
+                <div>
+                    <label asp-for="HourlyRate" class="block text-sm font-medium text-slate-300 mb-2"></label>
+                    <input asp-for="HourlyRate" type="number" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" />
+                    <span asp-validation-for="HourlyRate" class="text-red-400 text-xs mt-1"></span>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-4 pt-6 border-t border-white/10">
+                <button type="submit" class="bg-primary text-background-dark px-8 py-3 rounded-xl font-bold hover:bg-white transition-all shadow-lg shadow-primary/20">
+                    Tạo mới
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
