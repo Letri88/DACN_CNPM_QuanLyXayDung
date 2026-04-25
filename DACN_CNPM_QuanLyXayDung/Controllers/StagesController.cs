@@ -24,11 +24,26 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         // GET: Stages
         public async Task<IActionResult> Index()
         {
-            var heThongQlvongDoiDuAnTaiNguyenContext = _context.Stages
+            var query = _context.Stages
                 .Include(s => s.Project)
                 .Include(s => s.AssignedUser)
-                .Include(s => s.Tasks);
-            return View(await heThongQlvongDoiDuAnTaiNguyenContext.ToListAsync());
+                .Include(s => s.Tasks)
+                .AsQueryable();
+
+            var currentUserId = User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
+
+            if (User.IsInRole("Engineer") || User.IsInRole("Kỹ sư"))
+            {
+                // Tìm danh sách ID dự án mà Engineer này có liên quan (làm Manager hoặc có phân công Stage)
+                var allowedProjectIds = _context.Projects
+                    .Where(p => p.ManagerId == currentUserId || p.Stages.Any(st => st.AssignedUserId == currentUserId))
+                    .Select(p => p.ProjectId)
+                    .ToList();
+
+                query = query.Where(s => allowedProjectIds.Contains(s.ProjectId));
+            }
+
+            return View(await query.ToListAsync());
         }
 
         // GET: Stages/Details/5

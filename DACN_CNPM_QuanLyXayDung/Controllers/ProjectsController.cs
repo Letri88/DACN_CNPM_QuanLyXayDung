@@ -24,12 +24,22 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         // GET: Projects
         public async Task<IActionResult> Index()
         {
-            var heThongQlvongDoiDuAnTaiNguyenContext = _context.Projects
+            var query = _context.Projects
                 .Include(p => p.Manager)
                     .ThenInclude(u => u.Role)
                 .Include(p => p.Stages)
-                    .ThenInclude(s => s.Tasks);
-            return View(await heThongQlvongDoiDuAnTaiNguyenContext.ToListAsync());
+                    .ThenInclude(s => s.Tasks)
+                .AsQueryable();
+
+            var currentUserId = User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
+            
+            // Nếu user là Engineer, chỉ hiển thị các dự án mà họ được phân công
+            if (User.IsInRole("Engineer") || User.IsInRole("Kỹ sư"))
+            {
+                query = query.Where(p => p.ManagerId == currentUserId || p.Stages.Any(s => s.AssignedUserId == currentUserId));
+            }
+
+            return View(await query.ToListAsync());
         }
 
         // GET: Projects/Details/5

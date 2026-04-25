@@ -13,7 +13,7 @@
             <span class="font-medium">Tổng quan</span>
         </a>
 
-        @if (User.IsInRole("Admin") || User.IsInRole("Project Manager") || User.IsInRole("Quản trị viên") || User.IsInRole("Quản lý dự án"))
+        @if (User.IsInRole("Admin") || User.IsInRole("Project Manager") || User.IsInRole("Quản trị viên") || User.IsInRole("Quản lý dự án") || User.IsInRole("Engineer") || User.IsInRole("Kỹ sư"))
         {
             <a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="~/Projects">
                 <span class="material-icons text-xl">construction</span>
@@ -21,7 +21,7 @@
             </a>
         }
 
-        @if (User.IsInRole("Admin") || User.IsInRole("Project Manager") || User.IsInRole("Quản trị viên") || User.IsInRole("Quản lý dự án") || User.IsInRole("Warehouse Keeper") || User.IsInRole("Warehouse keeper") || User.IsInRole("Thủ kho"))
+        @if (User.IsInRole("Admin") || User.IsInRole("Project Manager") || User.IsInRole("Quản trị viên") || User.IsInRole("Quản lý dự án") || User.IsInRole("Warehouse Keeper") || User.IsInRole("Warehouse keeper") || User.IsInRole("Thủ kho") || User.IsInRole("Engineer") || User.IsInRole("Kỹ sư"))
         {
             <a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all" href="~/Stages">
                 <span class="material-icons text-xl">loop</span>
