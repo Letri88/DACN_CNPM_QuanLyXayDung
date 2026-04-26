@@ -1,64 +1,158 @@
 @model IEnumerable<DACN_CNPM_QuanLyXayDung.Models.Task>
 
 @{
-    ViewData["Title"] = "Quản lý Công việc";
+    ViewData["Title"] = "Quản lý Công việc (Kanban)";
+    
+    var pendingTasks = Model.Where(t => t.Status == "Pending" || t.Status == "Planned" || t.Status == "Not Started").ToList();
+    var inProgressTasks = Model.Where(t => t.Status == "In Progress" || t.Status == "Active").ToList();
+    var completedTasks = Model.Where(t => t.Status == "Completed" || t.Status == "Done").ToList();
+    var delayedTasks = Model.Where(t => t.Status == "Delayed").ToList();
 }
 
-<div class="p-8 space-y-8">
-    <div class="glass-panel rounded-2xl overflow-hidden">
-        <div class="p-6 border-b border-white/10 flex justify-between items-center">
-            <h3 class="text-lg font-bold text-white">Danh sách Công việc</h3>
-            <a asp-action="Create" class="px-4 py-2 bg-primary/20 text-primary hover:bg-primary/30 font-bold rounded-xl transition-colors text-sm flex items-center gap-2">
-                <span class="material-icons text-sm">add</span> Thêm mới
-            </a>
+<div class="p-8 space-y-6">
+    <div class="flex justify-between items-center">
+        <div>
+            <h3 class="text-2xl font-bold text-white tracking-tight">Kanban Board</h3>
+            <p class="text-slate-400 text-sm mt-1">Kéo thả để cập nhật trạng thái công việc</p>
         </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-left">
-                <thead>
-                    <tr class="text-slate-500 text-xs uppercase tracking-wider bg-white/5">
-                        <th class="px-6 py-4 font-semibold">Tên công việc</th>
-                        <th class="px-6 py-4 font-semibold">Dự án</th>
-                        <th class="px-6 py-4 font-semibold">Giai đoạn</th>
+        <a asp-action="Create" class="px-5 py-2.5 bg-primary hover:bg-primary-dark text-slate-900 font-bold rounded-xl transition-all text-sm flex items-center gap-2 shadow-[0_0_15px_rgba(var(--color-primary),0.3)]">
+            <span class="material-icons text-sm">add</span> Thêm công việc
+        </a>
+    </div>
 
-                        <th class="px-6 py-4 font-semibold">Trạng thái</th>
-                        <th class="px-6 py-4 font-semibold text-right">Thao tác</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-white/5 text-slate-300 text-sm">
-                    @foreach (var item in Model) {
-                        <tr class="hover:bg-white/5 transition-colors">
-                            <td class="px-6 py-4 font-semibold text-white">@Html.DisplayFor(modelItem => item.TaskName)</td>
-                            <td class="px-6 py-4">@Html.DisplayFor(modelItem => item.Project!.ProjectName)</td>
-                            <td class="px-6 py-4 border-l border-white/5 relative group cursor-pointer">
-                                <span class="bg-white/5 px-2 py-1 rounded text-xs text-slate-300">@Html.DisplayFor(modelItem => item.Stage!.StageName)</span>
-                            </td>
-
-                            <td class="px-6 py-4">
-                                @if(item.Status == "Planned" || item.Status == "Pending" || item.Status == "Not Started") {
-                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-amber-500/10 text-amber-400 border border-amber-500/20 whitespace-nowrap">@item.Status</span>
-                                } else if (item.Status == "Active" || item.Status == "In Progress") {
-                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-blue-500/10 text-blue-400 border border-blue-500/20 whitespace-nowrap">@item.Status</span>
-                                } else if (item.Status == "Completed" || item.Status == "Done") {
-                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 whitespace-nowrap">@item.Status</span>
-                                } else {
-                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-white/10 text-slate-300 border border-white/20 whitespace-nowrap">@item.Status</span>
-                                }
-                            </td>
-                            <td class="px-6 py-4 text-right flex justify-end gap-2">
-                                <a asp-action="Edit" asp-route-id="@item.TaskId" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-300 transition-colors" title="Sửa">
-                                    <span class="material-icons text-sm">edit</span>
-                                </a>
-                                <a asp-action="Details" asp-route-id="@item.TaskId" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-300 transition-colors" title="Chi tiết">
-                                    <span class="material-icons text-sm">visibility</span>
-                                </a>
-                                <a asp-action="Delete" asp-route-id="@item.TaskId" class="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 flex items-center justify-center text-red-400 transition-colors" title="Xóa">
-                                    <span class="material-icons text-sm">delete</span>
-                                </a>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+    <!-- Kanban Board Columns -->
+    <div class="flex items-start gap-6 overflow-x-auto pb-4 h-[calc(100vh-200px)]">
+        
+        <!-- Column: Pending -->
+        <div class="flex-shrink-0 w-[320px] flex flex-col h-full bg-white/[0.02] border border-white/5 rounded-2xl overflow-hidden">
+            <div class="p-4 border-b border-white/5 flex justify-between items-center bg-white/[0.01]">
+                <div class="flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full bg-slate-400 shadow-[0_0_8px_rgba(148,163,184,0.5)]"></span>
+                    <h4 class="font-bold text-slate-200">Chờ xử lý</h4>
+                </div>
+                <span class="text-xs font-bold text-slate-400 bg-white/5 px-2 py-0.5 rounded-full">@pendingTasks.Count</span>
+            </div>
+            <div class="p-3 flex-1 overflow-y-auto space-y-3 kanban-column" data-status="Pending">
+                @foreach (var item in pendingTasks) {
+                    <partial name="_KanbanCard" model="item" />
+                }
+            </div>
         </div>
+
+        <!-- Column: In Progress -->
+        <div class="flex-shrink-0 w-[320px] flex flex-col h-full bg-white/[0.02] border border-white/5 rounded-2xl overflow-hidden">
+            <div class="p-4 border-b border-white/5 flex justify-between items-center bg-white/[0.01]">
+                <div class="flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]"></span>
+                    <h4 class="font-bold text-slate-200">Đang thi công</h4>
+                </div>
+                <span class="text-xs font-bold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full border border-blue-500/20">@inProgressTasks.Count</span>
+            </div>
+            <div class="p-3 flex-1 overflow-y-auto space-y-3 kanban-column" data-status="In Progress">
+                @foreach (var item in inProgressTasks) {
+                    <partial name="_KanbanCard" model="item" />
+                }
+            </div>
+        </div>
+
+        <!-- Column: Completed -->
+        <div class="flex-shrink-0 w-[320px] flex flex-col h-full bg-white/[0.02] border border-white/5 rounded-2xl overflow-hidden">
+            <div class="p-4 border-b border-white/5 flex justify-between items-center bg-white/[0.01]">
+                <div class="flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
+                    <h4 class="font-bold text-slate-200">Hoàn thành</h4>
+                </div>
+                <span class="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">@completedTasks.Count</span>
+            </div>
+            <div class="p-3 flex-1 overflow-y-auto space-y-3 kanban-column" data-status="Completed">
+                @foreach (var item in completedTasks) {
+                    <partial name="_KanbanCard" model="item" />
+                }
+            </div>
+        </div>
+
+        <!-- Column: Delayed -->
+        <div class="flex-shrink-0 w-[320px] flex flex-col h-full bg-white/[0.02] border border-white/5 rounded-2xl overflow-hidden">
+            <div class="p-4 border-b border-white/5 flex justify-between items-center bg-white/[0.01]">
+                <div class="flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]"></span>
+                    <h4 class="font-bold text-slate-200">Trì hoãn</h4>
+                </div>
+                <span class="text-xs font-bold text-red-400 bg-red-500/10 px-2 py-0.5 rounded-full border border-red-500/20">@delayedTasks.Count</span>
+            </div>
+            <div class="p-3 flex-1 overflow-y-auto space-y-3 kanban-column" data-status="Delayed">
+                @foreach (var item in delayedTasks) {
+                    <partial name="_KanbanCard" model="item" />
+                }
+            </div>
+        </div>
+
     </div>
 </div>
+
+@section Scripts {
+    <!-- CDN for SortableJS -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const columns = document.querySelectorAll('.kanban-column');
+            
+            columns.forEach(column => {
+                new Sortable(column, {
+                    group: 'tasks', // Set both lists to same group
+                    animation: 150,
+                    ghostClass: 'bg-white/10', // Class applied to the placeholder
+                    dragClass: 'opacity-50', // Class applied to the dragged item
+                    onEnd: function (evt) {
+                        const itemEl = evt.item;  // Dragged HTMLElement
+                        const toList = evt.to;    // Target list
+                        const fromList = evt.from; // Previous list
+                        
+                        // If moved to a different column
+                        if (toList !== fromList) {
+                            const newStatus = toList.getAttribute('data-status');
+                            const taskId = itemEl.getAttribute('data-task-id');
+                            
+                            // Send AJAX request to update status
+                            fetch('/Tasks/UpdateTaskStatus', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                                },
+                                body: new URLSearchParams({
+                                    'taskId': taskId,
+                                    'status': newStatus
+                                })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    // Optionally update counts in column headers
+                                    updateCounts();
+                                } else {
+                                    alert('Lỗi cập nhật trạng thái: ' + data.message);
+                                    // Revert change
+                                    fromList.appendChild(itemEl);
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                alert('Đã có lỗi xảy ra khi cập nhật.');
+                                // Revert change
+                                fromList.appendChild(itemEl);
+                            });
+                        }
+                    },
+                });
+            });
+            
+            function updateCounts() {
+                document.querySelectorAll('.kanban-column').forEach(col => {
+                    const count = col.children.length;
+                    col.parentElement.querySelector('span.text-xs').textContent = count;
+                });
+            }
+        });
+    </script>
+}

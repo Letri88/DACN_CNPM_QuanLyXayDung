@@ -23,10 +23,42 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         // GET: Tasks
         public async Task<IActionResult> Index()
         {
-            var heThongQlvongDoiDuAnTaiNguyenContext = _context.Tasks
+            var query = _context.Tasks
                 .Include(t => t.Project)
-                .Include(t => t.Stage);
-            return View(await heThongQlvongDoiDuAnTaiNguyenContext.ToListAsync());
+                .Include(t => t.Stage)
+                .AsQueryable();
+
+            var currentUserId = User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
+
+            if (User.IsInRole("Engineer") || User.IsInRole("Kỹ sư"))
+            {
+                var allowedProjectIds = _context.Projects
+                    .Where(p => p.ManagerId == currentUserId || p.Stages.Any(st => st.AssignedUserId == currentUserId))
+                    .Select(p => p.ProjectId)
+                    .ToList();
+
+                query = query.Where(t => t.ProjectId.HasValue && allowedProjectIds.Contains(t.ProjectId.Value));
+            }
+
+            return View(await query.ToListAsync());
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateTaskStatus(int taskId, string status)
+        {
+            var task = await _context.Tasks.FindAsync(taskId);
+            if (task == null) return Json(new { success = false, message = "Không tìm thấy công việc." });
+
+            // Danh sách các trạng thái hợp lệ
+            var validStatuses = new[] { "Pending", "In Progress", "Completed", "Delayed" };
+            if (!validStatuses.Contains(status))
+            {
+                return Json(new { success = false, message = "Trạng thái không hợp lệ." });
+            }
+
+            task.Status = status;
+            await _context.SaveChangesAsync();
+            return Json(new { success = true });
         }
 
         // GET: Tasks/Details/5

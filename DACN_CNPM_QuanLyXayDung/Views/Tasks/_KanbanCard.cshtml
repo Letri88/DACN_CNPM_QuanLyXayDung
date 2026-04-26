@@ -1,0 +1,46 @@
+@model DACN_CNPM_QuanLyXayDung.Models.Task
+
+<div class="bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl p-4 cursor-grab active:cursor-grabbing transition-colors shadow-sm" data-task-id="@Model.TaskId">
+    <div class="flex justify-between items-start mb-2">
+        <h5 class="font-semibold text-white text-sm">@Model.TaskName</h5>
+        
+        <div class="dropdown">
+            <button class="text-slate-400 hover:text-white transition-colors" type="button" id="dropdownMenuButton-@Model.TaskId" data-bs-toggle="dropdown" aria-expanded="false">
+                <span class="material-icons text-sm">more_vert</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-dark bg-slate-800 border-white/10 shadow-xl" aria-labelledby="dropdownMenuButton-@Model.TaskId">
+                <li><a class="dropdown-item text-sm text-slate-300 hover:bg-white/5" asp-action="Details" asp-route-id="@Model.TaskId"><span class="material-icons text-[16px] align-text-bottom mr-2 text-primary">visibility</span> Chi tiết</a></li>
+                <li><a class="dropdown-item text-sm text-slate-300 hover:bg-white/5" asp-action="Edit" asp-route-id="@Model.TaskId"><span class="material-icons text-[16px] align-text-bottom mr-2 text-amber-400">edit</span> Chỉnh sửa</a></li>
+                <li><hr class="dropdown-divider border-white/10"></li>
+                <li><a class="dropdown-item text-sm text-red-400 hover:bg-red-500/10" asp-action="Delete" asp-route-id="@Model.TaskId"><span class="material-icons text-[16px] align-text-bottom mr-2">delete</span> Xóa</a></li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="text-xs text-slate-400 mb-3 truncate" title="@Model.Project?.ProjectName - @Model.Stage?.StageName">
+        <span class="font-medium text-primary">@Model.Project?.ProjectName</span>
+        <span class="mx-1">•</span>
+        <span>@Model.Stage?.StageName</span>
+    </div>
+
+    <div class="flex items-center justify-between mt-auto">
+        <div class="flex items-center gap-1.5 px-2 py-1 bg-white/5 rounded-md text-xs text-slate-300">
+            <span class="material-icons text-[14px]">group</span>
+            <span>@(Model.WorkerCount ?? 0)</span>
+        </div>
+        
+        @{
+            var isOverdue = Model.EndDate.HasValue && Model.EndDate.Value.ToDateTime(TimeOnly.MinValue) < DateTime.Now.Date && Model.Status != "Completed" && Model.Status != "Done";
+            var dateClass = isOverdue ? "bg-red-500/20 text-red-400 border border-red-500/30" : "bg-white/5 text-slate-400 border border-transparent";
+            var iconClass = isOverdue ? "text-red-400" : "text-slate-500";
+        }
+        
+        @if (Model.EndDate.HasValue)
+        {
+            <div class="flex items-center gap-1.5 px-2 py-1 rounded-md text-xs @dateClass">
+                <span class="material-icons text-[14px] @iconClass">event</span>
+                <span>@Model.EndDate.Value.ToString("dd/MM")</span>
+            </div>
+        }
+    </div>
+</div>
