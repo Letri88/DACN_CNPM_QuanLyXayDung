@@ -154,5 +154,33 @@
                 });
             }
         });
+
+        // Hàm xử lý đóng mở dropdown thao tác
+        function toggleDropdown(event, menuId) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            // Đóng tất cả các menu khác
+            document.querySelectorAll('.dropdown-menu-content').forEach(menu => {
+                if (menu.id !== menuId) {
+                    menu.classList.add('hidden');
+                }
+            });
+
+            // Bật/tắt menu hiện tại
+            const menu = document.getElementById(menuId);
+            if (menu) {
+                menu.classList.toggle('hidden');
+            }
+        }
+
+        // Đóng menu khi click ra ngoài
+        document.addEventListener('click', function(event) {
+            document.querySelectorAll('.dropdown-menu-content').forEach(menu => {
+                if (!menu.classList.contains('hidden')) {
+                    menu.classList.add('hidden');
+                }
+            });
+        });
     </script>
 }
