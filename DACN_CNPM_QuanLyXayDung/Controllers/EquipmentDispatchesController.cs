@@ -62,6 +62,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         {
             if (ModelState.IsValid)
             {
+                equipmentDispatch.Notes ??= "";
                 _context.Add(equipmentDispatch);
                 
                 // Update equipment status
@@ -120,6 +121,7 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             {
                 try
                 {
+                    equipmentDispatch.Notes ??= "";
                     var originalDispatch = await _context.EquipmentDispatches.AsNoTracking().FirstOrDefaultAsync(e => e.DispatchId == id);
                     _context.Update(equipmentDispatch);
 

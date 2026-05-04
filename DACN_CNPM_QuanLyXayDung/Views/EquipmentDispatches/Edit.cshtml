@@ -1,0 +1,112 @@
+@model DACN_CNPM_QuanLyXayDung.Models.EquipmentDispatch
+
+@{
+    ViewData["Title"] = "Cập nhật lệnh điều động";
+}
+
+<div class="max-w-2xl mx-auto">
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-white tracking-tight">@ViewData["Title"]</h1>
+            <a asp-action="Index" class="text-primary hover:text-white transition-colors flex items-center gap-2 mt-2">
+                <span class="material-icons text-sm">arrow_back</span>
+                <span>Quay lại danh sách</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="glass-card rounded-2xl border border-white/10 p-8">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-red-400 mb-6 text-sm bg-red-500/10 p-4 rounded-xl border border-red-500/20"></div>
+            
+            <input type="hidden" asp-for="DispatchId" />
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div class="col-span-2">
+                    <label asp-for="EquipmentId" class="block text-sm font-medium text-slate-300 mb-2"></label>
+                    <select asp-for="EquipmentId" class="w-full bg-background-dark border border-white/10 rounded-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" asp-items="ViewBag.EquipmentId"></select>
+                </div>
+                
+                <div>
+                    <label asp-for="ProjectId" class="block text-sm font-medium text-slate-300 mb-2"></label>
+                    <select asp-for="ProjectId" class="w-full bg-background-dark border border-white/10 rounded-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" asp-items="ViewBag.ProjectId">
+                        <option value="">-- Chọn Dự án --</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label asp-for="StageId" class="block text-sm font-medium text-slate-300 mb-2"></label>
+                    <select asp-for="StageId" class="w-full bg-background-dark border border-white/10 rounded-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" asp-items="ViewBag.StageId">
+                        <option value="">-- Chọn Giai đoạn --</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label asp-for="Status" class="block text-sm font-medium text-slate-300 mb-2"></label>
+                    <select asp-for="Status" class="w-full bg-background-dark border border-white/10 rounded-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all">
+                        <option value="Đang điều động">Đang điều động</option>
+                        <option value="Đã hoàn thành">Đã hoàn thành</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label asp-for="StartDate" class="block text-sm font-medium text-slate-300 mb-2"></label>
+                    <input asp-for="StartDate" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" />
+                    <span asp-validation-for="StartDate" class="text-red-400 text-xs mt-1"></span>
+                </div>
+
+                <div>
+                    <label asp-for="EndDate" class="block text-sm font-medium text-slate-300 mb-2"></label>
+                    <input asp-for="EndDate" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" />
+                    <span asp-validation-for="EndDate" class="text-red-400 text-xs mt-1"></span>
+                </div>
+
+                <div class="col-span-2">
+                    <label asp-for="Notes" class="block text-sm font-medium text-slate-300 mb-2"></label>
+                    <textarea asp-for="Notes" rows="3" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"></textarea>
+                    <span asp-validation-for="Notes" class="text-red-400 text-xs mt-1"></span>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-4 pt-6 border-t border-white/10">
+                <button type="submit" class="bg-primary text-background-dark px-8 py-3 rounded-xl font-bold hover:bg-white transition-all shadow-lg shadow-primary/20">
+                    Lưu thay đổi
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function () {
+            $('#ProjectId').change(function () {
+                var projectId = $(this).val();
+                var stageSelect = $('#StageId');
+                
+                stageSelect.empty();
+                stageSelect.append($('<option/>', {
+                    value: '',
+                    text: '-- Chọn Giai đoạn --'
+                }));
+
+                if (projectId) {
+                    $.ajax({
+                        url: '@Url.Action("GetStagesByProject", "EquipmentDispatches")',
+                        type: 'GET',
+                        data: { projectId: projectId },
+                        success: function (data) {
+                            $.each(data, function (index, item) {
+                                stageSelect.append($('<option/>', {
+                                    value: item.value,
+                                    text: item.text
+                                }));
+                            });
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+}
