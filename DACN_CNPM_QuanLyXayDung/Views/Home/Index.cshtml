@@ -116,11 +116,11 @@
                                     </td>
                                     <td class="px-6 py-4">
                                         @if(project.Status == "Planned" || project.Status == "Pending" || project.Status == "Not Started") {
-                                            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-amber-500/10 text-amber-400 border border-amber-500/20">@project.Status</span>
+                                            <span class="whitespace-nowrap px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-amber-500/10 text-amber-400 border border-amber-500/20">@project.Status</span>
                                         } else if (project.Status == "Active" || project.Status == "In Progress") {
-                                            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">@project.Status</span>
+                                            <span class="whitespace-nowrap px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">@project.Status</span>
                                         } else {
-                                            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-white/10 text-slate-300 border border-white/20">@project.Status</span>
+                                            <span class="whitespace-nowrap px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-white/10 text-slate-300 border border-white/20">@project.Status</span>
                                         }
                                     </td>
                                     <td class="px-6 py-4">

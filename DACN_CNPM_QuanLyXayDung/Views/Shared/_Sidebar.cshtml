@@ -64,13 +64,6 @@
             }
         }
 
-        @if (User.IsInRole("Admin") || User.IsInRole("Warehouse Keeper") || User.IsInRole("Warehouse keeper") || User.IsInRole("Quản trị viên") || User.IsInRole("Thủ kho") || User.IsInRole("Engineer") || User.IsInRole("Kỹ sư") || User.IsInRole("Project Manager") || User.IsInRole("Quản lý dự án"))
-        {
-            <a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition-all border border-transparent hover:border-white/10" href="~/ProjectMaterialRequests">
-                <span class="material-icons text-xl">precision_manufacturing</span>
-                <span class="font-medium">Cấp Phát Vật Tư Dự Án</span>
-            </a>
-        }
 
         @if (User.IsInRole("Admin") || User.IsInRole("Warehouse Keeper") || User.IsInRole("Warehouse keeper") || User.IsInRole("Quản trị viên") || User.IsInRole("Thủ kho"))
         {
