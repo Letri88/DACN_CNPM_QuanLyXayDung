@@ -197,6 +197,56 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             return RedirectToAction("Login", "Account");
         }
 
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(string username)
+        {
+            if (string.IsNullOrEmpty(username))
+            {
+                ModelState.AddModelError(string.Empty, "Vui lòng nhập tên tài khoản.");
+                return View();
+            }
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+            if (user == null)
+            {
+                ModelState.AddModelError(string.Empty, "Không tìm thấy tài khoản này trong hệ thống.");
+                return View();
+            }
+
+            // Find all admins
+            var admins = await _context.Users
+                .Include(u => u.Role)
+                .Where(u => u.Role != null && (u.Role.RoleName == "Admin" || u.Role.RoleName == "Quản trị viên"))
+                .ToListAsync();
+
+            if (admins.Any())
+            {
+                foreach (var admin in admins)
+                {
+                    var notification = new Notification
+                    {
+                        UserId = admin.UserId,
+                        Message = $"Tài khoản {user.Username} ({user.FullName}) vừa yêu cầu cấp lại mật khẩu. Vui lòng kiểm tra và hỗ trợ.",
+                        CreatedAt = DateTime.Now,
+                        IsRead = false,
+                        RelatedUrl = $"/Users/Edit/{user.UserId}"
+                    };
+                    _context.Notifications.Add(notification);
+                }
+                await _context.SaveChangesAsync();
+            }
+
+            TempData["SuccessMessage"] = "Yêu cầu cấp lại mật khẩu đã được gửi đến Quản trị viên. Vui lòng chờ liên hệ.";
+            return RedirectToAction("Login");
+        }
+
         public IActionResult AccessDenied()
         {
             return View();
