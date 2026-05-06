@@ -99,16 +99,40 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
         [HttpGet]
         public IActionResult Register()
         {
+            var roles = _context.Roles.ToList().Select(r => new {
+                RoleId = r.RoleId,
+                RoleName = r.RoleName?.Trim().ToLower() switch {
+                    "admin" or "quản trị viên" => "Quản trị viên",
+                    "project manager" or "quản lý dự án" => "Quản lý dự án",
+                    "engineer" or "kỹ sư" => "Kỹ sư",
+                    "warehouse keeper" or "thủ kho" => "Thủ kho",
+                    _ => r.RoleName
+                }
+            }).ToList();
+            
+            ViewBag.Roles = roles;
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(string username, string fullName, string password)
+        public async Task<IActionResult> Register(string username, string fullName, string password, int roleId)
         {
-            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(fullName))
+            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(fullName) || roleId <= 0)
             {
-                ModelState.AddModelError(string.Empty, "Vui lòng nhập đầy đủ thông tin.");
+                ModelState.AddModelError(string.Empty, "Vui lòng nhập đầy đủ thông tin và chọn vai trò.");
+                
+                // Re-populate roles
+                ViewBag.Roles = _context.Roles.ToList().Select(r => new {
+                    RoleId = r.RoleId,
+                    RoleName = r.RoleName?.Trim().ToLower() switch {
+                        "admin" or "quản trị viên" => "Quản trị viên",
+                        "project manager" or "quản lý dự án" => "Quản lý dự án",
+                        "engineer" or "kỹ sư" => "Kỹ sư",
+                        "warehouse keeper" or "thủ kho" => "Thủ kho",
+                        _ => r.RoleName
+                    }
+                }).ToList();
                 return View();
             }
 
@@ -116,12 +140,29 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
             if (existingUser != null)
             {
                 ModelState.AddModelError(string.Empty, "Tên tài khoản (Username) đã tồn tại.");
+                
+                // Re-populate roles
+                ViewBag.Roles = _context.Roles.ToList().Select(r => new {
+                    RoleId = r.RoleId,
+                    RoleName = r.RoleName?.Trim().ToLower() switch {
+                        "admin" or "quản trị viên" => "Quản trị viên",
+                        "project manager" or "quản lý dự án" => "Quản lý dự án",
+                        "engineer" or "kỹ sư" => "Kỹ sư",
+                        "warehouse keeper" or "thủ kho" => "Thủ kho",
+                        _ => r.RoleName
+                    }
+                }).ToList();
                 return View();
             }
 
-            // Find Admin role prefix
-            var adminRole = await _context.Roles.FirstOrDefaultAsync(r => r.RoleName == "Admin" || r.RoleName == "Quản trị viên");
-            string prefix = "Admin";
+            var role = await _context.Roles.FindAsync(roleId);
+            string prefix = role?.RoleName?.Trim().ToLower() switch {
+                "admin" or "quản trị viên" => "Admin",
+                "project manager" or "quản lý dự án" => "PM",
+                "engineer" or "kỹ sư" => "EN",
+                "warehouse keeper" or "thủ kho" => "WK",
+                _ => "USER"
+            };
 
             var lastUser = await _context.Users
                 .Where(u => u.UserId.StartsWith(prefix))
@@ -145,14 +186,14 @@ namespace DACN_CNPM_QuanLyXayDung.Controllers
                 Username = username,
                 FullName = fullName,
                 Password = BCrypt.Net.BCrypt.HashPassword(password),
-                RoleId = adminRole?.RoleId ?? 4,
+                RoleId = roleId,
                 Status = "Active"
             };
 
             _context.Users.Add(newUser);
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "Thêm tài khoản Quản trị viên thành công. Vui lòng đăng nhập.";
+            TempData["SuccessMessage"] = "Đăng ký tài khoản thành công. Vui lòng đăng nhập.";
             return RedirectToAction("Login", "Account");
         }
 
