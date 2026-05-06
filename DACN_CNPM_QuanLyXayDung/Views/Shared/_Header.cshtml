@@ -2,9 +2,14 @@
 @inject DACN_CNPM_QuanLyXayDung.Models.HeThongQlvongDoiDuAnTaiNguyenContext _context
 <header class="h-20 glass-panel border-b-0 sticky top-0 z-40 px-8 flex items-center justify-between">
     <div class="flex-1 max-w-xl">
-        <div class="relative group">
-            <span class="material-icons absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors">search</span>
-            <input class="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-12 pr-4 text-sm focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-white outline-none" placeholder="Tìm kiếm dự án, vật tư hoặc báo cáo..." type="text" />
+        <div class="relative group" id="globalSearchContainer">
+            <span class="material-icons absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors z-10">search</span>
+            <input id="globalSearchInput" autocomplete="off" class="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-12 pr-4 text-sm focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-white outline-none relative z-10" placeholder="Tìm kiếm dự án, vật tư, máy móc..." type="text" />
+            
+            <!-- Dropdown Results -->
+            <div id="searchResultsDropdown" class="absolute left-0 right-0 top-full mt-2 bg-background-dark/95 backdrop-blur-md border border-white/10 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] opacity-0 invisible transition-all z-50 max-h-[70vh] overflow-y-auto">
+                <!-- Results will be injected here via JS -->
+            </div>
         </div>
     </div>
     <div class="flex items-center gap-4">
@@ -88,3 +93,82 @@
         </div>
     </div>
 </header>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const searchInput = document.getElementById('globalSearchInput');
+        const dropdown = document.getElementById('searchResultsDropdown');
+        let debounceTimer;
+
+        if (searchInput && dropdown) {
+            searchInput.addEventListener('input', function () {
+                clearTimeout(debounceTimer);
+                const query = this.value.trim();
+
+                if (query.length === 0) {
+                    dropdown.classList.add('opacity-0', 'invisible');
+                    dropdown.innerHTML = '';
+                    return;
+                }
+
+                debounceTimer = setTimeout(() => {
+                    fetch(`/api/search?q=${encodeURIComponent(query)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.length === 0) {
+                                dropdown.innerHTML = '<div class="p-4 text-center text-sm text-slate-400">Không tìm thấy kết quả phù hợp.</div>';
+                            } else {
+                                // Group results by type
+                                const groups = data.reduce((acc, item) => {
+                                    if (!acc[item.type]) acc[item.type] = [];
+                                    acc[item.type].push(item);
+                                    return acc;
+                                }, {});
+
+                                let html = '';
+                                for (const [type, items] of Object.entries(groups)) {
+                                    html += `
+                                        <div class="px-4 py-2 bg-white/5 border-y border-white/5 text-xs font-bold text-slate-400 uppercase tracking-wider sticky top-0 backdrop-blur-md z-10">
+                                            ${type}
+                                        </div>
+                                    `;
+                                    items.forEach(item => {
+                                        html += `
+                                            <a href="${item.url}" class="flex items-start gap-3 p-3 hover:bg-white/10 transition-colors cursor-pointer border-b border-white/5 last:border-0 block">
+                                                <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                                    <span class="material-icons text-primary text-sm">${item.icon}</span>
+                                                </div>
+                                                <div class="flex-1 min-w-0">
+                                                    <div class="text-sm font-semibold text-white truncate">${item.title}</div>
+                                                    <div class="text-xs text-slate-400 truncate mt-0.5">${item.description || ''}</div>
+                                                </div>
+                                            </a>
+                                        `;
+                                    });
+                                }
+                                dropdown.innerHTML = html;
+                            }
+                            dropdown.classList.remove('opacity-0', 'invisible');
+                        })
+                        .catch(err => {
+                            console.error('Search error:', err);
+                        });
+                }, 300); // 300ms debounce
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function (e) {
+                if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.classList.add('opacity-0', 'invisible');
+                }
+            });
+            
+            // Re-open on focus if there's text
+            searchInput.addEventListener('focus', function () {
+                if (this.value.trim().length > 0 && dropdown.innerHTML.trim() !== '') {
+                    dropdown.classList.remove('opacity-0', 'invisible');
+                }
+            });
+        }
+    });
+</script>
